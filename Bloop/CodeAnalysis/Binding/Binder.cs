@@ -29,7 +29,7 @@ namespace Bloop.CodeAnalysis.Binding
                     return BindLiteralExpressiom((LiteralExpressionNode) expressionNode);
 
                 case SyntaxType.UNARY_EXPRESSION:
-                    return BindUnaryExpressiom((UnaryExpressionNode) expressionNode);
+                    return BindUnaryExpressiom((UnaryExpressionSyntax) expressionNode);
 
                 case SyntaxType.BINARY_EXPRESSION:
                     return BindBinaryExpressiom((BinaryExpressionNode)expressionNode);
@@ -54,9 +54,9 @@ namespace Bloop.CodeAnalysis.Binding
             return new BoundLiteralExpressionNode(value);
         }
 
-        private BoundExpressionNode BindUnaryExpressiom(UnaryExpressionNode expressionNode)
+        private BoundExpressionNode BindUnaryExpressiom(UnaryExpressionSyntax expressionNode)
         {
-            var boundOperand = BindExpression(expressionNode.OperandNode);
+            var boundOperand = BindExpression(expressionNode.ExpressionSyntax);
             var boundOperator = BoundUnaryOperator.Bind(expressionNode.OperatorToken.Type, boundOperand.Type);
             if (boundOperator == null)
             {

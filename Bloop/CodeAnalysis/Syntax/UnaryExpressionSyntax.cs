@@ -1,22 +1,22 @@
 ﻿namespace Bloop.CodeAnalysis.Syntax
 {
-    sealed class UnaryExpressionNode : ExpressionSyntax
+    sealed class UnaryExpressionSyntax : ExpressionSyntax
     {
-        public UnaryExpressionNode(SyntaxToken operatorToken, ExpressionSyntax operandNode)
+        public UnaryExpressionSyntax(SyntaxToken operatorToken, ExpressionSyntax expressionSyntax)
         {
             OperatorToken = operatorToken;
-            OperandNode = operandNode;
+            ExpressionSyntax = expressionSyntax;
         }
 
         public override SyntaxType Type => SyntaxType.UNARY_EXPRESSION;
 
         public SyntaxToken OperatorToken { get; }
-        public ExpressionSyntax OperandNode { get; }
+        public ExpressionSyntax ExpressionSyntax { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {
             yield return OperatorToken;
-            yield return OperandNode;
+            yield return ExpressionSyntax;
         }
     }
 }

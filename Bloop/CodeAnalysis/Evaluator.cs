@@ -43,13 +43,13 @@ namespace Bloop.CodeAnalysis
                 switch (unaryExpression.Op.Type)
                 {
                     case BoundUnaryOperatorType.IDENTITY:
-                        return (int) operand;
+                        return (int?) operand;
 
                     case BoundUnaryOperatorType.NEGATION:
-                        return -(int) operand;
+                        return -(int?) operand;
 
                     case BoundUnaryOperatorType.LOGIC_NEGATION:
-                        return !(bool) operand;
+                        return !(bool?) operand;
 
                     default:
                         throw new Exception($"Unexpected unary operator {unaryExpression.Op}");
@@ -64,16 +64,16 @@ namespace Bloop.CodeAnalysis
                 switch (binaryExpression.Op.Type)
                 {
                     case BoundBinaryOperatorType.ADDITION:
-                        return (int) first + (int) second;
+                        return (int?) first + (int?) second;
 
                     case BoundBinaryOperatorType.SUBSTRACTION:
-                        return (int) first - (int) second;
+                        return (int?) first - (int?) second;
 
                     case BoundBinaryOperatorType.MULTIPLICATION:
-                        return (int) first * (int) second;
+                        return (int?) first * (int?) second;
 
                     case BoundBinaryOperatorType.DIVISION:
-                        return (int) first / (int) second;
+                        return (int?) first / (int?) second;
 
                     case BoundBinaryOperatorType.LOGIC_AND:
                         return (bool) first && (bool) second;

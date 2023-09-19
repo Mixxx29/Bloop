@@ -86,7 +86,7 @@
             {
                 var operatorToken = NextToken();
                 var operand = ParseBinaryExpression(unaryOperatorPresedence);
-                return new UnaryExpressionNode(operatorToken, operand);
+                first = new UnaryExpressionSyntax(operatorToken, operand);
             }
             else
             {

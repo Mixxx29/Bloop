@@ -1,6 +1,4 @@
-C:\Users\mihaj\source\repos\Bloop\Bloop\bin\Debug\net6.0\Bloop.exe
 C:\Users\mihaj\source\repos\Bloop\Bloop\bin\Debug\net6.0\Bloop.deps.json
-C:\Users\mihaj\source\repos\Bloop\Bloop\bin\Debug\net6.0\Bloop.runtimeconfig.json
 C:\Users\mihaj\source\repos\Bloop\Bloop\bin\Debug\net6.0\Bloop.dll
 C:\Users\mihaj\source\repos\Bloop\Bloop\bin\Debug\net6.0\Bloop.pdb
 C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.csproj.AssemblyReference.cache
@@ -11,5 +9,4 @@ C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.csproj.CoreCompil
 C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.dll
 C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\refint\Bloop.dll
 C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.pdb
-C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.genruntimeconfig.cache
 C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\ref\Bloop.dll
