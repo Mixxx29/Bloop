@@ -7,7 +7,10 @@
         MULTIPLICATION,
         DIVISION,
 
+        EQUALS,
+        NOT_EQUALS,
+
         LOGIC_AND,
-        LOGIC_OR
+        LOGIC_OR,
     }
 }

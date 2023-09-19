@@ -41,13 +41,13 @@ namespace Bloop.CodeAnalysis.Binding
         private BoundExpressionNode BindUnaryExpressiom(UnaryExpressionNode expressionNode)
         {
             var boundOperand = BindExpression(expressionNode.OperandNode);
-            var boundOperatorType = BindUnaryOperatorKind(expressionNode.OperatorToken.Type, boundOperand.Type);
-            if (boundOperatorType == null)
+            var boundOperator = BoundUnaryOperator.Bind(expressionNode.OperatorToken.Type, boundOperand.Type);
+            if (boundOperator == null)
             {
                 _diagnostics.Add($"ERROR: Unary operator '{expressionNode.OperatorToken.Text}' is not defined for type {boundOperand.Type}");
                 return boundOperand;
             }
-            return new BoundUnaryExpressionNode(boundOperatorType.Value, boundOperand);
+            return new BoundUnaryExpressionNode(boundOperator, boundOperand);
         }
 
         private BoundUnaryOperatorType? BindUnaryOperatorKind(SyntaxType type, Type operandType)
@@ -85,13 +85,13 @@ namespace Bloop.CodeAnalysis.Binding
         {
             var boundFirstOperand = BindExpression(expressionNode.FirstNode);
             var boundSecondOperand = BindExpression(expressionNode.SecondNode);
-            var boundOperatorType = BindBinaryOperatorType(expressionNode.OperatorToken.Type, boundFirstOperand.Type, boundSecondOperand.Type);
-            if (boundOperatorType == null)
+            var boundOperator = BoundBinaryOperator.Bind(expressionNode.OperatorToken.Type, boundFirstOperand.Type, boundSecondOperand.Type);
+            if (boundOperator == null)
             {
                 _diagnostics.Add($"ERROR: Binary operator '{expressionNode.OperatorToken.Text}' is not defined for types {boundFirstOperand.Type} and {boundSecondOperand.Type}");
                 return boundFirstOperand;
             }
-            return new BoundBinaryExpressionNode(boundFirstOperand, boundOperatorType.Value, boundSecondOperand);
+            return new BoundBinaryExpressionNode(boundFirstOperand, boundOperator, boundSecondOperand);
         }
 
         private BoundBinaryOperatorType? BindBinaryOperatorType(SyntaxType type, Type firstOperandType, Type secondOperandType)

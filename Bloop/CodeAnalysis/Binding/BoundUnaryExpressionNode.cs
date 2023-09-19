@@ -2,16 +2,16 @@
 {
     internal sealed class BoundUnaryExpressionNode : BoundExpressionNode
     {
-        public BoundUnaryExpressionNode(BoundUnaryOperatorType operatorType, BoundExpressionNode operand)
+        public BoundUnaryExpressionNode(BoundUnaryOperator op, BoundExpressionNode operand)
         {
-            OperatorType = operatorType;
+            Op = op;
             Operand = operand;
         }
 
         public override BoundNodeType NodeType => BoundNodeType.UNARY_EXPRESSION;
         public override Type Type => Operand.Type;
 
-        public BoundUnaryOperatorType OperatorType { get; }
+        public BoundUnaryOperator Op { get; }
         public BoundExpressionNode Operand { get; }
     }
 }
