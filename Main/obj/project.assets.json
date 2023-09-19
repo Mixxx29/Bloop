@@ -1,0 +1,91 @@
+{
+  "version": 3,
+  "targets": {
+    "net6.0": {
+      "Bloop/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/Bloop.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Bloop.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Bloop/1.0.0": {
+      "type": "project",
+      "path": "../Bloop/Bloop.csproj",
+      "msbuildProject": "../Bloop/Bloop.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net6.0": [
+      "Bloop >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\mihaj\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\Main.csproj",
+      "projectName": "Main",
+      "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\Main.csproj",
+      "packagesPath": "C:\\Users\\mihaj\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\mihaj\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net6.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "projectReferences": {
+            "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj": {
+              "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net6.0": {
+        "targetAlias": "net6.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

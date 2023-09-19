@@ -1,17 +1,17 @@
 ﻿namespace Bloop.CodeAnalysis.Syntax
 {
-    public class Lexer
+    internal class Lexer
     {
         private readonly string _text;
         private int _position;
-        private List<string> _diagnostics = new List<string>();
+        private DiagnosticsPool _diagnostics = new DiagnosticsPool();
 
         public Lexer(string text)
         {
             _text = text;
         }
 
-        public IEnumerable<string> Diagnostics => _diagnostics;
+        public DiagnosticsPool Diagnostics => _diagnostics;
 
         public char Peek(int offset)
         {
@@ -30,9 +30,10 @@
             if (_position >= _text.Length)
                 return new SyntaxToken(SyntaxType.END_OF_FILE_TOKEN, _position, "\0");
 
+            var start = _position;
+
             if (char.IsDigit(Current))
             {
-                var start = _position;
                 while (char.IsDigit(Current))
                     _position++;
 
@@ -40,14 +41,13 @@
                 var text = _text.Substring(start, length);
                 if (!int.TryParse(text, out var value))
                 {
-                    _diagnostics.Add($"ERROR: Invalid number value");
+                    _diagnostics.ReportInvalidNumber(new TextSpan(start, length), _text, typeof(int));
                 }
                 return new SyntaxToken(SyntaxType.NUMBER_TOKEN, start, text, value);
             }
 
             if (char.IsWhiteSpace(Current))
             {
-                var start = _position;
                 while (char.IsWhiteSpace(Current))
                     _position++;
 
@@ -58,7 +58,6 @@
 
             if (char.IsLetter(Current))
             {
-                var start = _position;
                 while (char.IsLetter(Current))
                     _position++;
 
@@ -68,26 +67,50 @@
                 return new SyntaxToken(type, start, text);
             }
 
-            if (Current == '+')
-                return new SyntaxToken(SyntaxType.PLUS_TOKEN, _position++, "+");
-            if (Current == '-')
-                return new SyntaxToken(SyntaxType.MINUS_TOKEN, _position++, "-");
-            if (Current == '*')
-                return new SyntaxToken(SyntaxType.ASTERIX_TOKEN, _position++, "*");
-            if (Current == '/')
-                return new SyntaxToken(SyntaxType.SLASH_TOKEN, _position++, "/");
-            if (Current == '(')
-                return new SyntaxToken(SyntaxType.OPEN_PARENTHESIS_TOKEN, _position++, "(");
-            if (Current == ')')
-                return new SyntaxToken(SyntaxType.CLOSE_PARENTHESIS_TOKEN, _position++, ")");
-            if (Current == '!')
-                return new SyntaxToken(SyntaxType.EXCLAMATION_MARK_TOKEN, _position++, "!");
-            if (Current == '&' && Lookahead == '&')
-                return new SyntaxToken(SyntaxType.DOUBLE_AMPERSAND_TOKEN, _position +=2 , "&&");
-            if (Current == '|' && Lookahead == '|')
-                return new SyntaxToken(SyntaxType.DOUBLE_PIPE_TOKEN, _position += 2, "||");
+            switch (Current)
+            {
+                case '+':
+                    return new SyntaxToken(SyntaxType.PLUS_TOKEN, _position++, "+");
 
-            _diagnostics.Add($"ERROR: Unexpected character: '{Current}'");
+                case '-':
+                    return new SyntaxToken(SyntaxType.MINUS_TOKEN, _position++, "-");
+
+                case '*':
+                    return new SyntaxToken(SyntaxType.ASTERIX_TOKEN, _position++, "*");
+
+                case '/':
+                    return new SyntaxToken(SyntaxType.SLASH_TOKEN, _position++, "/");
+
+                case '(':
+                    return new SyntaxToken(SyntaxType.OPEN_PARENTHESIS_TOKEN, _position++, "(");
+
+                case ')':
+                    return new SyntaxToken(SyntaxType.CLOSE_PARENTHESIS_TOKEN, _position++, ")");
+
+                case '!' when Lookahead == '=':
+                    _position += 2;
+                    return new SyntaxToken(SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN, start, "!=");
+
+                case '!' when Lookahead != '=':
+                    return new SyntaxToken(SyntaxType.EXCLAMATION_MARK_TOKEN, _position++, "!");
+
+                case '&' when Lookahead == '&':
+                    _position += 2;
+                    return new SyntaxToken(SyntaxType.DOUBLE_AMPERSAND_TOKEN, start, "&&");
+
+                case '|' when Lookahead == '|':
+                    _position += 2;
+                    return new SyntaxToken(SyntaxType.DOUBLE_PIPE_TOKEN, start, "||");
+
+                case '=' when Lookahead == '=':
+                    _position += 2;
+                    return new SyntaxToken(SyntaxType.DOUBLE_EQUALS_TOKEN, start, "==");
+
+                case '=' when Lookahead != '=':
+                    return new SyntaxToken(SyntaxType.EQUALS_TOKEN, _position++, "=");
+            }
+
+            _diagnostics.ReportInvalidCharacter(_position, Current);
             return new SyntaxToken(SyntaxType.INVALID_TOKEN, _position++, _text.Substring(_position - 1, 1));
         }
     }

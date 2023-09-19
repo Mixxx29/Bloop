@@ -1,8 +1,8 @@
 ﻿namespace Bloop.CodeAnalysis.Syntax
 {
-    sealed class ParenthesizedExpressionNode : ExpressionNode
+    sealed class ParenthesizedExpressionNode : ExpressionSyntax
     {
-        public ParenthesizedExpressionNode(SyntaxToken openParenthesisToken, ExpressionNode expressionNode, SyntaxToken closeParenthesisToken)
+        public ParenthesizedExpressionNode(SyntaxToken openParenthesisToken, ExpressionSyntax expressionNode, SyntaxToken closeParenthesisToken)
         {
             OpenParenthesisToken = openParenthesisToken;
             ExpressionNode = expressionNode;
@@ -10,7 +10,7 @@
         }
 
         public SyntaxToken OpenParenthesisToken { get; }
-        public ExpressionNode ExpressionNode { get; }
+        public ExpressionSyntax ExpressionNode { get; }
         public SyntaxToken CloseParenthesisToken { get; }
 
         public override SyntaxType Type => SyntaxType.PARENTHESIZED_EXPRESSION;

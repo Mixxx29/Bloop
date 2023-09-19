@@ -15,7 +15,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.PLUS_TOKEN:
                 case SyntaxType.MINUS_TOKEN:
                 case SyntaxType.EXCLAMATION_MARK_TOKEN:
-                    return 5;
+                    return 6;
 
                 default:
                     return 0;
@@ -28,10 +28,14 @@ namespace Bloop.CodeAnalysis.Syntax
             {
                 case SyntaxType.ASTERIX_TOKEN:
                 case SyntaxType.SLASH_TOKEN:
-                    return 4;
+                    return 5;
 
                 case SyntaxType.PLUS_TOKEN:
                 case SyntaxType.MINUS_TOKEN:
+                    return 4;
+
+                case SyntaxType.DOUBLE_EQUALS_TOKEN:
+                case SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN:
                     return 3;
 
                 case SyntaxType.DOUBLE_AMPERSAND_TOKEN:

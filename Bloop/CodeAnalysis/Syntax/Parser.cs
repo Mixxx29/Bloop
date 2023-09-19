@@ -4,7 +4,7 @@
     {
         private readonly SyntaxToken[] _tokens;
         private int _position;
-        private List<string> _diagnostics = new List<string>();
+        private DiagnosticsPool _diagnostics = new DiagnosticsPool();
 
         public Parser(string text)
         {
@@ -27,7 +27,7 @@
             _diagnostics.AddRange(lexer.Diagnostics);
         }
 
-        public IEnumerable<string> Diagnostics => _diagnostics;
+        public DiagnosticsPool Diagnostics => _diagnostics;
 
         public SyntaxToken Peek(int offset)
         {
@@ -39,6 +39,7 @@
         }
 
         public SyntaxToken Current => Peek(0);
+        public SyntaxToken Lookahead => Peek(1);
 
         private SyntaxToken NextToken()
         {
@@ -52,7 +53,7 @@
             if (Current.Type == type)
                 return NextToken();
 
-            _diagnostics.Add($"ERROR: Unexpected token <{Current.Type}>, expected <{type}>");
+            _diagnostics.ReportUnexpectedToken(Current.Span, Current.Type, type);
             return new SyntaxToken(type, _position, "");
         }
 
@@ -63,14 +64,28 @@
             return new SyntaxTree(_diagnostics, expression, endOfFileToken);
         }
 
-        public ExpressionNode ParseExpression(int parentPresedence = 0)
+        private ExpressionSyntax ParseExpression()
         {
-            ExpressionNode first;
+            if (Current.Type == SyntaxType.IDENTIFIER_TOKEN &&
+                Lookahead.Type == SyntaxType.EQUALS_TOKEN)
+            {
+                var identifierToken = NextToken();
+                var operatorToken = NextToken();
+                var expression = ParseExpression();
+                return new AssignmentExpressionSyntax(identifierToken, operatorToken, expression);
+            }
+
+            return ParseBinaryExpression();
+        }
+
+        private ExpressionSyntax ParseBinaryExpression(int parentPresedence = 0)
+        {
+            ExpressionSyntax first;
             var unaryOperatorPresedence = Current.Type.GetUnaryOperatorPresedence();
             if (unaryOperatorPresedence != 0 && unaryOperatorPresedence >= parentPresedence)
             {
                 var operatorToken = NextToken();
-                var operand = ParseExpression(unaryOperatorPresedence);
+                var operand = ParseBinaryExpression(unaryOperatorPresedence);
                 return new UnaryExpressionNode(operatorToken, operand);
             }
             else
@@ -85,21 +100,21 @@
                     break;
 
                 var operatorToken = NextToken();
-                var second = ParseExpression(presedence);
+                var second = ParseBinaryExpression(presedence);
                 first = new BinaryExpressionNode(first, operatorToken, second);
             }
 
             return first;
         }
 
-        private ExpressionNode ParsePrimaryExpression()
+        private ExpressionSyntax ParsePrimaryExpression()
         {
             switch (Current.Type)
             {
                 case SyntaxType.OPEN_PARENTHESIS_TOKEN:
                 {
                     var openParenthesis = NextToken();
-                    var expression = ParseExpression();
+                    var expression = ParseBinaryExpression();
                     var closeParenthesis = MatchToken(SyntaxType.CLOSE_PARENTHESIS_TOKEN);
                     return new ParenthesizedExpressionNode(openParenthesis, expression, closeParenthesis);
                 }
@@ -110,6 +125,12 @@
                     var keywordToken = NextToken();
                     var value = keywordToken.Type == SyntaxType.TRUE_KEYWORD;
                     return new LiteralExpressionNode(keywordToken, value);
+                }
+
+                case SyntaxType.IDENTIFIER_TOKEN:
+                {
+                    var identifierToken = NextToken();
+                    return new NameExpressionSyntax(identifierToken);
                 }
 
                 default:

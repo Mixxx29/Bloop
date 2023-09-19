@@ -1,6 +1,6 @@
 ﻿namespace Bloop.CodeAnalysis.Syntax
 {
-    sealed class LiteralExpressionNode : ExpressionNode
+    sealed class LiteralExpressionNode : ExpressionSyntax
     {
         public LiteralExpressionNode(SyntaxToken literalToken, object? value)
         {

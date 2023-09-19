@@ -1,8 +1,8 @@
 ﻿namespace Bloop.CodeAnalysis.Syntax
 {
-    sealed class BinaryExpressionNode : ExpressionNode
+    sealed class BinaryExpressionNode : ExpressionSyntax
     {
-        public BinaryExpressionNode(ExpressionNode firstNode, SyntaxToken operatorToken, ExpressionNode secondNode)
+        public BinaryExpressionNode(ExpressionSyntax firstNode, SyntaxToken operatorToken, ExpressionSyntax secondNode)
         {
             FirstNode = firstNode;
             OperatorToken = operatorToken;
@@ -11,9 +11,9 @@
 
         public override SyntaxType Type => SyntaxType.BINARY_EXPRESSION;
 
-        public ExpressionNode FirstNode { get; }
+        public ExpressionSyntax FirstNode { get; }
         public SyntaxToken OperatorToken { get; }
-        public ExpressionNode SecondNode { get; }
+        public ExpressionSyntax SecondNode { get; }
 
         public override IEnumerable<SyntaxNode> GetChildren()
         {

@@ -1,6 +1,7 @@
 ﻿using Bloop.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
@@ -10,11 +11,17 @@ namespace Bloop.CodeAnalysis.Binding
 {
     internal sealed class Binder
     { 
-        private readonly List<string> _diagnostics = new List<string>();
+        private readonly DiagnosticsPool _diagnostics = new DiagnosticsPool();
+        private readonly Dictionary<VariableSymbol, object?> _variables;
 
-        public IEnumerable<string> Diagnostics => _diagnostics;
+        public Binder(Dictionary<VariableSymbol, object> variables)
+        {
+            _variables = variables;
+        }
 
-        public BoundExpressionNode BindExpression(ExpressionNode expressionNode)
+        public DiagnosticsPool Diagnostics => _diagnostics;
+
+        public BoundExpressionNode BindExpression(ExpressionSyntax expressionNode)
         {
             switch (expressionNode.Type)
             {
@@ -26,6 +33,15 @@ namespace Bloop.CodeAnalysis.Binding
 
                 case SyntaxType.BINARY_EXPRESSION:
                     return BindBinaryExpressiom((BinaryExpressionNode)expressionNode);
+
+                case SyntaxType.PARENTHESIZED_EXPRESSION:
+                    return BindExpression(((ParenthesizedExpressionNode)expressionNode).ExpressionNode);
+
+                case SyntaxType.NAME_EXPRESSION:
+                    return BindNameExpression((NameExpressionSyntax)expressionNode);
+
+                case SyntaxType.ASSIGNMENT_EXPRESSION:
+                    return BindAssignmentExpression((AssignmentExpressionSyntax)expressionNode);
 
                 default:
                     throw new Exception($"Unexpected syntax {expressionNode.Type}");
@@ -44,7 +60,7 @@ namespace Bloop.CodeAnalysis.Binding
             var boundOperator = BoundUnaryOperator.Bind(expressionNode.OperatorToken.Type, boundOperand.Type);
             if (boundOperator == null)
             {
-                _diagnostics.Add($"ERROR: Unary operator '{expressionNode.OperatorToken.Text}' is not defined for type {boundOperand.Type}");
+                _diagnostics.ReportUndefinedUnaryOperator(expressionNode.OperatorToken.Span, expressionNode.OperatorToken.Text, boundOperand.Type);
                 return boundOperand;
             }
             return new BoundUnaryExpressionNode(boundOperator, boundOperand);
@@ -88,7 +104,7 @@ namespace Bloop.CodeAnalysis.Binding
             var boundOperator = BoundBinaryOperator.Bind(expressionNode.OperatorToken.Type, boundFirstOperand.Type, boundSecondOperand.Type);
             if (boundOperator == null)
             {
-                _diagnostics.Add($"ERROR: Binary operator '{expressionNode.OperatorToken.Text}' is not defined for types {boundFirstOperand.Type} and {boundSecondOperand.Type}");
+                _diagnostics.ReportUndefinedBinaryOperator(expressionNode.OperatorToken.Span, expressionNode.OperatorToken.Text, boundFirstOperand.Type, boundSecondOperand.Type);
                 return boundFirstOperand;
             }
             return new BoundBinaryExpressionNode(boundFirstOperand, boundOperator, boundSecondOperand);
@@ -132,6 +148,34 @@ namespace Bloop.CodeAnalysis.Binding
             }
 
             return null;
+        }
+
+        private BoundExpressionNode BindNameExpression(NameExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+            var variable = _variables.Keys.FirstOrDefault(v => v.Name == name);
+
+            if (variable == null)
+            {
+                _diagnostics.ReportUndefinedIdentifier(syntax.IdentifierToken.Span, name);
+                return new BoundLiteralExpressionNode(0);
+            }
+            return new BoundVariableExpressionNode(variable);
+        }
+
+        private BoundExpressionNode BindAssignmentExpression(AssignmentExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+            var boundExpression = BindExpression(syntax.Expression);
+
+            var existingVariable = _variables.Keys.FirstOrDefault(v => v.Name == name);
+            if (existingVariable != null)
+                _variables.Remove(existingVariable);
+
+            var variable = new VariableSymbol(name, boundExpression.Type);
+            _variables[variable] = null;
+
+            return new BoundAssignmentExpressionNode(variable, boundExpression);
         }
     }
 }

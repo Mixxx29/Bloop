@@ -1,16 +1,16 @@
 ﻿namespace Bloop.CodeAnalysis.Syntax
 {
-    sealed class SyntaxTree
+    public class SyntaxTree
     {
-        public SyntaxTree(IEnumerable<string> diagnostics, ExpressionNode node, SyntaxToken endOfFileToken)
+        public SyntaxTree(IEnumerable<Diagnostic> diagnostics, ExpressionSyntax node, SyntaxToken endOfFileToken)
         {
             Diagnostics = diagnostics.ToArray();
             Node = node;
             EndOfFileToken = endOfFileToken;
         }
 
-        public IReadOnlyList<string> Diagnostics { get; }
-        public ExpressionNode Node { get; }
+        public IReadOnlyList<Diagnostic> Diagnostics { get; }
+        public ExpressionSyntax Node { get; }
         public SyntaxToken EndOfFileToken { get; }
 
         public static SyntaxTree Parse(string text)
