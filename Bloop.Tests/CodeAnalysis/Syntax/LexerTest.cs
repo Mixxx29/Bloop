@@ -2,6 +2,7 @@ using Bloop.CodeAnalysis.Syntax;
 
 namespace Bloop.Tests.CodeAnalysis.Syntax
 {
+
     public class LexerTest
     {
         [Theory]
