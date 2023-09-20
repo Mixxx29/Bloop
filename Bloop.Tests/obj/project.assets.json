@@ -1712,6 +1712,16 @@
         "build": {
           "build/netcoreapp3.1/xunit.runner.visualstudio.props": {}
         }
+      },
+      "Bloop/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/Bloop.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Bloop.dll": {}
+        }
       }
     }
   },
@@ -5506,10 +5516,16 @@
         "xunit.runner.visualstudio.2.4.5.nupkg.sha512",
         "xunit.runner.visualstudio.nuspec"
       ]
+    },
+    "Bloop/1.0.0": {
+      "type": "project",
+      "path": "../Bloop/Bloop.csproj",
+      "msbuildProject": "../Bloop/Bloop.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net6.0": [
+      "Bloop >= 1.0.0",
       "Microsoft.NET.Test.Sdk >= 17.5.0",
       "coverlet.collector >= 3.2.0",
       "xunit >= 2.4.2",
@@ -5542,7 +5558,11 @@
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj": {
+              "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

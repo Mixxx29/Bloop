@@ -97,3 +97,6 @@ C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Debug\net6.0\refint\Bloop.Test
 C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Debug\net6.0\Bloop.Tests.pdb
 C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Debug\net6.0\Bloop.Tests.genruntimeconfig.cache
 C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Debug\net6.0\ref\Bloop.Tests.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\bin\Debug\net6.0\CoverletSourceRootsMapping
+C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\bin\Debug\net6.0\Bloop.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\bin\Debug\net6.0\Bloop.pdb
