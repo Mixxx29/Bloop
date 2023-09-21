@@ -1,27 +1,39 @@
-﻿namespace Bloop.CodeAnalysis.Syntax
+﻿using Bloop.CodeAnalysis.Text;
+using System.Collections.Immutable;
+
+namespace Bloop.CodeAnalysis.Syntax
 {
     public class SyntaxTree
     {
-        public SyntaxTree(IEnumerable<Diagnostic> diagnostics, ExpressionSyntax node, SyntaxToken endOfFileToken)
+        public SyntaxTree(SourceText sourceText, ImmutableArray<Diagnostic> diagnostics, ExpressionSyntax node, SyntaxToken endOfFileToken)
         {
-            Diagnostics = diagnostics.ToArray();
+            SourceText = sourceText;
+            Diagnostics = diagnostics;
             Node = node;
             EndOfFileToken = endOfFileToken;
         }
 
-        public IReadOnlyList<Diagnostic> Diagnostics { get; }
+        public SourceText SourceText { get; }
+        public ImmutableArray<Diagnostic> Diagnostics { get; }
         public ExpressionSyntax Node { get; }
         public SyntaxToken EndOfFileToken { get; }
 
         public static SyntaxTree Parse(string text)
         {
-            var parser = new Parser(text);
+            var sourceText = SourceText.FromText(text);
+            return Parse(sourceText);
+        }
+
+        public static SyntaxTree Parse(SourceText sourceText)
+        {
+            var parser = new Parser(sourceText);
             return parser.Parse();
         }
 
         public static IEnumerable<SyntaxToken> ParseTokens(string text)
         {
-            var lexer = new Lexer(text);
+            var sourceText = SourceText.FromText(text);
+            var lexer = new Lexer(sourceText);
             while (true)
             {
                 var token = lexer.NextToken();

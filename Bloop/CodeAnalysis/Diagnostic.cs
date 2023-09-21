@@ -1,4 +1,6 @@
-﻿namespace Bloop.CodeAnalysis
+﻿using Bloop.CodeAnalysis.Text;
+
+namespace Bloop.CodeAnalysis
 {
     public sealed class Diagnostic
     {

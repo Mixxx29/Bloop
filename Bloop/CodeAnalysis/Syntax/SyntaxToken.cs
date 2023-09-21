@@ -1,4 +1,6 @@
-﻿namespace Bloop.CodeAnalysis.Syntax
+﻿using Bloop.CodeAnalysis.Text;
+
+namespace Bloop.CodeAnalysis.Syntax
 {
     public class SyntaxToken : SyntaxNode
     {
@@ -16,10 +18,5 @@
         public string Text { get; }
         public object? Value { get; }
         public TextSpan Span => new TextSpan(Position, Text.Length);
-
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            return Enumerable.Empty<SyntaxNode>();
-        }
     }
 }

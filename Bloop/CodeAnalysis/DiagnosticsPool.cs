@@ -1,4 +1,5 @@
 ﻿using Bloop.CodeAnalysis.Syntax;
+using Bloop.CodeAnalysis.Text;
 using System.Collections;
 using static System.Net.Mime.MediaTypeNames;
 

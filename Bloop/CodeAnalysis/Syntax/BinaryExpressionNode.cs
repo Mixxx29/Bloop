@@ -14,12 +14,5 @@
         public ExpressionSyntax FirstNode { get; }
         public SyntaxToken OperatorToken { get; }
         public ExpressionSyntax SecondNode { get; }
-
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return FirstNode;
-            yield return OperatorToken;
-            yield return SecondNode;
-        }
     }
 }

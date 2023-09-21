@@ -12,11 +12,5 @@
 
         public SyntaxToken OperatorToken { get; }
         public ExpressionSyntax ExpressionSyntax { get; }
-
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return OperatorToken;
-            yield return ExpressionSyntax;
-        }
     }
 }

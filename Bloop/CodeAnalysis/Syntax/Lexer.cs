@@ -1,10 +1,11 @@
-﻿using static System.Net.Mime.MediaTypeNames;
+﻿using Bloop.CodeAnalysis.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Bloop.CodeAnalysis.Syntax
 {
     internal class Lexer
     {
-        private readonly string _text;
+        private readonly SourceText _sourceText;
         private readonly DiagnosticsPool _diagnostics = new DiagnosticsPool();
 
         private int _position;
@@ -13,9 +14,9 @@ namespace Bloop.CodeAnalysis.Syntax
         private SyntaxType _type;
         private object? _value;
 
-        public Lexer(string text)
+        public Lexer(SourceText sourceText)
         {
-            _text = text;
+            _sourceText = sourceText;
         }
 
         public DiagnosticsPool Diagnostics => _diagnostics;
@@ -23,10 +24,10 @@ namespace Bloop.CodeAnalysis.Syntax
         public char Peek(int offset)
         {
             var index = _position + offset;
-            if (index >= _text.Length)
+            if (index >= _sourceText.ToString().Length)
                 return '\0';
 
-            return _text[index];
+            return _sourceText.ToString()[index];
         }
 
         private char Current => Peek(0);
@@ -134,7 +135,7 @@ namespace Bloop.CodeAnalysis.Syntax
             var length = _position - _start;
             var text = _type.GetText();
             if (text == null)
-                text = _text.Substring(_start, length);
+                text = _sourceText.ToString(_start, length);
 
             return new SyntaxToken(_type, _start, text, _value);
         }
@@ -145,9 +146,9 @@ namespace Bloop.CodeAnalysis.Syntax
                 _position++;
 
             var length = _position - _start;
-            var text = _text.Substring(_start, length);
+            var text = _sourceText.ToString(_start, length);
             if (!int.TryParse(text, out var value))
-                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), _text, typeof(int));
+                _diagnostics.ReportInvalidNumber(new TextSpan(_start, length), text, typeof(int));
 
             _type = SyntaxType.NUMBER_TOKEN;
             _value = value;
@@ -167,7 +168,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 _position++;
 
             var length = _position - _start;
-            var text = _text.Substring(_start, length);
+            var text = _sourceText.ToString(_start, length);
             _type = text.GetKeywordType();
         }
     }

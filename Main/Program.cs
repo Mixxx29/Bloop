@@ -2,6 +2,8 @@
 
 using Bloop.CodeAnalysis;
 using Bloop.CodeAnalysis.Syntax;
+using Bloop.CodeAnalysis.Text;
+using System.Text;
 
 namespace Bloop
 {
@@ -11,65 +13,93 @@ namespace Bloop
         {
             bool showTree = false;
             var variables = new Dictionary<VariableSymbol, object>();
+            var textBuilder = new StringBuilder();
 
+            var currentLineNumber = 0;
             while (true)
             {
-                Console.Write("> ");
-                var line = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(line))
-                    return;
-
-                if (line == "#showTree")
+                if (textBuilder.Length == 0)
                 {
-                    showTree = !showTree;
-                    Console.WriteLine(showTree ? "Show tree enabled" : "Show tree disabled");
-                    continue;
+                    Console.WriteLine(">");
                 }
 
-                if (line == "#cls")
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.Write($"{++currentLineNumber}. ");
+                Console.ResetColor();
+
+                var input = Console.ReadLine();
+                var isBlank = string.IsNullOrWhiteSpace(input);
+
+                if (textBuilder.Length == 0)
                 {
-                    Console.Clear();
-                    continue;
+                    if (isBlank)
+                    {
+                        Console.Write("> ");
+                        break;
+                    }
+                    else if (input == "#showTree")
+                    {
+                        showTree = !showTree;
+                        Console.WriteLine(showTree ? "Show tree enabled" : "Show tree disabled");
+                        continue;
+                    }
+                    else if (input == "#cls")
+                    {
+                        Console.Clear();
+                        continue;
+                    }
                 }
 
-                var syntaxTree = SyntaxTree.Parse(line);
+                textBuilder.AppendLine(input);
+                var text = textBuilder.ToString();
+
+                var syntaxTree = SyntaxTree.Parse(text);
+
+                if (!isBlank)
+                    continue;
+
+                Console.CursorTop--;
+                Console.WriteLine("> ");
+
                 var compilation = new Compilation(syntaxTree);
                 var result = compilation.Evaluate(variables);
 
-                var diagnostics = result.Diagnostics;
-
                 if (showTree)
                 {
-                    var color = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    PrettyPrint(syntaxTree.Node);
-                    Console.ForegroundColor = color;
+                    Console.WriteLine(syntaxTree.Node);
+                    Console.ResetColor();
                 }
 
-                if (!diagnostics.Any())
+                if (!result.Diagnostics.Any())
                 {
-                    Console.WriteLine(result.Value);
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine($" {result.Value}");
+                    Console.ResetColor();
                 }
                 else
                 {
-                    foreach (var diagnostic in diagnostics)
+                    foreach (var diagnostic in result.Diagnostics)
                     {
+                        var lineIndex = syntaxTree.SourceText.GetLineIndex(diagnostic.TextSpan.Start);
+                        var line = syntaxTree.SourceText.Lines[lineIndex];
+                        var lineNumber = lineIndex + 1;
+                        var errorPosition = diagnostic.TextSpan.Start - line.Start + 1;
+
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"[Error]: {diagnostic}");
+                        Console.Write($"({lineNumber}, {errorPosition}): ");
+                        Console.WriteLine($"{diagnostic}");
                         Console.ResetColor();
 
-                        var prefix = line.Substring(0, diagnostic.TextSpan.Start);
+                        var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.TextSpan.Start);
+                        var sufixSpan = TextSpan.FromBounds(diagnostic.TextSpan.End, line.End);
 
-                        var error = " ";
-                        var suffix = "";
-                        if (diagnostic.TextSpan.Start < line.Length)
-                        {
-                            error = line.Substring(diagnostic.TextSpan.Start, diagnostic.TextSpan.Lenght);
-                            suffix = line.Substring(diagnostic.TextSpan.End);
-                        }
+                        var prefix = syntaxTree.SourceText.ToString(prefixSpan);
+                        var error = syntaxTree.SourceText.ToString(diagnostic.TextSpan);
+                        var suffix = syntaxTree.SourceText.ToString(sufixSpan);
 
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write("   └── ");
+                        Console.Write(" └── ");
                         Console.ResetColor();
 
                         Console.Write(prefix);
@@ -82,31 +112,9 @@ namespace Bloop
                         Console.WriteLine(suffix);
                     }
                 }
-            }
-        }
 
-        private static void PrettyPrint(SyntaxNode node, string indent = "", bool isLast = true)
-        {
-            var marker = isLast ? "└──" : "├──";
-
-            Console.Write(indent);
-            Console.Write(marker);
-            Console.Write(node.Type);
-
-            if (node is SyntaxToken token && token.Value != null)
-            {
-                Console.Write(" " + token.Value);
-            }
-
-            Console.WriteLine();
-
-            indent += isLast ? "   " : "│  ";
-
-            var lastChild = node.GetChildren().LastOrDefault();
-
-            foreach (SyntaxNode child in node.GetChildren())
-            {
-                PrettyPrint(child, indent, child == lastChild);
+                textBuilder.Clear();
+                currentLineNumber = 0;
             }
         }
     }

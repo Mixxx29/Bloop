@@ -1,18 +1,23 @@
-﻿using System.Text.RegularExpressions;
+﻿using Bloop.CodeAnalysis.Text;
+using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 
 namespace Bloop.CodeAnalysis.Syntax
 {
     class Parser
     {
-        private readonly SyntaxToken[] _tokens;
+        private readonly DiagnosticsPool _diagnostics = new DiagnosticsPool();
+        private readonly ImmutableArray<SyntaxToken> _tokens;
+        private readonly SourceText _sourceText;
         private int _position;
-        private DiagnosticsPool _diagnostics = new DiagnosticsPool();
 
-        public Parser(string text)
+        public Parser(SourceText sourceText)
         {
+            _sourceText = sourceText;
+
             var tokens = new List<SyntaxToken>();
 
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(sourceText);
             SyntaxToken token;
             do
             {
@@ -25,7 +30,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 }
             } while (token.Type != SyntaxType.END_OF_FILE_TOKEN);
 
-            _tokens = tokens.ToArray();
+            _tokens = tokens.ToImmutableArray();
             _diagnostics.AddRange(lexer.Diagnostics);
         }
 
@@ -63,7 +68,7 @@ namespace Bloop.CodeAnalysis.Syntax
         {
             var expression = ParseExpression();
             var endOfFileToken = MatchToken(SyntaxType.END_OF_FILE_TOKEN);
-            return new SyntaxTree(_diagnostics, expression, endOfFileToken);
+            return new SyntaxTree(_sourceText, _diagnostics.ToImmutableArray(), expression, endOfFileToken);
         }
 
         private ExpressionSyntax ParseExpression()

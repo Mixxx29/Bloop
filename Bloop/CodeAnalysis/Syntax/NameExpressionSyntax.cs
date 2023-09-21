@@ -10,10 +10,5 @@
         public override SyntaxType Type => SyntaxType.NAME_EXPRESSION;
 
         public SyntaxToken IdentifierToken { get; }
-
-        public override IEnumerable<SyntaxNode> GetChildren()
-        {
-            yield return IdentifierToken;
-        }
     }
 }
