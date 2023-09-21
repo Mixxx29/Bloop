@@ -21,78 +21,94 @@ namespace Bloop.CodeAnalysis
 
         private object? EvaluateExpression(BoundExpressionNode node)
         {
-            if (node is BoundLiteralExpressionNode literalExpression)
-                return literalExpression.Value;
-
-            if (node is BoundVariableExpressionNode variableExpression)
+            switch (node)
             {
-                return _variables[variableExpression.Variable];
+                case BoundLiteralExpressionNode literalExpression:
+                    return BindLiteralExpression(literalExpression);
+                case BoundVariableExpressionNode variableExpression:
+                    return BindVariableExpression(variableExpression);
+                case BoundAssignmentExpressionNode assignmentExpression:
+                    return BindAssignmentExpression(assignmentExpression);
+                case BoundUnaryExpressionNode unaryExpression:
+                    return BindUnaryExpression(unaryExpression);
+                case BoundBinaryExpressionNode binaryExpression:
+                    return BindBinaryExpression(binaryExpression);
+                default:
+                    throw new Exception($"Unexpected node {node.Type}");
             }
+        }
 
-            if (node is BoundAssignmentExpressionNode assignmentExpression)
+        private static object BindLiteralExpression(BoundLiteralExpressionNode literalExpression)
+        {
+            return literalExpression.Value;
+        }
+
+        private object? BindVariableExpression(BoundVariableExpressionNode variableExpression)
+        {
+            return _variables[variableExpression.Variable];
+        }
+
+        private object? BindAssignmentExpression(BoundAssignmentExpressionNode assignmentExpression)
+        {
+            var value = EvaluateExpression(assignmentExpression.ExpressionNode);
+            _variables[assignmentExpression.Variable] = value;
+            return value;
+        }
+
+        private object? BindUnaryExpression(BoundUnaryExpressionNode unaryExpression)
+        {
+            var operand = EvaluateExpression(unaryExpression.Operand);
+
+            switch (unaryExpression.Op.Type)
             {
-                var value = EvaluateExpression(assignmentExpression.ExpressionNode);
-                _variables[assignmentExpression.Variable] = value;
-                return value;
-            }
+                case BoundUnaryOperatorType.IDENTITY:
+                    return (int?)operand;
 
-            if (node is BoundUnaryExpressionNode unaryExpression)
+                case BoundUnaryOperatorType.NEGATION:
+                    return -(int?)operand;
+
+                case BoundUnaryOperatorType.LOGIC_NEGATION:
+                    return !(bool?)operand;
+
+                default:
+                    throw new Exception($"Unexpected unary operator {unaryExpression.Op}");
+            }
+        }
+
+        private object? BindBinaryExpression(BoundBinaryExpressionNode binaryExpression)
+        {
+            var first = EvaluateExpression(binaryExpression.FirstOperandNode);
+            var second = EvaluateExpression(binaryExpression.SecondOperandNode);
+
+            switch (binaryExpression.Op.Type)
             {
-                var operand = EvaluateExpression(unaryExpression.Operand);
+                case BoundBinaryOperatorType.ADDITION:
+                    return (int?)first + (int?)second;
 
-                switch (unaryExpression.Op.Type)
-                {
-                    case BoundUnaryOperatorType.IDENTITY:
-                        return (int?) operand;
+                case BoundBinaryOperatorType.SUBSTRACTION:
+                    return (int?)first - (int?)second;
 
-                    case BoundUnaryOperatorType.NEGATION:
-                        return -(int?) operand;
+                case BoundBinaryOperatorType.MULTIPLICATION:
+                    return (int?)first * (int?)second;
 
-                    case BoundUnaryOperatorType.LOGIC_NEGATION:
-                        return !(bool?) operand;
+                case BoundBinaryOperatorType.DIVISION:
+                    return (int?)first / (int?)second;
 
-                    default:
-                        throw new Exception($"Unexpected unary operator {unaryExpression.Op}");
-                }
+                case BoundBinaryOperatorType.LOGIC_AND:
+                    return (bool)first && (bool)second;
+
+                case BoundBinaryOperatorType.LOGIC_OR:
+                    return (bool)first || (bool)second;
+
+                case BoundBinaryOperatorType.EQUALS:
+                    return Equals(first, second);
+
+                case BoundBinaryOperatorType.NOT_EQUALS:
+                    return !Equals(first, second);
+
+                default:
+                    throw new Exception($"Unexpected bynary operator {binaryExpression.Op}");
             }
-
-            if (node is BoundBinaryExpressionNode binaryExpression)
-            {
-                var first = EvaluateExpression(binaryExpression.FirstOperandNode);
-                var second = EvaluateExpression(binaryExpression.SecondOperandNode);
-
-                switch (binaryExpression.Op.Type)
-                {
-                    case BoundBinaryOperatorType.ADDITION:
-                        return (int?) first + (int?) second;
-
-                    case BoundBinaryOperatorType.SUBSTRACTION:
-                        return (int?) first - (int?) second;
-
-                    case BoundBinaryOperatorType.MULTIPLICATION:
-                        return (int?) first * (int?) second;
-
-                    case BoundBinaryOperatorType.DIVISION:
-                        return (int?) first / (int?) second;
-
-                    case BoundBinaryOperatorType.LOGIC_AND:
-                        return (bool) first && (bool) second;
-
-                    case BoundBinaryOperatorType.LOGIC_OR:
-                        return (bool) first || (bool) second;
-
-                    case BoundBinaryOperatorType.EQUALS:
-                        return Equals(first, second);
-
-                    case BoundBinaryOperatorType.NOT_EQUALS:
-                        return !Equals(first, second);
-
-                    default:
-                        throw new Exception($"Unexpected bynary operator {binaryExpression.Op}");
-                }
-            }
-
-            throw new Exception($"Unexpected node {node.Type}");
         }
     }
 }

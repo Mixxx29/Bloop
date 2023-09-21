@@ -5,6 +5,24 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
 
     public class LexerTest
     {
+        [Fact]
+        public void Lexer_Test_TokenTypes()
+        {
+            var tokenType = Enum.GetValues(typeof(SyntaxType))
+                                .Cast<SyntaxType>()
+                                .Where(type => type.ToString().EndsWith("_TOKEN") ||
+                                               type.ToString().EndsWith("_KEYWORD"));
+
+            var testedTokenType = GetTokens().Concat(GetSeparators()).Select(token => token.type);
+
+            var untestedTokenTypes = new SortedSet<SyntaxType>(tokenType);
+            untestedTokenTypes.Remove(SyntaxType.INVALID_TOKEN);
+            untestedTokenTypes.Remove(SyntaxType.END_OF_FILE_TOKEN);
+            untestedTokenTypes.ExceptWith(testedTokenType);
+
+            Assert.Empty(untestedTokenTypes);
+        }
+
         [Theory]
         [MemberData(nameof(GetTokensData))]
         public void Test_SingleToken(SyntaxType syntaxType, string text)
@@ -152,31 +170,22 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
 
         private static IEnumerable<(SyntaxType type, string text)> GetTokens()
         {
-            return new[]
+            var fixedTokens = Enum.GetValues(typeof(SyntaxType))
+                                  .Cast<SyntaxType>()
+                                  .Select(type => (type: type, text: type.GetText()))
+                                  .Where(token => token.text != null);
+
+            var dynamicTokens = new[]
             {
                 (SyntaxType.IDENTIFIER_TOKEN, "a"),
                 (SyntaxType.IDENTIFIER_TOKEN, "abc"),
 
                 (SyntaxType.NUMBER_TOKEN, "0"),
                 (SyntaxType.NUMBER_TOKEN, "1"),
-                (SyntaxType.NUMBER_TOKEN, "2147483647"),
-
-                (SyntaxType.PLUS_TOKEN, "+"),
-                (SyntaxType.MINUS_TOKEN, "-"),
-                (SyntaxType.ASTERIX_TOKEN, "*"),
-                (SyntaxType.SLASH_TOKEN, "/"),
-                (SyntaxType.OPEN_PARENTHESIS_TOKEN, "("),
-                (SyntaxType.CLOSE_PARENTHESIS_TOKEN, ")"),
-                (SyntaxType.EXCLAMATION_MARK_TOKEN, "!"),
-                (SyntaxType.DOUBLE_AMPERSAND_TOKEN, "&&"),
-                (SyntaxType.DOUBLE_PIPE_TOKEN, "||"),
-                (SyntaxType.EQUALS_TOKEN, "="),
-                (SyntaxType.DOUBLE_EQUALS_TOKEN, "=="),
-                (SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN, "!="),
-
-                (SyntaxType.TRUE_KEYWORD, "true"),
-                (SyntaxType.FALSE_KEYWORD, "false"),
+                (SyntaxType.NUMBER_TOKEN, "2147483647")
             };
+
+            return dynamicTokens.Concat(fixedTokens);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace Bloop.Tests.CodeAnalysis
         [InlineData("false", false)]
         [InlineData("!true", false)]
         [InlineData("!false", true)]
-        [InlineData("false && true", true)]
+        [InlineData("false && true", false)]
         [InlineData("false || false", false)]
         [InlineData("!(false || !false)", false)]
         [InlineData("(a = 10) * a", 100)]

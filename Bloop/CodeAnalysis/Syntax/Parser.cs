@@ -114,7 +114,7 @@
                 case SyntaxType.OPEN_PARENTHESIS_TOKEN:
                 {
                     var openParenthesis = NextToken();
-                    var expression = ParseBinaryExpression();
+                    var expression = ParseExpression();
                     var closeParenthesis = MatchToken(SyntaxType.CLOSE_PARENTHESIS_TOKEN);
                     return new ParenthesizedExpressionNode(openParenthesis, expression, closeParenthesis);
                 }
