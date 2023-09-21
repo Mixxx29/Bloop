@@ -1,4 +1,6 @@
-﻿namespace Bloop.CodeAnalysis.Syntax
+﻿using System.Text.RegularExpressions;
+
+namespace Bloop.CodeAnalysis.Syntax
 {
     class Parser
     {
@@ -112,33 +114,46 @@
             switch (Current.Type)
             {
                 case SyntaxType.OPEN_PARENTHESIS_TOKEN:
-                {
-                    var openParenthesis = NextToken();
-                    var expression = ParseExpression();
-                    var closeParenthesis = MatchToken(SyntaxType.CLOSE_PARENTHESIS_TOKEN);
-                    return new ParenthesizedExpressionNode(openParenthesis, expression, closeParenthesis);
-                }
+                        return ParseParenthesisExpression();
 
                 case SyntaxType.TRUE_KEYWORD:
                 case SyntaxType.FALSE_KEYWORD:
-                {
-                    var keywordToken = NextToken();
-                    var value = keywordToken.Type == SyntaxType.TRUE_KEYWORD;
-                    return new LiteralExpressionNode(keywordToken, value);
-                }
+                        return ParseBooleanExpression();
+
+                case SyntaxType.NUMBER_TOKEN:
+                    return ParseNumberLiteral();
 
                 case SyntaxType.IDENTIFIER_TOKEN:
-                {
-                    var identifierToken = NextToken();
-                    return new NameExpressionSyntax(identifierToken);
-                }
-
                 default:
-                {
-                    var numberToken = MatchToken(SyntaxType.NUMBER_TOKEN);
-                    return new LiteralExpressionNode(numberToken); 
-                }
+                    return ParseNameExpression();
             }
+        }
+
+        private ExpressionSyntax ParseParenthesisExpression()
+        {
+            var openParenthesis = MatchToken(SyntaxType.OPEN_PARENTHESIS_TOKEN);
+            var expression = ParseExpression();
+            var closeParenthesis = MatchToken(SyntaxType.CLOSE_PARENTHESIS_TOKEN);
+            return new ParenthesizedExpressionNode(openParenthesis, expression, closeParenthesis);
+        }
+
+        private ExpressionSyntax ParseBooleanExpression()
+        {
+            var isTrue = Current.Type == SyntaxType.TRUE_KEYWORD;
+            var keywordToken = isTrue ? MatchToken(SyntaxType.TRUE_KEYWORD) : MatchToken(SyntaxType.FALSE_KEYWORD);
+            return new LiteralExpressionNode(keywordToken, isTrue);
+        }
+
+        private ExpressionSyntax ParseNumberLiteral()
+        {
+            var numberToken = MatchToken(SyntaxType.NUMBER_TOKEN);
+            return new LiteralExpressionNode(numberToken);
+        }
+
+        private ExpressionSyntax ParseNameExpression()
+        {
+            var identifierToken = NextToken();
+            return new NameExpressionSyntax(identifierToken);
         }
     }
 }

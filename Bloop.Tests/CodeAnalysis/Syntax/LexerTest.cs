@@ -6,7 +6,7 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
     public class LexerTest
     {
         [Fact]
-        public void Lexer_Test_TokenTypes()
+        public void Lexer_TokenTypes_AllTested()
         {
             var tokenType = Enum.GetValues(typeof(SyntaxType))
                                 .Cast<SyntaxType>()
