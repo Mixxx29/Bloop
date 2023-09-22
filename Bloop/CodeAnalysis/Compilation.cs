@@ -49,7 +49,7 @@ namespace Bloop.CodeAnalysis
             if (diagnostics.Any())
                 return new EvaluationResult(diagnostics, null);
 
-            var evaluator = new Evaluator(GlobalScope.ExpressionNode, variables);
+            var evaluator = new Evaluator(GlobalScope.Statement, variables);
             var result = evaluator.Evaluate();
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result);
         }

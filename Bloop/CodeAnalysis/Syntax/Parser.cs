@@ -66,9 +66,41 @@ namespace Bloop.CodeAnalysis.Syntax
 
         public CompilationUnitSyntax ParseCompilationUnit()
         {
-            var expression = ParseExpression();
+            var statement = ParseStatement();
             var endOfFileToken = MatchToken(SyntaxType.END_OF_FILE_TOKEN);
-            return new CompilationUnitSyntax(expression, endOfFileToken);
+            return new CompilationUnitSyntax(statement, endOfFileToken);
+        }
+
+        private StatementSyntax ParseStatement()
+        {
+            if (Current.Type == SyntaxType.OPEN_BRACE_TOKEN)
+                return ParseBlockStatement();
+
+            return ParseExpressionStatement();
+        }
+
+        private BLockStatementSyntax ParseBlockStatement()
+        {
+            var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
+
+            var openBraceToken = MatchToken(SyntaxType.OPEN_BRACE_TOKEN);
+
+            while (Current.Type != SyntaxType.END_OF_FILE_TOKEN &&
+                   Current.Type != SyntaxType.CLOSE_BRACE_TOKEN)
+            {
+                var statement = ParseStatement();
+                statements.Add(statement);
+            }
+
+            var closeBraceToken = MatchToken(SyntaxType.CLOSE_BRACE_TOKEN);
+
+            return new BLockStatementSyntax(openBraceToken, statements.ToImmutable(), closeBraceToken);
+        }
+
+        private ExpressionStatementSyntax ParseExpressionStatement()
+        {
+            var expression = ParseExpression();
+            return new ExpressionStatementSyntax(expression);
         }
 
         private ExpressionSyntax ParseExpression()

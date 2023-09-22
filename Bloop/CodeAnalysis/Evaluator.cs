@@ -5,18 +5,47 @@ namespace Bloop.CodeAnalysis
 
     class Evaluator
     {
-        private readonly BoundExpressionNode _node;
+        private readonly BoundStatement _root;
         private readonly Dictionary<VariableSymbol, object?> _variables;
 
-        public Evaluator(BoundExpressionNode node, Dictionary<VariableSymbol, object?> variables)
+        private object? _lastValue;
+
+        public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object?> variables)
         {
-            _node = node;
+            _root = root;
             _variables = variables;
         }
 
         public object? Evaluate()
         {
-            return EvaluateExpression(_node);
+            EvaluateStatement(_root);
+            return _lastValue;
+        }
+
+        private void EvaluateStatement(BoundStatement statement)
+        {
+            switch (statement)
+            {
+                case BoundBlockStatement blockStatement:
+                    EvaluateBlockStatement(blockStatement);
+                    break;
+                case BoundExpressionStatement expressionStatement:
+                    EvaluateExpressionStatement(expressionStatement);
+                    break;
+                default:
+                    throw new Exception($"Unexpected node {statement.NodeType}");
+            }
+        }
+
+        private void EvaluateBlockStatement(BoundBlockStatement blockStatement)
+        {
+            foreach (var statement in blockStatement.Statements)
+                EvaluateStatement(statement);
+        }
+
+        private void EvaluateExpressionStatement(BoundExpressionStatement expressionStatement)
+        {
+            _lastValue = EvaluateExpression(expressionStatement.Expression);
         }
 
         private object? EvaluateExpression(BoundExpressionNode node)
@@ -24,38 +53,38 @@ namespace Bloop.CodeAnalysis
             switch (node)
             {
                 case BoundLiteralExpressionNode literalExpression:
-                    return BindLiteralExpression(literalExpression);
+                    return EvaluateLiteralExpression(literalExpression);
                 case BoundVariableExpressionNode variableExpression:
-                    return BindVariableExpression(variableExpression);
+                    return EvaluateVariableExpression(variableExpression);
                 case BoundAssignmentExpressionNode assignmentExpression:
-                    return BindAssignmentExpression(assignmentExpression);
+                    return EvaluateAssignmentExpression(assignmentExpression);
                 case BoundUnaryExpressionNode unaryExpression:
-                    return BindUnaryExpression(unaryExpression);
+                    return EvaluateUnaryExpression(unaryExpression);
                 case BoundBinaryExpressionNode binaryExpression:
-                    return BindBinaryExpression(binaryExpression);
+                    return EvaluateBinaryExpression(binaryExpression);
                 default:
                     throw new Exception($"Unexpected node {node.Type}");
             }
         }
 
-        private static object BindLiteralExpression(BoundLiteralExpressionNode literalExpression)
+        private static object EvaluateLiteralExpression(BoundLiteralExpressionNode literalExpression)
         {
             return literalExpression.Value;
         }
 
-        private object? BindVariableExpression(BoundVariableExpressionNode variableExpression)
+        private object? EvaluateVariableExpression(BoundVariableExpressionNode variableExpression)
         {
             return _variables[variableExpression.Variable];
         }
 
-        private object? BindAssignmentExpression(BoundAssignmentExpressionNode assignmentExpression)
+        private object? EvaluateAssignmentExpression(BoundAssignmentExpressionNode assignmentExpression)
         {
             var value = EvaluateExpression(assignmentExpression.ExpressionNode);
             _variables[assignmentExpression.Variable] = value;
             return value;
         }
 
-        private object? BindUnaryExpression(BoundUnaryExpressionNode unaryExpression)
+        private object? EvaluateUnaryExpression(BoundUnaryExpressionNode unaryExpression)
         {
             var operand = EvaluateExpression(unaryExpression.Operand);
 
@@ -75,7 +104,7 @@ namespace Bloop.CodeAnalysis
             }
         }
 
-        private object? BindBinaryExpression(BoundBinaryExpressionNode binaryExpression)
+        private object? EvaluateBinaryExpression(BoundBinaryExpressionNode binaryExpression)
         {
             var first = EvaluateExpression(binaryExpression.FirstOperandNode);
             var second = EvaluateExpression(binaryExpression.SecondOperandNode);

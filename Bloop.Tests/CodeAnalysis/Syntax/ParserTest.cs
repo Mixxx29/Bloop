@@ -16,7 +16,7 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
             var operator2Text = operator2.GetText();
 
             var text = $"a {operator1Text} b {operator2Text} c";
-            var expression = SyntaxTree.Parse(text).Root.Expression;
+            var expression = ParseExpression(text);
 
             if (operator1Presedence >= operator2Presedence)
             {
@@ -64,6 +64,12 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
             }
         }
 
+        private static ExpressionSyntax ParseExpression(string text)
+        {
+            var statement = SyntaxTree.Parse(text).Root.Statement;
+            return Assert.IsType<ExpressionStatementSyntax>(statement).Expression;
+        }
+
         [Theory]
         [MemberData(nameof(GetUnaryOperatorsCombinationData))]
         public void Parser_UnaryExpression_HonorPresedences(SyntaxType unaryOperator, SyntaxType binaryOperator)
@@ -75,7 +81,7 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
             var binaryOperatorText = binaryOperator.GetText();
 
             var text = $"{unaryOperatorText} a {binaryOperatorText} b";
-            var expression = SyntaxTree.Parse(text).Root.Expression;
+            var expression = ParseExpression(text); 
 
             if (unaryOperatorPresedence >= binaryOperatorPresedence)
             {

@@ -75,6 +75,16 @@ namespace Bloop.CodeAnalysis.Syntax
                     _position++;
                     break;
 
+                case '{':
+                    _type = SyntaxType.OPEN_BRACE_TOKEN;
+                    _position++;
+                    break;
+
+                case '}':
+                    _type = SyntaxType.CLOSE_BRACE_TOKEN;
+                    _position++;
+                    break;
+
                 case '!' when Lookahead == '=':
                     _type = SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN;
                     _position += 2;

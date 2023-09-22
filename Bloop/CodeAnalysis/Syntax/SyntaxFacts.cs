@@ -106,6 +106,12 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.CLOSE_PARENTHESIS_TOKEN:
                     return ")";
 
+                case SyntaxType.OPEN_BRACE_TOKEN:
+                    return "{";
+
+                case SyntaxType.CLOSE_BRACE_TOKEN:
+                    return "}";
+
                 case SyntaxType.EXCLAMATION_MARK_TOKEN:
                     return "!";
 
