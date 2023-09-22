@@ -64,11 +64,11 @@ namespace Bloop.CodeAnalysis.Syntax
             return new SyntaxToken(type, _position, "");
         }
 
-        public SyntaxTree Parse()
+        public CompilationUnitSyntax ParseCompilationUnit()
         {
             var expression = ParseExpression();
             var endOfFileToken = MatchToken(SyntaxType.END_OF_FILE_TOKEN);
-            return new SyntaxTree(_sourceText, _diagnostics.ToImmutableArray(), expression, endOfFileToken);
+            return new CompilationUnitSyntax(expression, endOfFileToken);
         }
 
         private ExpressionSyntax ParseExpression()

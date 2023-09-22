@@ -1,6 +1,7 @@
 ﻿using Bloop.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection.Emit;
@@ -9,17 +10,53 @@ using System.Threading.Tasks;
 
 namespace Bloop.CodeAnalysis.Binding
 {
+
     internal sealed class Binder
     { 
         private readonly DiagnosticsPool _diagnostics = new DiagnosticsPool();
-        private readonly Dictionary<VariableSymbol, object?> _variables;
 
-        public Binder(Dictionary<VariableSymbol, object> variables)
+        private BoundScope? _scope;
+
+        public Binder(BoundScope? parent)
         {
-            _variables = variables;
+            _scope = new BoundScope(parent);
         }
 
         public DiagnosticsPool Diagnostics => _diagnostics;
+
+        public static BoundGlobalScope BindGlobalScope(BoundGlobalScope? previous, CompilationUnitSyntax syntax)
+        {
+            var parentScope = CreateParentScopes(previous);
+            var binder = new Binder(parentScope);
+            var expression = binder.BindExpression(syntax.Expression);
+            var variables = binder._scope != null ? binder._scope.GetDeclaredVariables() : ImmutableArray<VariableSymbol>.Empty;
+            var diagnostics = binder._diagnostics.ToImmutableArray();
+            return new BoundGlobalScope(previous, diagnostics, variables, expression);
+        }
+
+        private static BoundScope? CreateParentScopes(BoundGlobalScope? previous)
+        {
+            var stack = new Stack<BoundGlobalScope>();
+            while (previous != null)
+            {
+                stack.Push(previous);
+                previous = previous.Previous;
+            }
+
+            BoundScope parent = null;
+
+            while (stack.Count > 0)
+            {
+                previous = stack.Pop();
+                var scope = new BoundScope(parent);
+                foreach (var v in previous.Variables)
+                    scope.TryDeclare(v);
+
+                parent = scope;
+            }
+
+            return parent;
+        }
 
         public BoundExpressionNode BindExpression(ExpressionSyntax expressionNode)
         {
@@ -152,12 +189,13 @@ namespace Bloop.CodeAnalysis.Binding
 
         private BoundExpressionNode BindNameExpression(NameExpressionSyntax syntax)
         {
-            var name = syntax.IdentifierToken.Text;
-            var variable = _variables.Keys.FirstOrDefault(v => v.Name == name);
+            if (_scope == null) 
+                return new BoundLiteralExpressionNode(0);
 
-            if (variable == null)
+            var name = syntax.IdentifierToken.Text;
+            if (!_scope.TryLookup(name, out var variable))
             {
-                _diagnostics.ReportUndefinedIdentifier(syntax.IdentifierToken.Span, name);
+                _diagnostics.ReportUndefinedVariable(syntax.IdentifierToken.Span, name);
                 return new BoundLiteralExpressionNode(0);
             }
             return new BoundVariableExpressionNode(variable);
@@ -168,12 +206,17 @@ namespace Bloop.CodeAnalysis.Binding
             var name = syntax.IdentifierToken.Text;
             var boundExpression = BindExpression(syntax.Expression);
 
-            var existingVariable = _variables.Keys.FirstOrDefault(v => v.Name == name);
-            if (existingVariable != null)
-                _variables.Remove(existingVariable);
+            if (!_scope.TryLookup(name, out var variable))
+            {
+                variable = new VariableSymbol(name, boundExpression.Type);
+                _scope.TryDeclare(variable);
+            }
 
-            var variable = new VariableSymbol(name, boundExpression.Type);
-            _variables[variable] = null;
+            if (boundExpression.Type != variable.Type)
+            {
+                _diagnostics.ReportInvalidConversion(syntax.Expression.Span, boundExpression.Type, variable.Type);
+                return boundExpression;
+            }
 
             return new BoundAssignmentExpressionNode(variable, boundExpression);
         }

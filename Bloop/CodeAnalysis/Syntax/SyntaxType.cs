@@ -20,6 +20,8 @@
         END_OF_FILE_TOKEN,
         INVALID_TOKEN,
 
+        COMPILATION_UNIT,
+
         TRUE_KEYWORD,
         FALSE_KEYWORD,
 

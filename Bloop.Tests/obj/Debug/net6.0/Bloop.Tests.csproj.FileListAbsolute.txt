@@ -100,3 +100,4 @@ C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Debug\net6.0\ref\Bloop.Tests.d
 C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\bin\Debug\net6.0\CoverletSourceRootsMapping
 C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\bin\Debug\net6.0\Bloop.dll
 C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\bin\Debug\net6.0\Bloop.pdb
+C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\bin\Debug\net6.0\System.Collections.Immutable.dll

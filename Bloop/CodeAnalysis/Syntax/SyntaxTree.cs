@@ -5,18 +5,20 @@ namespace Bloop.CodeAnalysis.Syntax
 {
     public class SyntaxTree
     {
-        public SyntaxTree(SourceText sourceText, ImmutableArray<Diagnostic> diagnostics, ExpressionSyntax node, SyntaxToken endOfFileToken)
+        private SyntaxTree(SourceText sourceText)
         {
+            var parser = new Parser(sourceText);
+            var root = parser.ParseCompilationUnit();
+            var diagnostics = parser.Diagnostics.ToImmutableArray();
+
             SourceText = sourceText;
             Diagnostics = diagnostics;
-            Node = node;
-            EndOfFileToken = endOfFileToken;
+            Root = root;
         }
 
         public SourceText SourceText { get; }
         public ImmutableArray<Diagnostic> Diagnostics { get; }
-        public ExpressionSyntax Node { get; }
-        public SyntaxToken EndOfFileToken { get; }
+        public CompilationUnitSyntax Root { get; }
 
         public static SyntaxTree Parse(string text)
         {
@@ -26,8 +28,7 @@ namespace Bloop.CodeAnalysis.Syntax
 
         public static SyntaxTree Parse(SourceText sourceText)
         {
-            var parser = new Parser(sourceText);
-            return parser.Parse();
+            return new SyntaxTree(sourceText);
         }
 
         public static IEnumerable<SyntaxToken> ParseTokens(string text)

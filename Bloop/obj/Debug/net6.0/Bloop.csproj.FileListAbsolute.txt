@@ -1,0 +1,12 @@
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.csproj.AssemblyReference.cache
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.AssemblyInfoInputs.cache
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.AssemblyInfo.cs
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.csproj.CoreCompileInputs.cache
+C:\Users\mihaj\source\repos\Bloop\Bloop\bin\Debug\net6.0\Bloop.deps.json
+C:\Users\mihaj\source\repos\Bloop\Bloop\bin\Debug\net6.0\Bloop.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop\bin\Debug\net6.0\Bloop.pdb
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\refint\Bloop.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\Bloop.pdb
+C:\Users\mihaj\source\repos\Bloop\Bloop\obj\Debug\net6.0\ref\Bloop.dll

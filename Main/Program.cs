@@ -15,6 +15,8 @@ namespace Bloop
             var variables = new Dictionary<VariableSymbol, object>();
             var textBuilder = new StringBuilder();
 
+            Compilation? previous = null;
+
             var currentLineNumber = 0;
             while (true)
             {
@@ -48,12 +50,14 @@ namespace Bloop
                         Console.Clear();
                         continue;
                     }
+                    else if (input == "#reset")
+                    {
+                        previous = null;
+                        continue;
+                    }
                 }
 
                 textBuilder.AppendLine(input);
-                var text = textBuilder.ToString();
-
-                var syntaxTree = SyntaxTree.Parse(text);
 
                 if (!isBlank)
                     continue;
@@ -61,13 +65,18 @@ namespace Bloop
                 Console.CursorTop--;
                 Console.WriteLine("> ");
 
-                var compilation = new Compilation(syntaxTree);
+                var text = textBuilder.ToString();
+                var syntaxTree = SyntaxTree.Parse(text);
+                var compilation = previous == null 
+                                    ? new Compilation(syntaxTree)
+                                    : previous.ContinueWith(syntaxTree);
+
                 var result = compilation.Evaluate(variables);
 
                 if (showTree)
                 {
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine(syntaxTree.Node);
+                    Console.WriteLine(syntaxTree.Root);
                     Console.ResetColor();
                 }
 
@@ -76,6 +85,8 @@ namespace Bloop
                     Console.ForegroundColor = ConsoleColor.Blue;
                     Console.WriteLine($" {result.Value}");
                     Console.ResetColor();
+
+                    previous = compilation;
                 }
                 else
                 {

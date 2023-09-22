@@ -16,7 +16,7 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
             var operator2Text = operator2.GetText();
 
             var text = $"a {operator1Text} b {operator2Text} c";
-            var expression = SyntaxTree.Parse(text).Node;
+            var expression = SyntaxTree.Parse(text).Root.Expression;
 
             if (operator1Presedence >= operator2Presedence)
             {
@@ -75,7 +75,7 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
             var binaryOperatorText = binaryOperator.GetText();
 
             var text = $"{unaryOperatorText} a {binaryOperatorText} b";
-            var expression = SyntaxTree.Parse(text).Node;
+            var expression = SyntaxTree.Parse(text).Root.Expression;
 
             if (unaryOperatorPresedence >= binaryOperatorPresedence)
             {

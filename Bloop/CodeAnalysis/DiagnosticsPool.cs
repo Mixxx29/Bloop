@@ -1,11 +1,12 @@
 ﻿using Bloop.CodeAnalysis.Syntax;
 using Bloop.CodeAnalysis.Text;
 using System.Collections;
+using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Bloop.CodeAnalysis
 {
-    internal sealed class DiagnosticsPool : IEnumerable<Diagnostic>
+    public sealed class DiagnosticsPool : IEnumerable<Diagnostic>
     {
         private readonly List<Diagnostic> _diagnostics = new List<Diagnostic>();
 
@@ -55,9 +56,21 @@ namespace Bloop.CodeAnalysis
             Report(textSpan, message);
         }
 
-        internal void ReportUndefinedIdentifier(TextSpan textSpan, string name)
+        internal void ReportUndefinedVariable(TextSpan textSpan, string name)
         {
             var message = $"Variable '{name}' is not defined";
+            Report(textSpan, message);
+        }
+
+        internal void ReportVariableAlreadyDeclared(TextSpan textSpan, string name)
+        {
+            var message = $"Variable '{name}' is already defined";
+            Report(textSpan, message);
+        }
+
+        internal void ReportInvalidConversion(TextSpan textSpan, Type type1, Type type2)
+        {
+            var message = $"Cannot convert type '{type1}' to type '{type2}'";
             Report(textSpan, message);
         }
     }
