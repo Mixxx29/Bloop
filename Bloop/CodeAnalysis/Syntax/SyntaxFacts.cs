@@ -79,6 +79,12 @@ namespace Bloop.CodeAnalysis.Syntax
                 case "false":
                     return SyntaxType.FALSE_KEYWORD;
 
+                case "var":
+                    return SyntaxType.VAR_KEYWORD;
+
+                case "const":
+                    return SyntaxType.CONST_KEYWORD;
+
                 default:
                     return SyntaxType.IDENTIFIER_TOKEN;
             }
@@ -135,6 +141,12 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case SyntaxType.FALSE_KEYWORD:
                     return "false";
+
+                case SyntaxType.VAR_KEYWORD:
+                    return "var";
+
+                case SyntaxType.CONST_KEYWORD:
+                    return "const";
             }
             return null;
         }

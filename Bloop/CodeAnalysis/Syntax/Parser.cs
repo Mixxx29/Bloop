@@ -73,10 +73,16 @@ namespace Bloop.CodeAnalysis.Syntax
 
         private StatementSyntax ParseStatement()
         {
-            if (Current.Type == SyntaxType.OPEN_BRACE_TOKEN)
-                return ParseBlockStatement();
-
-            return ParseExpressionStatement();
+            switch (Current.Type)
+            {
+                case SyntaxType.OPEN_BRACE_TOKEN:
+                    return ParseBlockStatement();
+                case SyntaxType.VAR_KEYWORD:
+                case SyntaxType.CONST_KEYWORD:
+                    return ParseVariableDeclarationStatement();
+                default:
+                    return ParseExpressionStatement();
+            }
         }
 
         private BLockStatementSyntax ParseBlockStatement()
@@ -95,6 +101,16 @@ namespace Bloop.CodeAnalysis.Syntax
             var closeBraceToken = MatchToken(SyntaxType.CLOSE_BRACE_TOKEN);
 
             return new BLockStatementSyntax(openBraceToken, statements.ToImmutable(), closeBraceToken);
+        }
+
+        private VariableDeclarationStatement ParseVariableDeclarationStatement()
+        {
+            var expected = Current.Type == SyntaxType.VAR_KEYWORD ? SyntaxType.VAR_KEYWORD : SyntaxType.CONST_KEYWORD;
+            var keyword = MatchToken(expected);
+            var identifier = MatchToken(SyntaxType.IDENTIFIER_TOKEN);
+            var equals = MatchToken(SyntaxType.EQUALS_TOKEN);
+            var expression = ParseExpression();
+            return new VariableDeclarationStatement(keyword, identifier, equals, expression);
         }
 
         private ExpressionStatementSyntax ParseExpressionStatement()

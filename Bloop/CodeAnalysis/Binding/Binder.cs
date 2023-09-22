@@ -65,6 +65,9 @@ namespace Bloop.CodeAnalysis.Binding
                 case SyntaxType.BLOCK_STATEMENT:
                     return BindBlockStatement((BLockStatementSyntax)syntax);
 
+                case SyntaxType.VARIABLE_DECLARATION_STATEMENT:
+                    return BindVariableDeclarationStatement((VariableDeclarationStatement)syntax);
+
                 case SyntaxType.EXPRESSION_STATEMENT:
                     return BindExpressionStatement((ExpressionStatementSyntax)syntax);
 
@@ -76,13 +79,54 @@ namespace Bloop.CodeAnalysis.Binding
         private BoundBlockStatement BindBlockStatement(BLockStatementSyntax syntax)
         {
             var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+
+            _scope = new BoundScope(_scope);
+
             foreach (var statementSyntax in syntax.Statements)
             {
                 var statement = BindStatement(statementSyntax);
                 statements.Add(statement);
             }
 
+            _scope = _scope.Parent;
+
             return new BoundBlockStatement(statements.ToImmutable());
+        }
+
+        private BoundExpressionNode BindAssignmentExpression(AssignmentExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+            var boundExpression = BindExpression(syntax.Expression);
+
+            if (!_scope.TryLookup(name, out var variable))
+            {
+                _diagnostics.ReportUndefinedVariable(syntax.IdentifierToken.Span, name);
+                return boundExpression;
+            }
+
+            if (variable.IsReadOnly)
+                _diagnostics.ReportReadOnly(syntax.IdentifierToken.Span, name);
+
+            if (boundExpression.Type != variable.Type)
+            {
+                _diagnostics.ReportInvalidConversion(syntax.Expression.Span, boundExpression.Type, variable.Type);
+                return boundExpression;
+            }
+
+            return new BoundAssignmentExpressionNode(variable, boundExpression);
+        }
+
+        private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement syntax)
+        {
+            var name = syntax.Identifier.Text;
+            var isReadOnly = syntax.Keyword.Type == SyntaxType.CONST_KEYWORD;
+            var expression = BindExpression(syntax.Expression);
+            var variable = new VariableSymbol(name, isReadOnly, expression.Type);
+
+            if (!_scope.TryDeclare(variable))
+                _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+
+            return new BoundVariableDeclarationStatement(variable, expression);
         }
 
         private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
@@ -232,26 +276,6 @@ namespace Bloop.CodeAnalysis.Binding
                 return new BoundLiteralExpressionNode(0);
             }
             return new BoundVariableExpressionNode(variable);
-        }
-
-        private BoundExpressionNode BindAssignmentExpression(AssignmentExpressionSyntax syntax)
-        {
-            var name = syntax.IdentifierToken.Text;
-            var boundExpression = BindExpression(syntax.Expression);
-
-            if (!_scope.TryLookup(name, out var variable))
-            {
-                variable = new VariableSymbol(name, boundExpression.Type);
-                _scope.TryDeclare(variable);
-            }
-
-            if (boundExpression.Type != variable.Type)
-            {
-                _diagnostics.ReportInvalidConversion(syntax.Expression.Span, boundExpression.Type, variable.Type);
-                return boundExpression;
-            }
-
-            return new BoundAssignmentExpressionNode(variable, boundExpression);
         }
     }
 }

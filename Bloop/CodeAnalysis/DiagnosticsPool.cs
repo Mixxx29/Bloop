@@ -73,5 +73,11 @@ namespace Bloop.CodeAnalysis
             var message = $"Cannot convert type '{type1}' to type '{type2}'";
             Report(textSpan, message);
         }
+
+        internal void ReportReadOnly(TextSpan textSpan, string name)
+        {
+            var message = $"Cannot assign value to variable '{name}', variable '{name}' is read-only";
+            Report(textSpan, message);
+        }
     }
 }

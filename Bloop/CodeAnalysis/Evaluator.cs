@@ -29,6 +29,9 @@ namespace Bloop.CodeAnalysis
                 case BoundBlockStatement blockStatement:
                     EvaluateBlockStatement(blockStatement);
                     break;
+                case BoundVariableDeclarationStatement variableDeclarationStatement:
+                    EvaluateVariableDeclarationStatement(variableDeclarationStatement);
+                    break;
                 case BoundExpressionStatement expressionStatement:
                     EvaluateExpressionStatement(expressionStatement);
                     break;
@@ -41,6 +44,13 @@ namespace Bloop.CodeAnalysis
         {
             foreach (var statement in blockStatement.Statements)
                 EvaluateStatement(statement);
+        }
+
+        private void EvaluateVariableDeclarationStatement(BoundVariableDeclarationStatement variableDeclarationStatement)
+        {
+            var value = EvaluateExpression(variableDeclarationStatement.Expression);
+            _variables[variableDeclarationStatement.Variable] = value;
+            _lastValue = value;
         }
 
         private void EvaluateExpressionStatement(BoundExpressionStatement expressionStatement)
