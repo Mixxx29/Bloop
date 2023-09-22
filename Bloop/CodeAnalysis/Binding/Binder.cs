@@ -62,8 +62,11 @@ namespace Bloop.CodeAnalysis.Binding
         {
             switch (syntax.Type)
             {
+                case SyntaxType.MAIN_STATEMENT:
+                    return BindMainStatement((MainStatementSyntax)syntax);
+
                 case SyntaxType.BLOCK_STATEMENT:
-                    return BindBlockStatement((BLockStatementSyntax)syntax);
+                    return BindBlockStatement((BlockStatementSyntax)syntax);
 
                 case SyntaxType.VARIABLE_DECLARATION_STATEMENT:
                     return BindVariableDeclarationStatement((VariableDeclarationStatement)syntax);
@@ -76,7 +79,20 @@ namespace Bloop.CodeAnalysis.Binding
             }
         }
 
-        private BoundBlockStatement BindBlockStatement(BLockStatementSyntax syntax)
+        private BoundMainStatement BindMainStatement(MainStatementSyntax syntax)
+        {
+            var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+
+            foreach (var statementSyntax in syntax.Statements)
+            {
+                var statement = BindStatement(statementSyntax);
+                statements.Add(statement);
+            }
+
+            return new BoundMainStatement(statements.ToImmutable());
+        }
+
+        private BoundBlockStatement BindBlockStatement(BlockStatementSyntax syntax)
         {
             var statements = ImmutableArray.CreateBuilder<BoundStatement>();
 

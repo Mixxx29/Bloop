@@ -2,9 +2,9 @@
 
 namespace Bloop.CodeAnalysis.Syntax
 {
-    public sealed class BLockStatementSyntax : StatementSyntax
+    public sealed class BlockStatementSyntax : StatementSyntax
     {
-        public BLockStatementSyntax(SyntaxToken openBraceToken, ImmutableArray<StatementSyntax> statements, SyntaxToken closeBraceToken)
+        public BlockStatementSyntax(SyntaxToken openBraceToken, ImmutableArray<StatementSyntax> statements, SyntaxToken closeBraceToken)
         {
             OpenBraceToken = openBraceToken;
             Statements = statements;

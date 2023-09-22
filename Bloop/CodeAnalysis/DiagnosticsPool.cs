@@ -76,7 +76,7 @@ namespace Bloop.CodeAnalysis
 
         internal void ReportReadOnly(TextSpan textSpan, string name)
         {
-            var message = $"Cannot assign value to variable '{name}', variable '{name}' is read-only";
+            var message = $"Cannot assign value. Variable '{name}' is read-only";
             Report(textSpan, message);
         }
     }

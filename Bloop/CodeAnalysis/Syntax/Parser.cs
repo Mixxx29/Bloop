@@ -66,9 +66,22 @@ namespace Bloop.CodeAnalysis.Syntax
 
         public CompilationUnitSyntax ParseCompilationUnit()
         {
-            var statement = ParseStatement();
+            var statement = ParseMainStatement();
             var endOfFileToken = MatchToken(SyntaxType.END_OF_FILE_TOKEN);
             return new CompilationUnitSyntax(statement, endOfFileToken);
+        }
+
+        private MainStatementSyntax ParseMainStatement()
+        {
+            var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
+
+            while (Current.Type != SyntaxType.END_OF_FILE_TOKEN)
+            {
+                var statement = ParseStatement();
+                statements.Add(statement);
+            }
+
+            return new MainStatementSyntax(statements.ToImmutable());
         }
 
         private StatementSyntax ParseStatement()
@@ -85,7 +98,7 @@ namespace Bloop.CodeAnalysis.Syntax
             }
         }
 
-        private BLockStatementSyntax ParseBlockStatement()
+        private BlockStatementSyntax ParseBlockStatement()
         {
             var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
 
@@ -100,7 +113,7 @@ namespace Bloop.CodeAnalysis.Syntax
 
             var closeBraceToken = MatchToken(SyntaxType.CLOSE_BRACE_TOKEN);
 
-            return new BLockStatementSyntax(openBraceToken, statements.ToImmutable(), closeBraceToken);
+            return new BlockStatementSyntax(openBraceToken, statements.ToImmutable(), closeBraceToken);
         }
 
         private VariableDeclarationStatement ParseVariableDeclarationStatement()

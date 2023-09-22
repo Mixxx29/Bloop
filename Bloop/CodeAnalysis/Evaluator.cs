@@ -26,6 +26,9 @@ namespace Bloop.CodeAnalysis
         {
             switch (statement)
             {
+                case BoundMainStatement mainStatement:
+                    EvaluateMainStatement(mainStatement);
+                    break;
                 case BoundBlockStatement blockStatement:
                     EvaluateBlockStatement(blockStatement);
                     break;
@@ -38,6 +41,12 @@ namespace Bloop.CodeAnalysis
                 default:
                     throw new Exception($"Unexpected node {statement.NodeType}");
             }
+        }
+
+        private void EvaluateMainStatement(BoundMainStatement mainStatement)
+        {
+            foreach (var statement in mainStatement.Statements)
+                EvaluateStatement(statement);
         }
 
         private void EvaluateBlockStatement(BoundBlockStatement blockStatement)
