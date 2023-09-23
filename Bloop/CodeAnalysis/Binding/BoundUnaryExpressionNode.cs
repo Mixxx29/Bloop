@@ -1,8 +1,8 @@
 ﻿namespace Bloop.CodeAnalysis.Binding
 {
-    internal sealed class BoundUnaryExpressionNode : BoundExpressionNode
+    internal sealed class BoundUnaryExpressionNode : BoundExpression
     {
-        public BoundUnaryExpressionNode(BoundUnaryOperator op, BoundExpressionNode operand)
+        public BoundUnaryExpressionNode(BoundUnaryOperator op, BoundExpression operand)
         {
             Op = op;
             Operand = operand;
@@ -12,6 +12,6 @@
         public override Type Type => Operand.Type;
 
         public BoundUnaryOperator Op { get; }
-        public BoundExpressionNode Operand { get; }
+        public BoundExpression Operand { get; }
     }
 }

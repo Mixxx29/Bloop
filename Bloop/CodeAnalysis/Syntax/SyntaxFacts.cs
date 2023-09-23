@@ -46,6 +46,10 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case SyntaxType.DOUBLE_EQUALS_TOKEN:
                 case SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN:
+                case SyntaxType.LESS_THAN_TOKEN:
+                case SyntaxType.LESS_THAN_OR_EQUALS_TOKEN:
+                case SyntaxType.GREATER_THAN_TOKEN:
+                case SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN:
                     return 3;
 
                 case SyntaxType.DOUBLE_AMPERSAND_TOKEN:
@@ -84,6 +88,21 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case "const":
                     return SyntaxType.CONST_KEYWORD;
+
+                case "if":
+                    return SyntaxType.IF_KEYWORD;
+
+                case "else":
+                    return SyntaxType.ELSE_KEYWORD;
+
+                case "while":
+                    return SyntaxType.WHILE_KEYWORD;
+
+                case "for":
+                    return SyntaxType.FOR_KEYWORD;
+
+                case "to":
+                    return SyntaxType.TO_KEYWORD;
 
                 default:
                     return SyntaxType.IDENTIFIER_TOKEN;
@@ -136,6 +155,18 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN:
                     return "!=";
 
+                case SyntaxType.LESS_THAN_TOKEN:
+                    return "<";
+
+                case SyntaxType.LESS_THAN_OR_EQUALS_TOKEN:
+                    return "<=";
+
+                case SyntaxType.GREATER_THAN_TOKEN:
+                    return ">";
+
+                case SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN:
+                    return ">=";
+
                 case SyntaxType.TRUE_KEYWORD:
                     return "true";
 
@@ -147,6 +178,21 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case SyntaxType.CONST_KEYWORD:
                     return "const";
+
+                case SyntaxType.IF_KEYWORD:
+                    return "if";
+
+                case SyntaxType.ELSE_KEYWORD:
+                    return "else";
+
+                case SyntaxType.WHILE_KEYWORD:
+                    return "while";
+
+                case SyntaxType.FOR_KEYWORD:
+                    return "for";
+
+                case SyntaxType.TO_KEYWORD:
+                    return "to";
             }
             return null;
         }

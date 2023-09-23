@@ -1,8 +1,8 @@
 ﻿namespace Bloop.CodeAnalysis.Binding
 {
-    internal sealed class BoundAssignmentExpressionNode : BoundExpressionNode
+    internal sealed class BoundAssignmentExpressionNode : BoundExpression
     {
-        public BoundAssignmentExpressionNode(VariableSymbol variable, BoundExpressionNode expressionNode)
+        public BoundAssignmentExpressionNode(VariableSymbol variable, BoundExpression expressionNode)
         {
             Variable = variable;
             ExpressionNode = expressionNode;
@@ -13,7 +13,7 @@
 
         public string Name => Variable.Name;
         public VariableSymbol Variable { get; }
-        public BoundExpressionNode ExpressionNode { get; }
+        public BoundExpression ExpressionNode { get; }
 
     }
 }

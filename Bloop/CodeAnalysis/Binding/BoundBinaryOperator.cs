@@ -37,6 +37,11 @@ namespace Bloop.CodeAnalysis.Binding
             new BoundBinaryOperator(SyntaxType.DOUBLE_EQUALS_TOKEN, BoundBinaryOperatorType.EQUALS, typeof(int), typeof(bool)),
             new BoundBinaryOperator(SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN, BoundBinaryOperatorType.NOT_EQUALS, typeof(int), typeof(bool)),
 
+            new BoundBinaryOperator(SyntaxType.LESS_THAN_TOKEN, BoundBinaryOperatorType.LESS_THAN, typeof(int), typeof(bool)),
+            new BoundBinaryOperator(SyntaxType.LESS_THAN_OR_EQUALS_TOKEN, BoundBinaryOperatorType.LESS_THAN_EQUALS, typeof(int), typeof(bool)),
+            new BoundBinaryOperator(SyntaxType.GREATER_THAN_TOKEN, BoundBinaryOperatorType.GREATER_THAN, typeof(int), typeof(bool)),
+            new BoundBinaryOperator(SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN, BoundBinaryOperatorType.GREATER_THAN_EQUALS, typeof(int), typeof(bool)),
+
             new BoundBinaryOperator(SyntaxType.DOUBLE_AMPERSAND_TOKEN, BoundBinaryOperatorType.LOGIC_AND, typeof(bool)),
             new BoundBinaryOperator(SyntaxType.DOUBLE_PIPE_TOKEN, BoundBinaryOperatorType.LOGIC_OR, typeof(bool)),
             new BoundBinaryOperator(SyntaxType.DOUBLE_EQUALS_TOKEN, BoundBinaryOperatorType.EQUALS, typeof(bool), typeof(bool)),

@@ -2,7 +2,7 @@
 {
     internal sealed class BoundVariableDeclarationStatement : BoundStatement
     {
-        public BoundVariableDeclarationStatement(VariableSymbol variable, BoundExpressionNode expression)
+        public BoundVariableDeclarationStatement(VariableSymbol variable, BoundExpression expression)
         {
             Variable = variable;
             Expression = expression;
@@ -11,6 +11,6 @@
         public override BoundNodeType NodeType => BoundNodeType.VARIABLE_DECLARATION_STATEMENT;
 
         public VariableSymbol Variable { get; }
-        public BoundExpressionNode Expression { get; }
+        public BoundExpression Expression { get; }
     }
 }

@@ -2,13 +2,13 @@
 {
     internal sealed class BoundExpressionStatement : BoundStatement
     {
-        public BoundExpressionStatement(BoundExpressionNode expression)
+        public BoundExpressionStatement(BoundExpression expression)
         {
             Expression = expression;
         }
 
         public override BoundNodeType NodeType => BoundNodeType.EXPRESSION_STATEMENT;
 
-        public BoundExpressionNode Expression { get; }
+        public BoundExpression Expression { get; }
     }
 }

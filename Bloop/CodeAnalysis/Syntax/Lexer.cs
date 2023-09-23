@@ -124,6 +124,26 @@ namespace Bloop.CodeAnalysis.Syntax
                     ReadWhiteSpace();
                     break;
 
+                case '<' when Lookahead == '=':
+                    _type = SyntaxType.LESS_THAN_OR_EQUALS_TOKEN;
+                    _position += 2;
+                    break;
+
+                case '<':
+                    _type = SyntaxType.LESS_THAN_TOKEN;
+                    _position++;
+                    break;
+
+                case '>' when Lookahead == '=':
+                    _type = SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN;
+                    _position += 2;
+                    break;
+
+                case '>':
+                    _type = SyntaxType.GREATER_THAN_TOKEN;
+                    _position++;
+                    break;
+
                 default:
                 {
                     if (char.IsLetter(Current))

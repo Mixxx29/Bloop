@@ -22,7 +22,8 @@ namespace Bloop
             {
                 if (textBuilder.Length == 0)
                 {
-                    Console.WriteLine(">");
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine(">                        ");
                 }
 
                 Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -63,7 +64,8 @@ namespace Bloop
                     continue;
 
                 Console.CursorTop--;
-                Console.WriteLine("> ");
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine(">                        ");
 
                 var text = textBuilder.ToString();
                 var syntaxTree = SyntaxTree.Parse(text);
@@ -92,21 +94,21 @@ namespace Bloop
                 {
                     foreach (var diagnostic in result.Diagnostics)
                     {
-                        var lineIndex = syntaxTree.SourceText.GetLineIndex(diagnostic.TextSpan.Start);
+                        var lineIndex = syntaxTree.SourceText.GetLineIndex(diagnostic.Span.Start);
                         var line = syntaxTree.SourceText.Lines[lineIndex];
                         var lineNumber = lineIndex + 1;
-                        var errorPosition = diagnostic.TextSpan.Start - line.Start + 1;
+                        var errorPosition = diagnostic.Span.Start - line.Start + 1;
 
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.Write($"({lineNumber}, {errorPosition}): ");
                         Console.WriteLine($"{diagnostic}");
                         Console.ResetColor();
 
-                        var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.TextSpan.Start);
-                        var sufixSpan = TextSpan.FromBounds(diagnostic.TextSpan.End, line.End);
+                        var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.Span.Start);
+                        var sufixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
 
                         var prefix = syntaxTree.SourceText.ToString(prefixSpan);
-                        var error = syntaxTree.SourceText.ToString(diagnostic.TextSpan);
+                        var error = syntaxTree.SourceText.ToString(diagnostic.Span);
                         var suffix = syntaxTree.SourceText.ToString(sufixSpan);
 
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -125,6 +127,7 @@ namespace Bloop
                 }
 
                 textBuilder.Clear();
+                Console.ResetColor();
                 currentLineNumber = 0;
             }
         }

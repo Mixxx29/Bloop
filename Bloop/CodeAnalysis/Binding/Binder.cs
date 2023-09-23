@@ -74,6 +74,18 @@ namespace Bloop.CodeAnalysis.Binding
                 case SyntaxType.EXPRESSION_STATEMENT:
                     return BindExpressionStatement((ExpressionStatementSyntax)syntax);
 
+                case SyntaxType.IF_STATEMENT:
+                    return BindIfStatement((IfStatementSyntax)syntax);
+
+                case SyntaxType.ELSE_STATEMENT:
+                    return BindElseStatement((ElseStatementSyntax)syntax);
+
+                case SyntaxType.WHILE_STATEMENT:
+                    return BindWhileStatement((WhileStatementSyntax)syntax);
+
+                case SyntaxType.FOR_STATEMENT:
+                    return BindForStatement((ForStatementSyntax)syntax);
+
                 default:
                     throw new Exception($"Unexpected syntax {syntax.Type}");
             }
@@ -109,7 +121,46 @@ namespace Bloop.CodeAnalysis.Binding
             return new BoundBlockStatement(statements.ToImmutable());
         }
 
-        private BoundExpressionNode BindAssignmentExpression(AssignmentExpressionSyntax syntax)
+        private BoundStatement BindIfStatement(IfStatementSyntax syntax)
+        {
+            var condition = BindExpression(syntax.Condition, typeof(bool));
+            var thenStatement = BindStatement(syntax.Statement);
+            var elseStatement = syntax.ElseStatement == null ? null : BindStatement(syntax.ElseStatement);
+            return new BoundIfStatement(condition, thenStatement, elseStatement);
+        }
+
+        private BoundStatement BindElseStatement(ElseStatementSyntax syntax)
+        {
+            var statement = BindStatement(syntax.Statement);
+            return new BoundElseStatement(statement);
+        }
+
+        private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
+        {
+            var condition = BindExpression(syntax.Condition);
+            var statement = BindStatement(syntax.Statement);
+            return new BoundWhileStatement(condition, statement);
+        }
+
+        private BoundForStatement BindForStatement(ForStatementSyntax syntax)
+        {
+            var firstBound = BindExpression(syntax.FirstBound, typeof(int));
+            var secondBound = BindExpression(syntax.SecondBound, typeof(int));
+
+            _scope = new BoundScope(_scope);
+
+            var name = syntax.Identifier.Text;
+            var variable = new VariableSymbol(name, false, typeof(int));
+            _scope.TryDeclare(variable);
+
+            var statement = BindStatement(syntax.Statement);
+
+            _scope = _scope.Parent;
+
+            return new BoundForStatement(variable, firstBound, secondBound, statement);
+        }
+
+        private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
         {
             var name = syntax.IdentifierToken.Text;
             var boundExpression = BindExpression(syntax.Expression);
@@ -151,7 +202,16 @@ namespace Bloop.CodeAnalysis.Binding
             return new BoundExpressionStatement(expression);
         }
 
-        public BoundExpressionNode BindExpression(ExpressionSyntax expressionNode)
+        public BoundExpression BindExpression(ExpressionSyntax expressionNode, Type targetType)
+        {
+            var result = BindExpression(expressionNode);
+            if (result.Type != targetType)
+                _diagnostics.ReportInvalidConversion(expressionNode.Span, result.Type, targetType);
+            
+            return result;
+        }
+
+        public BoundExpression BindExpression(ExpressionSyntax expressionNode)
         {
             switch (expressionNode.Type)
             {
@@ -178,13 +238,13 @@ namespace Bloop.CodeAnalysis.Binding
             }
         }
 
-        private BoundExpressionNode BindLiteralExpressiom(LiteralExpressionNode expressionNode)
+        private BoundExpression BindLiteralExpressiom(LiteralExpressionNode expressionNode)
         {
             var value = expressionNode.Value ?? 0;
             return new BoundLiteralExpressionNode(value);
         }
 
-        private BoundExpressionNode BindUnaryExpressiom(UnaryExpressionSyntax expressionNode)
+        private BoundExpression BindUnaryExpressiom(UnaryExpressionSyntax expressionNode)
         {
             var boundOperand = BindExpression(expressionNode.ExpressionSyntax);
             var boundOperator = BoundUnaryOperator.Bind(expressionNode.OperatorToken.Type, boundOperand.Type);
@@ -227,7 +287,7 @@ namespace Bloop.CodeAnalysis.Binding
             return null;
         }
 
-        private BoundExpressionNode BindBinaryExpressiom(BinaryExpressionNode expressionNode)
+        private BoundExpression BindBinaryExpressiom(BinaryExpressionNode expressionNode)
         {
             var boundFirstOperand = BindExpression(expressionNode.FirstNode);
             var boundSecondOperand = BindExpression(expressionNode.SecondNode);
@@ -280,7 +340,7 @@ namespace Bloop.CodeAnalysis.Binding
             return null;
         }
 
-        private BoundExpressionNode BindNameExpression(NameExpressionSyntax syntax)
+        private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
         {
             if (_scope == null) 
                 return new BoundLiteralExpressionNode(0);

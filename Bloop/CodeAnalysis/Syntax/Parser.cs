@@ -90,9 +90,20 @@ namespace Bloop.CodeAnalysis.Syntax
             {
                 case SyntaxType.OPEN_BRACE_TOKEN:
                     return ParseBlockStatement();
+
                 case SyntaxType.VAR_KEYWORD:
                 case SyntaxType.CONST_KEYWORD:
                     return ParseVariableDeclarationStatement();
+
+                case SyntaxType.IF_KEYWORD:
+                    return ParseIfStatement();
+
+                case SyntaxType.WHILE_KEYWORD:
+                    return ParseWhileStatement();
+
+                case SyntaxType.FOR_KEYWORD:
+                    return ParseForStatement();
+
                 default:
                     return ParseExpressionStatement();
             }
@@ -124,6 +135,45 @@ namespace Bloop.CodeAnalysis.Syntax
             var equals = MatchToken(SyntaxType.EQUALS_TOKEN);
             var expression = ParseExpression();
             return new VariableDeclarationStatement(keyword, identifier, equals, expression);
+        }
+
+        private IfStatementSyntax ParseIfStatement()
+        {
+            var keyword = MatchToken(SyntaxType.IF_KEYWORD);
+            var condition = ParseExpression();
+            var statement = ParseStatement();
+            var elseStatement = ParseElseStatement();
+            return new IfStatementSyntax(keyword, condition, statement, elseStatement);
+        }
+
+        private ElseStatementSyntax? ParseElseStatement()
+        {
+            if (Current.Type != SyntaxType.ELSE_KEYWORD)
+                return null;
+
+            var keyword = MatchToken(SyntaxType.ELSE_KEYWORD);;
+            var statement = ParseStatement();
+            return new ElseStatementSyntax(keyword, statement);
+        }
+
+        private WhileStatementSyntax ParseWhileStatement()
+        {
+            var keyword = MatchToken(SyntaxType.WHILE_KEYWORD);
+            var condition = ParseExpression();
+            var statement = ParseStatement();
+            return new WhileStatementSyntax(keyword, condition, statement);
+        }
+
+        private ForStatementSyntax ParseForStatement()
+        {
+            var forKeyword = MatchToken(SyntaxType.FOR_KEYWORD);
+            var identifier = MatchToken(SyntaxType.IDENTIFIER_TOKEN);
+            var equals = MatchToken(SyntaxType.EQUALS_TOKEN);
+            var firstBound = ParseExpression();
+            var toKeyword = MatchToken(SyntaxType.TO_KEYWORD);
+            var secondBound = ParseExpression();
+            var statement = ParseStatement();
+            return new ForStatementSyntax(forKeyword, identifier, equals, firstBound, toKeyword, secondBound, statement);
         }
 
         private ExpressionStatementSyntax ParseExpressionStatement()

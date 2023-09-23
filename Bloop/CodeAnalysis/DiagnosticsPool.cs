@@ -46,13 +46,13 @@ namespace Bloop.CodeAnalysis
 
         internal void ReportUndefinedUnaryOperator(TextSpan textSpan, string text, Type operandType)
         {
-            var message = $"Unary operator '{text}' is not defined for type {operandType}";
+            var message = $"Unary operator '{text}' is not defined for type '{operandType}'";
             Report(textSpan, message);
         }
 
         internal void ReportUndefinedBinaryOperator(TextSpan textSpan, string text, Type firstOperandType, Type secondOperandType)
         {
-            var message = $"Binary operator '{text}' is not defined for types {firstOperandType} and {secondOperandType}";
+            var message = $"Binary operator '{text}' is not defined for types '{firstOperandType}' and '{secondOperandType}'";
             Report(textSpan, message);
         }
 
@@ -70,7 +70,7 @@ namespace Bloop.CodeAnalysis
 
         internal void ReportInvalidConversion(TextSpan textSpan, Type type1, Type type2)
         {
-            var message = $"Cannot convert type '{type1}' to type '{type2}'";
+            var message = $"Cannot convert type '{type1}' to '{type2}'";
             Report(textSpan, message);
         }
 

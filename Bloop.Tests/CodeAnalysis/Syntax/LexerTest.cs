@@ -150,7 +150,16 @@ namespace Bloop.Tests.CodeAnalysis.Syntax
             if (type1 == SyntaxType.EXCLAMATION_MARK_TOKEN && type2 == SyntaxType.DOUBLE_EQUALS_TOKEN)
                 return true;
 
-            if (type1 == SyntaxType.EQUALS_TOKEN && type2 == SyntaxType.DOUBLE_EQUALS_TOKEN)
+            if (type1 == SyntaxType.LESS_THAN_TOKEN && type2 == SyntaxType.EQUALS_TOKEN)
+                return true;
+
+            if (type1 == SyntaxType.LESS_THAN_TOKEN && type2 == SyntaxType.DOUBLE_EQUALS_TOKEN)
+                return true;
+
+            if (type1 == SyntaxType.GREATER_THAN_TOKEN && type2 == SyntaxType.EQUALS_TOKEN)
+                return true;
+
+            if (type1 == SyntaxType.GREATER_THAN_TOKEN && type2 == SyntaxType.DOUBLE_EQUALS_TOKEN)
                 return true;
 
             return false;

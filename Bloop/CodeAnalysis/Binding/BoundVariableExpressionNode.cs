@@ -2,7 +2,7 @@
 
 namespace Bloop.CodeAnalysis.Binding
 {
-    internal sealed class BoundVariableExpressionNode : BoundExpressionNode
+    internal sealed class BoundVariableExpressionNode : BoundExpression
     {
         public BoundVariableExpressionNode(VariableSymbol variable)
         {

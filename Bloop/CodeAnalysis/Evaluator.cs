@@ -29,15 +29,35 @@ namespace Bloop.CodeAnalysis
                 case BoundMainStatement mainStatement:
                     EvaluateMainStatement(mainStatement);
                     break;
+
                 case BoundBlockStatement blockStatement:
                     EvaluateBlockStatement(blockStatement);
                     break;
+
                 case BoundVariableDeclarationStatement variableDeclarationStatement:
                     EvaluateVariableDeclarationStatement(variableDeclarationStatement);
                     break;
+
                 case BoundExpressionStatement expressionStatement:
                     EvaluateExpressionStatement(expressionStatement);
                     break;
+
+                case BoundIfStatement ifStatement:
+                    EvaluateIfStatement(ifStatement);
+                    break;
+
+                case BoundElseStatement elseStatement:
+                    EvaluateStatement(elseStatement.Statement);
+                    break;
+
+                case BoundWhileStatement whileStatement:
+                    EvaluateWhileStatement(whileStatement);
+                    break;
+
+                case BoundForStatement forStatement:
+                    EvaluateForStatement(forStatement);
+                    break;
+
                 default:
                     throw new Exception($"Unexpected node {statement.NodeType}");
             }
@@ -67,20 +87,69 @@ namespace Bloop.CodeAnalysis
             _lastValue = EvaluateExpression(expressionStatement.Expression);
         }
 
-        private object? EvaluateExpression(BoundExpressionNode node)
+        private void EvaluateIfStatement(BoundIfStatement ifStatement)
+        {
+            var condition = (bool)EvaluateExpression(ifStatement.Condition);
+            if (condition)
+                EvaluateStatement(ifStatement.ThenStatement);
+            else
+                EvaluateStatement(ifStatement.ElseStatement);
+        }
+
+        private void EvaluateWhileStatement(BoundWhileStatement whileStatement)
+        {
+            while ((bool)EvaluateExpression(whileStatement.Condition))
+                EvaluateStatement(whileStatement.Statement);
+        }
+
+        private void EvaluateForStatement(BoundForStatement forStatement)
+        {
+            var firstBound = (int) EvaluateExpression(forStatement.FirstBound);
+            var secondBound = (int) EvaluateExpression(forStatement.SecondBound);
+
+            if (firstBound == secondBound)
+                return;
+
+            _variables[forStatement.Variable] = firstBound;
+
+            var direction = firstBound < secondBound ? 1 : -1;
+            if (direction > 0)
+            {
+                while (firstBound < secondBound)
+                {
+                    EvaluateStatement(forStatement.Statement);
+                    _variables[forStatement.Variable] = ++firstBound;
+                }
+            }
+            else
+            {
+                while (firstBound > secondBound)
+                {
+                    EvaluateStatement(forStatement.Statement);
+                    _variables[forStatement.Variable] = --firstBound;
+                }
+            }
+        }
+
+        private object? EvaluateExpression(BoundExpression node)
         {
             switch (node)
             {
                 case BoundLiteralExpressionNode literalExpression:
                     return EvaluateLiteralExpression(literalExpression);
+
                 case BoundVariableExpressionNode variableExpression:
                     return EvaluateVariableExpression(variableExpression);
+
                 case BoundAssignmentExpressionNode assignmentExpression:
                     return EvaluateAssignmentExpression(assignmentExpression);
+
                 case BoundUnaryExpressionNode unaryExpression:
                     return EvaluateUnaryExpression(unaryExpression);
+
                 case BoundBinaryExpressionNode binaryExpression:
                     return EvaluateBinaryExpression(binaryExpression);
+
                 default:
                     throw new Exception($"Unexpected node {node.Type}");
             }
@@ -153,6 +222,18 @@ namespace Bloop.CodeAnalysis
 
                 case BoundBinaryOperatorType.NOT_EQUALS:
                     return !Equals(first, second);
+
+                case BoundBinaryOperatorType.LESS_THAN:
+                    return (int?)first < (int?)second;
+
+                case BoundBinaryOperatorType.LESS_THAN_EQUALS:
+                    return (int?)first <= (int?)second;
+
+                case BoundBinaryOperatorType.GREATER_THAN:
+                    return (int?)first > (int?)second;
+
+                case BoundBinaryOperatorType.GREATER_THAN_EQUALS:
+                    return (int?)first >= (int?)second;
 
                 default:
                     throw new Exception($"Unexpected bynary operator {binaryExpression.Op}");
