@@ -37,18 +37,14 @@ namespace Bloop.CodeAnalysis
         public Compilation? Previous { get; }
         public SyntaxTree SyntaxTree { get; }
 
-        public Compilation ContinueWith(SyntaxTree syntaxTree)
-        {
-            return new Compilation(this, syntaxTree);
-        }
-
-        public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
+        public EvaluationResult Evaluate()
         {
 
             var diagnostics = SyntaxTree.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
                 return new EvaluationResult(diagnostics, null);
 
+            var variables = new Dictionary<VariableSymbol, object?>();
             var evaluator = new Evaluator(GlobalScope.Statement, variables);
             var result = evaluator.Evaluate();
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result);

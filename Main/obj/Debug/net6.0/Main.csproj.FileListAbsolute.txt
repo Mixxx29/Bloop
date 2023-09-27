@@ -17,3 +17,5 @@ C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0\Bloop.dll
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0\Bloop.pdb
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Debug\net6.0\Main.csproj.CopyComplete
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0\System.Collections.Immutable.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0\Bloop.Editor.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0\Bloop.Editor.pdb

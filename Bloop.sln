@@ -11,9 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Main", "Main\Main.csproj", "{71A15CD9-70AD-438A-9AD3-357DEF86EA97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bloop", "Bloop\Bloop.csproj", "{E362F27A-EA68-4AA1-978D-1C829016022F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bloop", "Bloop\Bloop.csproj", "{E362F27A-EA68-4AA1-978D-1C829016022F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bloop.Tests", "Bloop.Tests\Bloop.Tests.csproj", "{E4CD08E2-B3BE-4E7A-BDB9-E1EEFE3D558A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bloop.Tests", "Bloop.Tests\Bloop.Tests.csproj", "{E4CD08E2-B3BE-4E7A-BDB9-E1EEFE3D558A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bloop.Editor", "Bloop.Editor\Bloop.Editor.csproj", "{5B515B71-A948-44B0-85B8-835B8115DEAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{E4CD08E2-B3BE-4E7A-BDB9-E1EEFE3D558A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4CD08E2-B3BE-4E7A-BDB9-E1EEFE3D558A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4CD08E2-B3BE-4E7A-BDB9-E1EEFE3D558A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B515B71-A948-44B0-85B8-835B8115DEAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B515B71-A948-44B0-85B8-835B8115DEAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B515B71-A948-44B0-85B8-835B8115DEAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B515B71-A948-44B0-85B8-835B8115DEAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
