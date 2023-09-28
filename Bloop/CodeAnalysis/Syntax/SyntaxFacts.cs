@@ -38,6 +38,7 @@ namespace Bloop.CodeAnalysis.Syntax
             {
                 case SyntaxType.ASTERIX_TOKEN:
                 case SyntaxType.SLASH_TOKEN:
+                case SyntaxType.MODULO_TOKEN:
                     return 5;
 
                 case SyntaxType.PLUS_TOKEN:
@@ -124,6 +125,9 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case SyntaxType.SLASH_TOKEN:
                     return "/";
+
+                case SyntaxType.MODULO_TOKEN:
+                    return "%";
 
                 case SyntaxType.OPEN_PARENTHESIS_TOKEN:
                     return "(";
@@ -215,13 +219,14 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.WHILE_KEYWORD:
                 case SyntaxType.FOR_KEYWORD:
                 case SyntaxType.TO_KEYWORD:
-                    return ConsoleColor.DarkMagenta;
+                    return ConsoleColor.Magenta;
 
                 case SyntaxType.EQUALS_TOKEN:
                 case SyntaxType.DOUBLE_EQUALS_TOKEN:
                 case SyntaxType.PLUS_TOKEN:
                 case SyntaxType.MINUS_TOKEN:
                 case SyntaxType.ASTERIX_TOKEN:
+                case SyntaxType.MODULO_TOKEN:
                 case SyntaxType.SLASH_TOKEN:
                 case SyntaxType.GREATER_THAN_TOKEN:
                 case SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN:

@@ -65,6 +65,11 @@ namespace Bloop.CodeAnalysis.Syntax
                     _position++;
                     break;
 
+                case '%':
+                    _type = SyntaxType.MODULO_TOKEN;
+                    _position++;
+                    break;
+
                 case '(':
                     _type = SyntaxType.OPEN_PARENTHESIS_TOKEN;
                     _position++;

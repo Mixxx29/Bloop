@@ -6,6 +6,7 @@
         SUBSTRACTION,
         MULTIPLICATION,
         DIVISION,
+        MODULO,
 
         EQUALS,
         NOT_EQUALS,

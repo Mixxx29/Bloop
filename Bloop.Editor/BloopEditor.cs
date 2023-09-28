@@ -79,13 +79,8 @@ namespace Bloop
                         break;
 
                     default:
-                        if (key.KeyChar >= ' ')
-                        {
-                            HandleTyping(document, key.KeyChar.ToString());
-                            break;
-                        }
-
-                        throw new Exception("Invalid character input");
+                        HandleTyping(document, key.KeyChar.ToString());
+                        break;
                 }
             }
             else if (key.Modifiers == ConsoleModifiers.Shift)
@@ -94,6 +89,10 @@ namespace Bloop
                 {
                     case ConsoleKey.Tab:
                         HandleShiftTab(document);
+                        break;
+
+                    default:
+                        HandleTyping(document, key.KeyChar.ToString());
                         break;
                 }
             }

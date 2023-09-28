@@ -211,6 +211,9 @@ namespace Bloop.CodeAnalysis
                 case BoundBinaryOperatorType.DIVISION:
                     return (int?)first / (int?)second;
 
+                case BoundBinaryOperatorType.MODULO:
+                    return (int?)first % (int?)second;
+
                 case BoundBinaryOperatorType.LOGIC_AND:
                     return (bool)first && (bool)second;
 
