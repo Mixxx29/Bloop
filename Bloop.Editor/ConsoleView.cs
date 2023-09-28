@@ -17,7 +17,10 @@ namespace Bloop.Editor
     {
         private readonly BloopDocument _document;
 
-        private ImmutableArray<string> _lines;
+        private int _lastLineDrawn;
+
+        private EvaluationResult _result;
+        private SyntaxTree _syntaxTree;
 
         public ConsoleView(BloopDocument document)
         {
@@ -37,37 +40,31 @@ namespace Bloop.Editor
 
         private void Render()
         {
+            if (_result == null)
+                return;
+
             var cursorLeft = Console.CursorLeft;
             var cursorTop = Console.CursorTop;
 
+            Clear();
+
             Console.CursorVisible = false;
+
             Console.CursorLeft = 0;
             Console.CursorTop = _document.Lines.Count + 2;
 
-
-
-            Console.CursorLeft = cursorLeft;
-            Console.CursorTop = cursorTop;
-            Console.CursorVisible = true;
-        }
-
-        public void Print(Compilation compilation)
-        {
-            var result = compilation.Evaluate();
-
-            if (!result.Diagnostics.Any())
+            if (!_result.Diagnostics.Any())
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine($" {result.Value}");
+                PrintText($" {_result.Value}");
                 Console.ResetColor();
             }
             else
             {
-                var syntaxTree = compilation.SyntaxTree;
-                foreach (var diagnostic in result.Diagnostics)
+                foreach (var diagnostic in _result.Diagnostics)
                 {
-                    var lineIndex = syntaxTree.SourceText.GetLineIndex(diagnostic.Span.Start);
-                    var line = syntaxTree.SourceText.Lines[lineIndex];
+                    var lineIndex = _syntaxTree.SourceText.GetLineIndex(diagnostic.Span.Start);
+                    var line = _syntaxTree.SourceText.Lines[lineIndex];
                     var lineNumber = lineIndex + 1;
                     var errorPosition = diagnostic.Span.Start - line.Start + 1;
 
@@ -79,9 +76,9 @@ namespace Bloop.Editor
                     var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.Span.Start);
                     var sufixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
 
-                    var prefix = syntaxTree.SourceText.ToString(prefixSpan);
-                    var error = syntaxTree.SourceText.ToString(diagnostic.Span);
-                    var suffix = syntaxTree.SourceText.ToString(sufixSpan);
+                    var prefix = _syntaxTree.SourceText.ToString(prefixSpan);
+                    var error = _syntaxTree.SourceText.ToString(diagnostic.Span);
+                    var suffix = _syntaxTree.SourceText.ToString(sufixSpan);
 
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write("  └── ");
@@ -97,7 +94,40 @@ namespace Bloop.Editor
                 }
             }
 
+            _lastLineDrawn = Console.CursorTop;
+
+            Console.CursorLeft = cursorLeft;
+            Console.CursorTop = cursorTop;
+            Console.CursorVisible = true;
+        }
+
+        public void Print(EvaluationResult result, SyntaxTree syntaxTree)
+        {
+            _result = result;
+            _syntaxTree = syntaxTree;
             Render();
+        }
+
+        private void PrintText(string text)
+        {
+            Console.CursorLeft = 0;
+
+            Console.Write(text);
+
+            var unusedSpaceLength = Console.BufferWidth - Console.CursorLeft;
+            var unusedSpace = new string(' ', unusedSpaceLength);
+            Console.WriteLine(unusedSpace);
+        }
+
+        private void Clear()
+        {
+            var start = _document.Lines.Count + 2;
+            while (_lastLineDrawn > start)
+            {
+                Console.CursorTop = _lastLineDrawn--;
+                var blankSpace = new string(' ', Console.BufferWidth);
+                Console.WriteLine(blankSpace);
+            }
         }
     }
 }

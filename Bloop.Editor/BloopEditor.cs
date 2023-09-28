@@ -150,7 +150,8 @@ namespace Bloop
         {
             var syntaxTree = SyntaxTree.Parse(document.ToString());
             var compilation = new Compilation(syntaxTree);
-            _consoleView.Print(compilation);
+            var result = compilation.Evaluate();
+            _consoleView.Print(result, syntaxTree);
         }
 
         private void HandleTyping(BloopDocument document, string text)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using Bloop.CodeAnalysis.Syntax;
+using System.Collections.Immutable;
 
 namespace Bloop.CodeAnalysis.Text
 {

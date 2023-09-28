@@ -142,11 +142,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\Main.csproj",
+      "projectUniqueName": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Main\\Main.csproj",
       "projectName": "Main",
-      "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\Main.csproj",
+      "projectPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Main\\Main.csproj",
       "packagesPath": "C:\\Users\\mihaj\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\obj\\",
+      "outputPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Main\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\mihaj\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -163,11 +163,11 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Editor\\Bloop.Editor.csproj": {
-              "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Editor\\Bloop.Editor.csproj"
+            "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop.Editor\\Bloop.Editor.csproj": {
+              "projectPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop.Editor\\Bloop.Editor.csproj"
             },
-            "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj": {
-              "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj"
+            "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\Bloop.csproj": {
+              "projectPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\Bloop.csproj"
             }
           }
         }
@@ -197,7 +197,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
       }
     }
   }

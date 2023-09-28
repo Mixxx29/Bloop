@@ -196,5 +196,42 @@ namespace Bloop.CodeAnalysis.Syntax
             }
             return null;
         }
+
+        public static ConsoleColor GetColor(SyntaxType type)
+        {
+            switch (type)
+            {
+                case SyntaxType.VAR_KEYWORD:
+                case SyntaxType.CONST_KEYWORD:
+                    return ConsoleColor.DarkCyan;
+
+                case SyntaxType.TRUE_KEYWORD:
+                case SyntaxType.FALSE_KEYWORD:
+                case SyntaxType.NUMBER_TOKEN:
+                    return ConsoleColor.Cyan;
+
+                case SyntaxType.IF_KEYWORD:
+                case SyntaxType.ELSE_KEYWORD:
+                case SyntaxType.WHILE_KEYWORD:
+                case SyntaxType.FOR_KEYWORD:
+                case SyntaxType.TO_KEYWORD:
+                    return ConsoleColor.DarkMagenta;
+
+                case SyntaxType.EQUALS_TOKEN:
+                case SyntaxType.DOUBLE_EQUALS_TOKEN:
+                case SyntaxType.PLUS_TOKEN:
+                case SyntaxType.MINUS_TOKEN:
+                case SyntaxType.ASTERIX_TOKEN:
+                case SyntaxType.SLASH_TOKEN:
+                case SyntaxType.GREATER_THAN_TOKEN:
+                case SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN:
+                case SyntaxType.LESS_THAN_TOKEN:
+                case SyntaxType.LESS_THAN_OR_EQUALS_TOKEN:
+                    return ConsoleColor.Yellow;
+
+                default:
+                    return ConsoleColor.White;
+            }
+        }
     }
 }

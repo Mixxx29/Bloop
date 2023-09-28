@@ -3,7 +3,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Bloop.CodeAnalysis.Syntax
 {
-    internal class Lexer
+    public class Lexer
     {
         private readonly SourceText _sourceText;
         private readonly DiagnosticsPool _diagnostics = new DiagnosticsPool();

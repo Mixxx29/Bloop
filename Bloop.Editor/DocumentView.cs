@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text;
+using Bloop.CodeAnalysis.Syntax;
+using Bloop.CodeAnalysis.Text;
 
 namespace Bloop.Editor
 {
@@ -29,7 +31,7 @@ namespace Bloop.Editor
 
         private void RenderDocument()
         {
-            ClearLine(_document.CurrentLineIndex);
+            ClearLine();
 
             Console.SetCursorPosition(0, 0);
 
@@ -40,11 +42,11 @@ namespace Bloop.Editor
 
             DrawSeparator();
 
-            _lastLineDrawn = Console.CursorTop - 1;
+            _lastLineDrawn = Console.CursorTop;
             _document.UpdateCursor();
         }
 
-        private void ClearLine(int currentLineIndex)
+        private void ClearLine()
         {
             var width = Console.BufferWidth;
             var blankLine = new StringBuilder();
@@ -89,8 +91,18 @@ namespace Bloop.Editor
             Console.CursorLeft = 0;
             DrawPrefix(lineIndex + 1);
 
-            var line = _document.Lines[lineIndex];
-            Console.Write(line.ToString());
+            var line = _document.Lines[lineIndex].ToString();
+            var lexer = new Lexer(SourceText.FromText(line));
+
+            var token = lexer.NextToken();
+            while (token.Type != SyntaxType.END_OF_FILE_TOKEN)
+            {
+                Console.ForegroundColor = SyntaxFacts.GetColor(token.Type);
+                Console.Write(token.Text);
+                Console.ResetColor();
+                token = lexer.NextToken();
+            }
+
 
             var unusedSpaceLength = Console.BufferWidth - Console.CursorLeft;
             var unusedSpace = new string(' ', unusedSpaceLength);
