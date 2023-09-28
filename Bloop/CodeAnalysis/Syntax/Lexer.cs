@@ -65,11 +65,6 @@ namespace Bloop.CodeAnalysis.Syntax
                     _position++;
                     break;
 
-                case '%':
-                    _type = SyntaxType.MODULO_TOKEN;
-                    _position++;
-                    break;
-
                 case '(':
                     _type = SyntaxType.OPEN_PARENTHESIS_TOKEN;
                     _position++;
@@ -150,7 +145,6 @@ namespace Bloop.CodeAnalysis.Syntax
                     break;
 
                 default:
-                {
                     if (char.IsLetter(Current))
                     {
                         ReadIdentifierOrKeyword();
@@ -161,10 +155,10 @@ namespace Bloop.CodeAnalysis.Syntax
                     }
                     else
                     {
-                        _diagnostics.ReportInvalidCharacter(_position++, Current);
+                        _diagnostics.ReportInvalidCharacter(_position, Current);
+                        ++_position;
                     }
                     break;
-                }
             }
 
             var length = _position - _start;
@@ -205,6 +199,8 @@ namespace Bloop.CodeAnalysis.Syntax
             var length = _position - _start;
             var text = _sourceText.ToString(_start, length);
             _type = text.GetKeywordType();
+            if (_type == SyntaxType.IDENTIFIER_TOKEN) 
+                _value = text;
         }
     }
 }

@@ -92,7 +92,7 @@ namespace Bloop.CodeAnalysis
             var condition = (bool)EvaluateExpression(ifStatement.Condition);
             if (condition)
                 EvaluateStatement(ifStatement.ThenStatement);
-            else
+            else if (ifStatement.ElseStatement != null)
                 EvaluateStatement(ifStatement.ElseStatement);
         }
 

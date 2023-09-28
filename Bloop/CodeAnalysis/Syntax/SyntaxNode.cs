@@ -57,7 +57,7 @@ namespace Bloop.CodeAnalysis.Syntax
 
             if (node is SyntaxToken token && token.Value != null)
             {
-                writer.Write(" " + token.Value);
+                writer.Write($" '{token.Value}'");
             }
 
             writer.WriteLine();

@@ -34,7 +34,7 @@ namespace Bloop.CodeAnalysis
         public void ReportInvalidCharacter(int position, char character)
         {
             var textSpan = new TextSpan(position, 1);
-            var message = $"Invalid character: {character}";
+            var message = $"Invalid character: '{character}'";
             Report(textSpan, message);
         }
 
@@ -77,6 +77,12 @@ namespace Bloop.CodeAnalysis
         internal void ReportReadOnly(TextSpan textSpan, string name)
         {
             var message = $"Cannot assign value. Variable '{name}' is read-only";
+            Report(textSpan, message);
+        }
+
+        internal void ReportMissingExpression(TextSpan textSpan)
+        {
+            var message = $"Missing expression";
             Report(textSpan, message);
         }
     }

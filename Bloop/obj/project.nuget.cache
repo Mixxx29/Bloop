@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/1gHeJ0tEK0ijJwJ9OntU0uJtLMpwX3ZSApyWfXvtUzSRxUyWlpgY0LCuulvaAtDASfLzxQBfz0NMBqsmaC1Gg==",
+  "dgSpecHash": "f1rWE9fT7b63qIJKp2VpYbijEmcG/Tu+8nyNXO5RxMA8+kqOirCrTCmrTcI46aaopz6/UHDtApJxnLWX+qrG0w==",
   "success": true,
-  "projectFilePath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\Bloop.csproj",
+  "projectFilePath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mihaj\\.nuget\\packages\\system.collections.immutable\\7.0.0\\system.collections.immutable.7.0.0.nupkg.sha512",
     "C:\\Users\\mihaj\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"

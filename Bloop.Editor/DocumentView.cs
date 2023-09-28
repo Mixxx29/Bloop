@@ -31,7 +31,7 @@ namespace Bloop.Editor
 
         private void RenderDocument()
         {
-            ClearLine();
+            ClearLastLine();
 
             Console.SetCursorPosition(0, 0);
 
@@ -42,21 +42,15 @@ namespace Bloop.Editor
 
             DrawSeparator();
 
-            _lastLineDrawn = Console.CursorTop;
+            _lastLineDrawn = Console.CursorTop - 1;
             _document.UpdateCursor();
         }
 
-        private void ClearLine()
+        private void ClearLastLine()
         {
-            var width = Console.BufferWidth;
-            var blankLine = new StringBuilder();
-            while (width-- > 0)
-            {
-                blankLine.Append(" ");
-            }
-
             Console.SetCursorPosition(0, _lastLineDrawn);
-            Console.WriteLine(blankLine.ToString());
+            FillUnusedSpace();
+            Console.WriteLine();
         }
 
         private void RenderLine()
@@ -67,18 +61,11 @@ namespace Bloop.Editor
 
         private void DrawSeparator()
         {
-            var width = Console.BufferWidth - ">>".Length;
-            var blankLine = new StringBuilder();
-            while (width-- > 0)
-            {
-                blankLine.Append(" ");
-            }
-
             Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.Write(">>");
             Console.ResetColor();
-
-            Console.WriteLine(blankLine.ToString());
+            FillUnusedSpace();
+            Console.WriteLine();
         }
 
         private void DrawLine()
@@ -103,10 +90,7 @@ namespace Bloop.Editor
                 token = lexer.NextToken();
             }
 
-
-            var unusedSpaceLength = Console.BufferWidth - Console.CursorLeft;
-            var unusedSpace = new string(' ', unusedSpaceLength);
-            Console.Write(unusedSpace);
+            FillUnusedSpace();
 
             if (lineIndex < _document.Lines.Count - 1)
                 ++Console.CursorTop;
@@ -115,8 +99,18 @@ namespace Bloop.Editor
         private void DrawPrefix(int lineNumber)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write($" {lineNumber}      ");
+            Console.Write($" {lineNumber}");
+
+            int unusedSpace = 8 - Console.CursorLeft;
+            Console.Write(new string(' ', unusedSpace));
             Console.ResetColor();
+        }
+
+        private static void FillUnusedSpace()
+        {
+            var unusedSpaceLength = Console.BufferWidth - Console.CursorLeft;
+            var unusedSpace = new string(' ', unusedSpaceLength);
+            Console.Write(unusedSpace);
         }
     }
 }

@@ -54,51 +54,59 @@ namespace Bloop.Editor
             Console.CursorTop = _document.Lines.Count + 2;
 
             if (!_result.Diagnostics.Any())
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                PrintText($" {_result.Value}");
-                Console.ResetColor();
-            }
+                PrintResult();
             else
-            {
-                foreach (var diagnostic in _result.Diagnostics)
-                {
-                    var lineIndex = _syntaxTree.SourceText.GetLineIndex(diagnostic.Span.Start);
-                    var line = _syntaxTree.SourceText.Lines[lineIndex];
-                    var lineNumber = lineIndex + 1;
-                    var errorPosition = diagnostic.Span.Start - line.Start + 1;
+                PrintDiagnostics();
 
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write($" ({lineNumber}, {errorPosition}): ");
-                    Console.WriteLine($"{diagnostic}");
-                    Console.ResetColor();
-
-                    var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.Span.Start);
-                    var sufixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
-
-                    var prefix = _syntaxTree.SourceText.ToString(prefixSpan);
-                    var error = _syntaxTree.SourceText.ToString(diagnostic.Span);
-                    var suffix = _syntaxTree.SourceText.ToString(sufixSpan);
-
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write("  └── ");
-                    Console.ResetColor();
-
-                    Console.Write(prefix);
-
-                    Console.BackgroundColor = ConsoleColor.Red;
-                    Console.Write(error);
-                    Console.ResetColor();
-
-                    Console.WriteLine(suffix);
-                }
-            }
+            //Console.WriteLine(_syntaxTree.Root.ToString());
 
             _lastLineDrawn = Console.CursorTop;
 
             Console.CursorLeft = cursorLeft;
             Console.CursorTop = cursorTop;
             Console.CursorVisible = true;
+        }
+
+        private void PrintResult()
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            PrintText($" {_result.Value}");
+            Console.ResetColor();
+        }
+
+        private void PrintDiagnostics()
+        {
+            foreach (var diagnostic in _result.Diagnostics)
+            {
+                var lineIndex = _syntaxTree.SourceText.GetLineIndex(diagnostic.Span.Start);
+                var line = _syntaxTree.SourceText.Lines[lineIndex];
+                var lineNumber = lineIndex + 1;
+                var errorPosition = diagnostic.Span.Start - line.Start + 1;
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write($" ({lineNumber}, {errorPosition}): ");
+                Console.WriteLine($"{diagnostic}");
+                Console.ResetColor();
+
+                var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.Span.Start);
+                var sufixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+
+                var prefix = _syntaxTree.SourceText.ToString(prefixSpan);
+                var error = _syntaxTree.SourceText.ToString(diagnostic.Span);
+                var suffix = _syntaxTree.SourceText.ToString(sufixSpan);
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("  └── ");
+                Console.ResetColor();
+
+                Console.Write(prefix);
+
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.Write(error);
+                Console.ResetColor();
+
+                Console.WriteLine(suffix);
+            }
         }
 
         public void Print(EvaluationResult result, SyntaxTree syntaxTree)

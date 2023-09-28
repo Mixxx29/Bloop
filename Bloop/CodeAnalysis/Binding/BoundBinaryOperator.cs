@@ -34,7 +34,7 @@ namespace Bloop.CodeAnalysis.Binding
             new BoundBinaryOperator(SyntaxType.MINUS_TOKEN, BoundBinaryOperatorType.SUBSTRACTION, typeof(int)),
             new BoundBinaryOperator(SyntaxType.ASTERIX_TOKEN, BoundBinaryOperatorType.MULTIPLICATION, typeof(int)),
             new BoundBinaryOperator(SyntaxType.SLASH_TOKEN, BoundBinaryOperatorType.DIVISION, typeof(int)),
-            new BoundBinaryOperator(SyntaxType.MODULO_TOKEN, BoundBinaryOperatorType.MODULO, typeof(int)),
+            new BoundBinaryOperator(SyntaxType.MODULO_KEYWORD, BoundBinaryOperatorType.MODULO, typeof(int)),
             new BoundBinaryOperator(SyntaxType.DOUBLE_EQUALS_TOKEN, BoundBinaryOperatorType.EQUALS, typeof(int), typeof(bool)),
             new BoundBinaryOperator(SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN, BoundBinaryOperatorType.NOT_EQUALS, typeof(int), typeof(bool)),
 

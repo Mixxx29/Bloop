@@ -233,6 +233,9 @@ namespace Bloop.CodeAnalysis.Binding
                 case SyntaxType.ASSIGNMENT_EXPRESSION:
                     return BindAssignmentExpression((AssignmentExpressionSyntax)expressionNode);
 
+                case SyntaxType.MISSING_EXPRESSION:
+                    return BindMissingExpression((MissingExpressionSyntax)expressionNode);
+
                 default:
                     throw new Exception($"Unexpected syntax {expressionNode.Type}");
             }
@@ -352,6 +355,12 @@ namespace Bloop.CodeAnalysis.Binding
                 return new BoundLiteralExpressionNode(0);
             }
             return new BoundVariableExpressionNode(variable);
+        }
+
+        private BoundExpression BindMissingExpression(MissingExpressionSyntax syntax)
+        {
+            _diagnostics.ReportMissingExpression(syntax.EndOfFileToken.Span);
+            return new BoundMissingExpression();
         }
     }
 }

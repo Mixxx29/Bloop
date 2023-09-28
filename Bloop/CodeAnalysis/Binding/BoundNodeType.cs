@@ -2,6 +2,7 @@
 {
     internal enum BoundNodeType
     {
+        MISSING_EXPRESSION,
         UNARY_EXPRESSION,
         LITERAL_EXPRESSION,
         BINARY_EXPRESSION,

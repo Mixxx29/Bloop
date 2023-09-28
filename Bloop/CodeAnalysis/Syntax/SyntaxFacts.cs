@@ -38,7 +38,7 @@ namespace Bloop.CodeAnalysis.Syntax
             {
                 case SyntaxType.ASTERIX_TOKEN:
                 case SyntaxType.SLASH_TOKEN:
-                case SyntaxType.MODULO_TOKEN:
+                case SyntaxType.MODULO_KEYWORD:
                     return 5;
 
                 case SyntaxType.PLUS_TOKEN:
@@ -78,6 +78,9 @@ namespace Bloop.CodeAnalysis.Syntax
         {
             switch (text)
             {
+                case "":
+                    return SyntaxType.INVALID_TOKEN;
+
                 case "true":
                     return SyntaxType.TRUE_KEYWORD;
 
@@ -105,6 +108,9 @@ namespace Bloop.CodeAnalysis.Syntax
                 case "to":
                     return SyntaxType.TO_KEYWORD;
 
+                case "mod":
+                    return SyntaxType.MODULO_KEYWORD;
+
                 default:
                     return SyntaxType.IDENTIFIER_TOKEN;
             }
@@ -125,9 +131,6 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case SyntaxType.SLASH_TOKEN:
                     return "/";
-
-                case SyntaxType.MODULO_TOKEN:
-                    return "%";
 
                 case SyntaxType.OPEN_PARENTHESIS_TOKEN:
                     return "(";
@@ -197,6 +200,9 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case SyntaxType.TO_KEYWORD:
                     return "to";
+
+                case SyntaxType.MODULO_KEYWORD:
+                    return "mod";
             }
             return null;
         }
@@ -226,7 +232,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.PLUS_TOKEN:
                 case SyntaxType.MINUS_TOKEN:
                 case SyntaxType.ASTERIX_TOKEN:
-                case SyntaxType.MODULO_TOKEN:
+                case SyntaxType.MODULO_KEYWORD:
                 case SyntaxType.SLASH_TOKEN:
                 case SyntaxType.GREATER_THAN_TOKEN:
                 case SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN:

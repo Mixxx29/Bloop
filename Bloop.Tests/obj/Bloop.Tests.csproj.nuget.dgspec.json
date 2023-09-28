@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj": {}
+    "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj": {
+    "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj",
+        "projectUniqueName": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj",
         "projectName": "Bloop.Tests",
-        "projectPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj",
+        "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj",
         "packagesPath": "C:\\Users\\mihaj\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop.Tests\\obj\\",
+        "outputPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mihaj\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -28,8 +28,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\Bloop.csproj": {
-                "projectPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\Bloop.csproj"
+              "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj": {
+                "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj"
               }
             }
           }
@@ -81,18 +81,18 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\Bloop.csproj": {
+    "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\Bloop.csproj",
+        "projectUniqueName": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj",
         "projectName": "Bloop",
-        "projectPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\Bloop.csproj",
+        "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\Bloop.csproj",
         "packagesPath": "C:\\Users\\mihaj\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop\\obj\\",
+        "outputPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mihaj\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -142,7 +142,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.306\\RuntimeIdentifierGraph.json"
         }
       }
     }

@@ -239,6 +239,9 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.NUMBER_TOKEN:
                     return ParseNumberLiteral();
 
+                case SyntaxType.END_OF_FILE_TOKEN:
+                    return ParseMissingExpression();
+
                 case SyntaxType.IDENTIFIER_TOKEN:
                 default:
                     return ParseNameExpression();
@@ -270,6 +273,12 @@ namespace Bloop.CodeAnalysis.Syntax
         {
             var identifierToken = NextToken();
             return new NameExpressionSyntax(identifierToken);
+        }
+
+        private ExpressionSyntax ParseMissingExpression()
+        {
+            var invalidToken = NextToken();
+            return new MissingExpressionSyntax(invalidToken);
         }
     }
 }

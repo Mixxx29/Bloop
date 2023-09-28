@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Xqfwp9YnMRTcAX4rpaSvPs2kZRwpi1na0n8ZeceOzw/BDqFeNXgnjlsn95E8Po4W4tL7WfIUh1SKKVFSvyApLg==",
+  "dgSpecHash": "7pQ+hj2OyLvs0dgwTyR/uTRBofoiVjvJvjt9P65/AQYRixmd+18I/BlX9wEHXbWG5JTVRFavRPsb6qXfOr+U6A==",
   "success": true,
-  "projectFilePath": "C:\\Users\\mihaj\\Source\\Repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj",
+  "projectFilePath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Tests\\Bloop.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mihaj\\.nuget\\packages\\coverlet.collector\\3.2.0\\coverlet.collector.3.2.0.nupkg.sha512",
     "C:\\Users\\mihaj\\.nuget\\packages\\microsoft.codecoverage\\17.5.0\\microsoft.codecoverage.17.5.0.nupkg.sha512",
