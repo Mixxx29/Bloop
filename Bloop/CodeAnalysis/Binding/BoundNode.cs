@@ -63,8 +63,9 @@ namespace Bloop.CodeAnalysis.Binding
             writer.Write(indent);
             writer.Write(marker);
 
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = ConsoleColor.Cyan;
             writer.Write(node.GetText() + " ");
+            Console.ResetColor();
 
             var isFirstPropery = true;
             foreach (var property in node.GetProperties())
@@ -109,6 +110,11 @@ namespace Bloop.CodeAnalysis.Binding
                 return unaryExpression.Op.Type.ToString() + "_EXPRESSION";
 
             return NodeType.ToString();    
+        }
+
+        public void ToConsole()
+        {
+            WriteTo(Console.Out);
         }
 
         public override string ToString()
