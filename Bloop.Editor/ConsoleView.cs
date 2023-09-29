@@ -20,7 +20,7 @@ namespace Bloop.Editor
         private int _lastLineDrawn;
 
         private EvaluationResult _result;
-        private SyntaxTree _syntaxTree;
+        private Compilation _compilation;
 
         public ConsoleView(BloopDocument document)
         {
@@ -58,7 +58,8 @@ namespace Bloop.Editor
             else
                 PrintDiagnostics();
 
-            //Console.WriteLine(_syntaxTree.Root.ToString());
+            if (_result.Root != null) 
+                Console.WriteLine(_result.Root.ToString());
 
             _lastLineDrawn = Console.CursorTop;
 
@@ -76,10 +77,11 @@ namespace Bloop.Editor
 
         private void PrintDiagnostics()
         {
+            var sourceText = _compilation.SyntaxTree.SourceText;
             foreach (var diagnostic in _result.Diagnostics)
             {
-                var lineIndex = _syntaxTree.SourceText.GetLineIndex(diagnostic.Span.Start);
-                var line = _syntaxTree.SourceText.Lines[lineIndex];
+                var lineIndex = sourceText.GetLineIndex(diagnostic.Span.Start);
+                var line = sourceText.Lines[lineIndex];
                 var lineNumber = lineIndex + 1;
                 var errorPosition = diagnostic.Span.Start - line.Start + 1;
 
@@ -91,9 +93,9 @@ namespace Bloop.Editor
                 var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.Span.Start);
                 var sufixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
 
-                var prefix = _syntaxTree.SourceText.ToString(prefixSpan);
-                var error = _syntaxTree.SourceText.ToString(diagnostic.Span);
-                var suffix = _syntaxTree.SourceText.ToString(sufixSpan);
+                var prefix = sourceText.ToString(prefixSpan);
+                var error = sourceText.ToString(diagnostic.Span);
+                var suffix = sourceText.ToString(sufixSpan);
 
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write("  └── ");
@@ -109,10 +111,10 @@ namespace Bloop.Editor
             }
         }
 
-        public void Print(EvaluationResult result, SyntaxTree syntaxTree)
+        public void Print(EvaluationResult result, Compilation compilation)
         {
             _result = result;
-            _syntaxTree = syntaxTree;
+            _compilation = compilation;
             Render();
         }
 

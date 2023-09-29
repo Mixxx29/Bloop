@@ -256,7 +256,7 @@ namespace Bloop.CodeAnalysis.Binding
                 _diagnostics.ReportUndefinedUnaryOperator(expressionNode.OperatorToken.Span, expressionNode.OperatorToken.Text, boundOperand.Type);
                 return boundOperand;
             }
-            return new BoundUnaryExpressionNode(boundOperator, boundOperand);
+            return new BoundUnaryExpression(boundOperator, boundOperand);
         }
 
         private BoundUnaryOperatorType? BindUnaryOperatorKind(SyntaxType type, Type operandType)
@@ -300,7 +300,7 @@ namespace Bloop.CodeAnalysis.Binding
                 _diagnostics.ReportUndefinedBinaryOperator(expressionNode.OperatorToken.Span, expressionNode.OperatorToken.Text, boundFirstOperand.Type, boundSecondOperand.Type);
                 return boundFirstOperand;
             }
-            return new BoundBinaryExpressionNode(boundFirstOperand, boundOperator, boundSecondOperand);
+            return new BoundBinaryExpression(boundFirstOperand, boundOperator, boundSecondOperand);
         }
 
         private BoundBinaryOperatorType? BindBinaryOperatorType(SyntaxType type, Type firstOperandType, Type secondOperandType)

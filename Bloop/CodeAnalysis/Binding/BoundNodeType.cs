@@ -1,6 +1,6 @@
 ﻿namespace Bloop.CodeAnalysis.Binding
 {
-    internal enum BoundNodeType
+    public enum BoundNodeType
     {
         MISSING_EXPRESSION,
         UNARY_EXPRESSION,

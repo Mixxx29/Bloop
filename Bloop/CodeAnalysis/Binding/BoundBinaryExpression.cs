@@ -1,8 +1,8 @@
 ﻿namespace Bloop.CodeAnalysis.Binding
 {
-    internal sealed class BoundBinaryExpressionNode : BoundExpression
+    internal sealed class BoundBinaryExpression : BoundExpression
     {
-        public BoundBinaryExpressionNode(BoundExpression firstOperandNode, BoundBinaryOperator op, BoundExpression secondOperandNode)
+        public BoundBinaryExpression(BoundExpression firstOperandNode, BoundBinaryOperator op, BoundExpression secondOperandNode)
         {
             FirstOperandNode = firstOperandNode;
             Op = op;

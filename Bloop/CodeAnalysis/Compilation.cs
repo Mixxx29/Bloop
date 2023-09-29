@@ -19,8 +19,7 @@ namespace Bloop.CodeAnalysis
             Previous = previous;
             SyntaxTree = syntaxTree;
         }
-
-        internal BoundGlobalScope GlobalScope
+        BoundGlobalScope GlobalScope
         {
             get
             {
@@ -39,15 +38,14 @@ namespace Bloop.CodeAnalysis
 
         public EvaluationResult Evaluate()
         {
-
             var diagnostics = SyntaxTree.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
-                return new EvaluationResult(diagnostics, null);
+                return new EvaluationResult(diagnostics, null, null);
 
             var variables = new Dictionary<VariableSymbol, object?>();
             var evaluator = new Evaluator(GlobalScope.Statement, variables);
             var result = evaluator.Evaluate();
-            return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result);
+            return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result, GlobalScope.Statement);
         }
     }
 }

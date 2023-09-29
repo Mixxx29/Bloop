@@ -144,10 +144,10 @@ namespace Bloop.CodeAnalysis
                 case BoundAssignmentExpressionNode assignmentExpression:
                     return EvaluateAssignmentExpression(assignmentExpression);
 
-                case BoundUnaryExpressionNode unaryExpression:
+                case BoundUnaryExpression unaryExpression:
                     return EvaluateUnaryExpression(unaryExpression);
 
-                case BoundBinaryExpressionNode binaryExpression:
+                case BoundBinaryExpression binaryExpression:
                     return EvaluateBinaryExpression(binaryExpression);
 
                 default:
@@ -172,7 +172,7 @@ namespace Bloop.CodeAnalysis
             return value;
         }
 
-        private object? EvaluateUnaryExpression(BoundUnaryExpressionNode unaryExpression)
+        private object? EvaluateUnaryExpression(BoundUnaryExpression unaryExpression)
         {
             var operand = EvaluateExpression(unaryExpression.Operand);
 
@@ -192,7 +192,7 @@ namespace Bloop.CodeAnalysis
             }
         }
 
-        private object? EvaluateBinaryExpression(BoundBinaryExpressionNode binaryExpression)
+        private object? EvaluateBinaryExpression(BoundBinaryExpression binaryExpression)
         {
             var first = EvaluateExpression(binaryExpression.FirstOperandNode);
             var second = EvaluateExpression(binaryExpression.SecondOperandNode);
