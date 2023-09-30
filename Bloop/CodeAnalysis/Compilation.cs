@@ -1,6 +1,7 @@
 ﻿using Bloop.CodeAnalysis.Binding;
 using Bloop.CodeAnalysis.Syntax;
 using System.Collections.Immutable;
+using Bloop.CodeAnalysis.Lowering;
 
 namespace Bloop.CodeAnalysis
 {
@@ -19,13 +20,14 @@ namespace Bloop.CodeAnalysis
             Previous = previous;
             SyntaxTree = syntaxTree;
         }
+
         BoundGlobalScope GlobalScope
         {
             get
             {
                 if (_globalScope == null)
                 {
-                    var globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, SyntaxTree.Root);
+                    var globalScope = Binder.BindGlobalScope(null, SyntaxTree.Root);
                     Interlocked.CompareExchange(ref _globalScope, globalScope, null);
                 }
 
@@ -43,9 +45,10 @@ namespace Bloop.CodeAnalysis
                 return new EvaluationResult(diagnostics, null, null);
 
             var variables = new Dictionary<VariableSymbol, object?>();
-            var evaluator = new Evaluator(GlobalScope.Statement, variables);
+            var statement = Lowerer.Lower(GlobalScope.Statement);
+            var evaluator = new Evaluator(statement, variables);
             var result = evaluator.Evaluate();
-            return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result, GlobalScope.Statement);
+            return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result, statement);
         }
     }
 }

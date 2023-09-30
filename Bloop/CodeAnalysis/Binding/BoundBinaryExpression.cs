@@ -4,16 +4,16 @@
     {
         public BoundBinaryExpression(BoundExpression firstOperandNode, BoundBinaryOperator op, BoundExpression secondOperandNode)
         {
-            FirstOperandNode = firstOperandNode;
+            FirstOperand = firstOperandNode;
             Op = op;
-            SecondOperandNode = secondOperandNode;
+            SecondOperand = secondOperandNode;
         }
 
         public override BoundNodeType NodeType => BoundNodeType.BINARY_EXPRESSION;
         public override Type Type => Op.ResultType;
 
-        public BoundExpression FirstOperandNode { get; }
+        public BoundExpression FirstOperand { get; }
         public BoundBinaryOperator Op { get; }
-        public BoundExpression SecondOperandNode { get; }
+        public BoundExpression SecondOperand { get; }
     }
 }

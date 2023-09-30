@@ -180,7 +180,7 @@ namespace Bloop.CodeAnalysis.Binding
                 return boundExpression;
             }
 
-            return new BoundAssignmentExpressionNode(variable, boundExpression);
+            return new BoundAssignmentExpression(variable, boundExpression);
         }
 
         private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement syntax)
@@ -244,7 +244,7 @@ namespace Bloop.CodeAnalysis.Binding
         private BoundExpression BindLiteralExpressiom(LiteralExpressionNode expressionNode)
         {
             var value = expressionNode.Value ?? 0;
-            return new BoundLiteralExpressionNode(value);
+            return new BoundLiteralExpression(value);
         }
 
         private BoundExpression BindUnaryExpressiom(UnaryExpressionSyntax expressionNode)
@@ -346,15 +346,15 @@ namespace Bloop.CodeAnalysis.Binding
         private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
         {
             if (_scope == null) 
-                return new BoundLiteralExpressionNode(0);
+                return new BoundLiteralExpression(0);
 
             var name = syntax.IdentifierToken.Text;
             if (!_scope.TryLookup(name, out var variable))
             {
                 _diagnostics.ReportUndefinedVariable(syntax.IdentifierToken.Span, name);
-                return new BoundLiteralExpressionNode(0);
+                return new BoundLiteralExpression(0);
             }
-            return new BoundVariableExpressionNode(variable);
+            return new BoundVariableExpression(variable);
         }
 
         private BoundExpression BindMissingExpression(MissingExpressionSyntax syntax)

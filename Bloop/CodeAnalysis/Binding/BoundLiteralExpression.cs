@@ -1,8 +1,8 @@
 ﻿namespace Bloop.CodeAnalysis.Binding
 {
-    internal sealed class BoundLiteralExpressionNode : BoundExpression
+    internal sealed class BoundLiteralExpression : BoundExpression
     {
-        public BoundLiteralExpressionNode(object value)
+        public BoundLiteralExpression(object value)
         {
             Value = value;
         }

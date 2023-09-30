@@ -1,16 +1,17 @@
 ﻿using Bloop.CodeAnalysis.Binding;
+using System;
 
 namespace Bloop.CodeAnalysis
 {
 
     class Evaluator
     {
-        private readonly BoundStatement _root;
+        private readonly BoundBlockStatement _root;
         private readonly Dictionary<VariableSymbol, object?> _variables;
 
         private object? _lastValue;
 
-        public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object?> variables)
+        public Evaluator(BoundBlockStatement root, Dictionary<VariableSymbol, object?> variables)
         {
             _root = root;
             _variables = variables;
@@ -18,61 +19,55 @@ namespace Bloop.CodeAnalysis
 
         public object? Evaluate()
         {
-            EvaluateStatement(_root);
-            return _lastValue;
-        }
+            var labelToIndex = new Dictionary<LabelSymbol, int>();
 
-        private void EvaluateStatement(BoundStatement statement)
-        {
-            switch (statement)
+            for (var i = 0; i < _root.Statements.Length; i++)
             {
-                case BoundMainStatement mainStatement:
-                    EvaluateMainStatement(mainStatement);
-                    break;
-
-                case BoundBlockStatement blockStatement:
-                    EvaluateBlockStatement(blockStatement);
-                    break;
-
-                case BoundVariableDeclarationStatement variableDeclarationStatement:
-                    EvaluateVariableDeclarationStatement(variableDeclarationStatement);
-                    break;
-
-                case BoundExpressionStatement expressionStatement:
-                    EvaluateExpressionStatement(expressionStatement);
-                    break;
-
-                case BoundIfStatement ifStatement:
-                    EvaluateIfStatement(ifStatement);
-                    break;
-
-                case BoundElseStatement elseStatement:
-                    EvaluateStatement(elseStatement.Statement);
-                    break;
-
-                case BoundWhileStatement whileStatement:
-                    EvaluateWhileStatement(whileStatement);
-                    break;
-
-                case BoundForStatement forStatement:
-                    EvaluateForStatement(forStatement);
-                    break;
-
-                default:
-                    throw new Exception($"Unexpected node {statement.NodeType}");
+                if (_root.Statements[i] is BoundLabelStatement labelStatement)
+                    labelToIndex.Add(labelStatement.Label, i + 1);
             }
-        }
 
-        private void EvaluateMainStatement(BoundMainStatement mainStatement)
-        {
-            foreach (var statement in mainStatement.Statements)
-                EvaluateStatement(statement);
-        }
+            var index = 0;
+            while (index < _root.Statements.Length)
+            {
+                var statement = _root.Statements[index];
+                switch (statement.NodeType)
+                {
+                    case BoundNodeType.VARIABLE_DECLARATION_STATEMENT:
+                        EvaluateVariableDeclarationStatement((BoundVariableDeclarationStatement)statement);
+                        index++;
+                        break;
 
-        private void EvaluateBlockStatement(BoundBlockStatement blockStatement)
-        {
-            foreach (var statement in blockStatement.Statements)
-                EvaluateStatement(statement);
+                    case BoundNodeType.EXPRESSION_STATEMENT:
+                        EvaluateExpressionStatement((BoundExpressionStatement)statement);
+                        index++;
+                        break;
+
+                    case BoundNodeType.GOTO_STATEMENT:
+                        var gotoStatement = (BoundGotoStatement)statement;
+                        index = labelToIndex[gotoStatement.Label];
+                        break;
+
+                    case BoundNodeType.CONDITIONAL_GOTO_STATEMENT:
+                        var conditionalGotoStatement = (BoundConditionalGotoStatement)statement;
+                        var condition = (bool)EvaluateExpression(conditionalGotoStatement.Condition);
+                        if (condition && conditionalGotoStatement.JumpIfTrue ||
+                            !condition && !conditionalGotoStatement.JumpIfTrue)
+                            index = labelToIndex[conditionalGotoStatement.Label];
+                        else
+                            index++;
+                        break;
+
+                    case BoundNodeType.LABEL_STATEMENT:
+                        index++;
+                        break;
+
+                    default:
+                        throw new Exception($"Unexpected node {statement.NodeType}");
+                }
+            }
+
+            return _lastValue;
         }
 
         private void EvaluateVariableDeclarationStatement(BoundVariableDeclarationStatement variableDeclarationStatement)
@@ -87,61 +82,17 @@ namespace Bloop.CodeAnalysis
             _lastValue = EvaluateExpression(expressionStatement.Expression);
         }
 
-        private void EvaluateIfStatement(BoundIfStatement ifStatement)
-        {
-            var condition = (bool)EvaluateExpression(ifStatement.Condition);
-            if (condition)
-                EvaluateStatement(ifStatement.ThenStatement);
-            else if (ifStatement.ElseStatement != null)
-                EvaluateStatement(ifStatement.ElseStatement);
-        }
-
-        private void EvaluateWhileStatement(BoundWhileStatement whileStatement)
-        {
-            while ((bool)EvaluateExpression(whileStatement.Condition))
-                EvaluateStatement(whileStatement.Statement);
-        }
-
-        private void EvaluateForStatement(BoundForStatement forStatement)
-        {
-            var firstBound = (int) EvaluateExpression(forStatement.FirstBound);
-            var secondBound = (int) EvaluateExpression(forStatement.SecondBound);
-
-            if (firstBound == secondBound)
-                return;
-
-            _variables[forStatement.Variable] = firstBound;
-
-            var direction = firstBound < secondBound ? 1 : -1;
-            if (direction > 0)
-            {
-                while (firstBound < secondBound)
-                {
-                    EvaluateStatement(forStatement.Statement);
-                    _variables[forStatement.Variable] = ++firstBound;
-                }
-            }
-            else
-            {
-                while (firstBound > secondBound)
-                {
-                    EvaluateStatement(forStatement.Statement);
-                    _variables[forStatement.Variable] = --firstBound;
-                }
-            }
-        }
-
         private object? EvaluateExpression(BoundExpression node)
         {
             switch (node)
             {
-                case BoundLiteralExpressionNode literalExpression:
+                case BoundLiteralExpression literalExpression:
                     return EvaluateLiteralExpression(literalExpression);
 
-                case BoundVariableExpressionNode variableExpression:
+                case BoundVariableExpression variableExpression:
                     return EvaluateVariableExpression(variableExpression);
 
-                case BoundAssignmentExpressionNode assignmentExpression:
+                case BoundAssignmentExpression assignmentExpression:
                     return EvaluateAssignmentExpression(assignmentExpression);
 
                 case BoundUnaryExpression unaryExpression:
@@ -155,19 +106,19 @@ namespace Bloop.CodeAnalysis
             }
         }
 
-        private static object EvaluateLiteralExpression(BoundLiteralExpressionNode literalExpression)
+        private static object EvaluateLiteralExpression(BoundLiteralExpression literalExpression)
         {
             return literalExpression.Value;
         }
 
-        private object? EvaluateVariableExpression(BoundVariableExpressionNode variableExpression)
+        private object? EvaluateVariableExpression(BoundVariableExpression variableExpression)
         {
             return _variables[variableExpression.Variable];
         }
 
-        private object? EvaluateAssignmentExpression(BoundAssignmentExpressionNode assignmentExpression)
+        private object? EvaluateAssignmentExpression(BoundAssignmentExpression assignmentExpression)
         {
-            var value = EvaluateExpression(assignmentExpression.ExpressionNode);
+            var value = EvaluateExpression(assignmentExpression.Expression);
             _variables[assignmentExpression.Variable] = value;
             return value;
         }
@@ -194,8 +145,8 @@ namespace Bloop.CodeAnalysis
 
         private object? EvaluateBinaryExpression(BoundBinaryExpression binaryExpression)
         {
-            var first = EvaluateExpression(binaryExpression.FirstOperandNode);
-            var second = EvaluateExpression(binaryExpression.SecondOperandNode);
+            var first = EvaluateExpression(binaryExpression.FirstOperand);
+            var second = EvaluateExpression(binaryExpression.SecondOperand);
 
             switch (binaryExpression.Op.Type)
             {

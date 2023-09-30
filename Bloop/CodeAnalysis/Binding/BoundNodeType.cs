@@ -3,8 +3,8 @@
     public enum BoundNodeType
     {
         MISSING_EXPRESSION,
-        UNARY_EXPRESSION,
         LITERAL_EXPRESSION,
+        UNARY_EXPRESSION,
         BINARY_EXPRESSION,
         VARIABLE_EXPRESSION,
         ASSIGNMENT_EXPRESSION,
@@ -17,5 +17,8 @@
         ELSE_STATEMENT,
         WHILE_STATEMENT,
         FOR_STATEMENT,
+        GOTO_STATEMENT,
+        LABEL_STATEMENT,
+        CONDITIONAL_GOTO_STATEMENT,
     }
 }
