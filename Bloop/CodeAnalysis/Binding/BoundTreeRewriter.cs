@@ -194,8 +194,8 @@ namespace Bloop.CodeAnalysis.Binding
         {
             switch (node.NodeType)
             {
-                case BoundNodeType.MISSING_EXPRESSION:
-                    return RewriteMissingExpression((BoundMissingExpression)node);
+                case BoundNodeType.ERROR_EXPRESSION:
+                    return RewriteErrorExpression((BoundErrorExpression)node);
 
                 case BoundNodeType.LITERAL_EXPRESSION:
                     return RewriteLiteralExpression((BoundLiteralExpression)node);
@@ -217,7 +217,7 @@ namespace Bloop.CodeAnalysis.Binding
             }
         }
 
-        protected virtual BoundExpression RewriteMissingExpression(BoundMissingExpression node)
+        protected virtual BoundExpression RewriteErrorExpression(BoundErrorExpression node)
         {
             return node;
         }

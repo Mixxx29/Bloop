@@ -1,4 +1,5 @@
-﻿using Bloop.CodeAnalysis.Syntax;
+﻿using Bloop.CodeAnalysis.Symbol;
+using Bloop.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -123,7 +124,7 @@ namespace Bloop.CodeAnalysis.Binding
 
         private BoundStatement BindIfStatement(IfStatementSyntax syntax)
         {
-            var condition = BindExpression(syntax.Condition, typeof(bool));
+            var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
             var thenStatement = BindStatement(syntax.Statement);
             var elseStatement = syntax.ElseStatement == null ? null : BindStatement(syntax.ElseStatement);
             return new BoundIfStatement(condition, thenStatement, elseStatement);
@@ -144,14 +145,13 @@ namespace Bloop.CodeAnalysis.Binding
 
         private BoundForStatement BindForStatement(ForStatementSyntax syntax)
         {
-            var firstBound = BindExpression(syntax.FirstBound, typeof(int));
-            var secondBound = BindExpression(syntax.SecondBound, typeof(int));
+            var firstBound = BindExpression(syntax.FirstBound, TypeSymbol.Number);
+            var secondBound = BindExpression(syntax.SecondBound, TypeSymbol.Number);
 
             _scope = new BoundScope(_scope);
 
-            var name = syntax.Identifier.Text;
-            var variable = new VariableSymbol(name, false, typeof(int));
-            _scope.TryDeclare(variable);
+            var identifier = syntax.Identifier;
+            var variable = BindVariable(identifier, false, firstBound);
 
             var statement = BindStatement(syntax.Statement);
 
@@ -160,40 +160,27 @@ namespace Bloop.CodeAnalysis.Binding
             return new BoundForStatement(variable, firstBound, secondBound, statement);
         }
 
-        private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
-        {
-            var name = syntax.IdentifierToken.Text;
-            var boundExpression = BindExpression(syntax.Expression);
-
-            if (!_scope.TryLookup(name, out var variable))
-            {
-                _diagnostics.ReportUndefinedVariable(syntax.IdentifierToken.Span, name);
-                return boundExpression;
-            }
-
-            if (variable.IsReadOnly)
-                _diagnostics.ReportReadOnly(syntax.IdentifierToken.Span, name);
-
-            if (boundExpression.Type != variable.Type)
-            {
-                _diagnostics.ReportInvalidConversion(syntax.Expression.Span, boundExpression.Type, variable.Type);
-                return boundExpression;
-            }
-
-            return new BoundAssignmentExpression(variable, boundExpression);
-        }
-
         private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement syntax)
         {
-            var name = syntax.Identifier.Text;
             var isReadOnly = syntax.Keyword.Type == SyntaxType.CONST_KEYWORD;
             var expression = BindExpression(syntax.Expression);
+            var identifier = syntax.Identifier;
+            VariableSymbol variable = BindVariable(identifier, isReadOnly, expression);
+
+            return new BoundVariableDeclarationStatement(variable, expression);
+        }
+
+        private VariableSymbol BindVariable(SyntaxToken identifier, bool isReadOnly, BoundExpression expression)
+        {
+            var name = identifier.Text;
+            if (name == "")
+                name = "?";
+
             var variable = new VariableSymbol(name, isReadOnly, expression.Type);
 
             if (!_scope.TryDeclare(variable))
-                _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
-
-            return new BoundVariableDeclarationStatement(variable, expression);
+                _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
+            return variable;
         }
 
         private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
@@ -202,11 +189,15 @@ namespace Bloop.CodeAnalysis.Binding
             return new BoundExpressionStatement(expression);
         }
 
-        public BoundExpression BindExpression(ExpressionSyntax expressionNode, Type targetType)
+        public BoundExpression BindExpression(ExpressionSyntax expressionNode, TypeSymbol targetType)
         {
             var result = BindExpression(expressionNode);
-            if (result.Type != targetType)
+            if (result.Type != TypeSymbol.Error &&
+                targetType != TypeSymbol.Error &&
+                result.Type != targetType)
+            {
                 _diagnostics.ReportInvalidConversion(expressionNode.Span, result.Type, targetType);
+            }
             
             return result;
         }
@@ -233,9 +224,6 @@ namespace Bloop.CodeAnalysis.Binding
                 case SyntaxType.ASSIGNMENT_EXPRESSION:
                     return BindAssignmentExpression((AssignmentExpressionSyntax)expressionNode);
 
-                case SyntaxType.MISSING_EXPRESSION:
-                    return BindMissingExpression((MissingExpressionSyntax)expressionNode);
-
                 default:
                     throw new Exception($"Unexpected syntax {expressionNode.Type}");
             }
@@ -250,117 +238,76 @@ namespace Bloop.CodeAnalysis.Binding
         private BoundExpression BindUnaryExpressiom(UnaryExpressionSyntax expressionNode)
         {
             var boundOperand = BindExpression(expressionNode.ExpressionSyntax);
+
+            if (boundOperand is BoundErrorExpression)
+                return new BoundErrorExpression();
+
             var boundOperator = BoundUnaryOperator.Bind(expressionNode.OperatorToken.Type, boundOperand.Type);
             if (boundOperator == null)
             {
-                _diagnostics.ReportUndefinedUnaryOperator(expressionNode.OperatorToken.Span, expressionNode.OperatorToken.Text, boundOperand.Type);
-                return boundOperand;
+                _diagnostics.ReportUndefinedUnaryOperator(
+                    expressionNode.OperatorToken.Span, 
+                    expressionNode.OperatorToken.Text, 
+                    boundOperand.Type
+                );
+                return new BoundErrorExpression();
             }
             return new BoundUnaryExpression(boundOperator, boundOperand);
-        }
-
-        private BoundUnaryOperatorType? BindUnaryOperatorKind(SyntaxType type, Type operandType)
-        {
-            if (operandType == typeof(int))
-            {
-                switch (type)
-                {
-                    case SyntaxType.PLUS_TOKEN:
-                        return BoundUnaryOperatorType.IDENTITY;
-
-                    case SyntaxType.MINUS_TOKEN:
-                        return BoundUnaryOperatorType.NEGATION;
-
-                    default:
-                        throw new Exception($"Unexpected unary operator {type}");
-                }
-            }
-            else if (operandType == typeof(bool))
-            {
-                switch (type)
-                {
-                    case SyntaxType.EXCLAMATION_MARK_TOKEN:
-                        return BoundUnaryOperatorType.LOGIC_NEGATION;
-
-                    default:
-                        throw new Exception($"Unexpected unary operator {type}");
-                }
-            }
-
-            return null;
         }
 
         private BoundExpression BindBinaryExpressiom(BinaryExpressionNode expressionNode)
         {
             var boundFirstOperand = BindExpression(expressionNode.FirstNode);
             var boundSecondOperand = BindExpression(expressionNode.SecondNode);
+
+            if (boundFirstOperand.Type == TypeSymbol.Error ||
+                boundSecondOperand.Type == TypeSymbol.Error)
+                return new BoundErrorExpression();
+
             var boundOperator = BoundBinaryOperator.Bind(expressionNode.OperatorToken.Type, boundFirstOperand.Type, boundSecondOperand.Type);
             if (boundOperator == null)
             {
                 _diagnostics.ReportUndefinedBinaryOperator(expressionNode.OperatorToken.Span, expressionNode.OperatorToken.Text, boundFirstOperand.Type, boundSecondOperand.Type);
-                return boundFirstOperand;
+                return new BoundErrorExpression();
             }
             return new BoundBinaryExpression(boundFirstOperand, boundOperator, boundSecondOperand);
         }
 
-        private BoundBinaryOperatorType? BindBinaryOperatorType(SyntaxType type, Type firstOperandType, Type secondOperandType)
-        {
-            if (firstOperandType == typeof(int) && secondOperandType == typeof(int))
-            {
-                switch (type)
-                {
-                    case SyntaxType.PLUS_TOKEN:
-                        return BoundBinaryOperatorType.ADDITION;
-
-                    case SyntaxType.MINUS_TOKEN:
-                        return BoundBinaryOperatorType.SUBSTRACTION;
-
-                    case SyntaxType.ASTERIX_TOKEN:
-                        return BoundBinaryOperatorType.MULTIPLICATION;
-
-                    case SyntaxType.SLASH_TOKEN:
-                        return BoundBinaryOperatorType.DIVISION;
-
-                    default:
-                        throw new Exception($"Unexpected binary operator {type}");
-                }
-            }
-            else if (firstOperandType == typeof(bool) && secondOperandType == typeof(bool))
-            {
-                switch (type)
-                {
-                    case SyntaxType.DOUBLE_AMPERSAND_TOKEN:
-                        return BoundBinaryOperatorType.LOGIC_AND;
-
-                    case SyntaxType.DOUBLE_PIPE_TOKEN:
-                        return BoundBinaryOperatorType.LOGIC_OR;
-
-                    default:
-                        throw new Exception($"Unexpected binary operator {type}");
-                }
-            }
-
-            return null;
-        }
-
         private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
         {
-            if (_scope == null) 
-                return new BoundLiteralExpression(0);
+            if (_scope == null)
+                return new BoundErrorExpression();
 
             var name = syntax.IdentifierToken.Text;
             if (!_scope.TryLookup(name, out var variable))
             {
                 _diagnostics.ReportUndefinedVariable(syntax.IdentifierToken.Span, name);
-                return new BoundLiteralExpression(0);
+                return new BoundErrorExpression();
             }
             return new BoundVariableExpression(variable);
         }
 
-        private BoundExpression BindMissingExpression(MissingExpressionSyntax syntax)
+        private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
         {
-            _diagnostics.ReportMissingExpression(syntax.EndOfFileToken.Span);
-            return new BoundMissingExpression();
+            var name = syntax.IdentifierToken.Text;
+            var boundExpression = BindExpression(syntax.Expression);
+
+            if (!_scope.TryLookup(name, out var variable))
+            {
+                _diagnostics.ReportUndefinedVariable(syntax.IdentifierToken.Span, name);
+                return boundExpression;
+            }
+
+            if (variable.IsReadOnly)
+                _diagnostics.ReportReadOnly(syntax.IdentifierToken.Span, name);
+
+            if (boundExpression.Type != variable.Type)
+            {
+                _diagnostics.ReportInvalidConversion(syntax.Expression.Span, boundExpression.Type, variable.Type);
+                return boundExpression;
+            }
+
+            return new BoundAssignmentExpression(variable, boundExpression);
         }
     }
 }

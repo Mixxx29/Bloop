@@ -58,7 +58,7 @@ namespace Bloop.Editor
             else
                 PrintDiagnostics();
 
-            if (_result.Root != null) 
+            if (_result.Root != null)
                 _result.Root.ToConsole();
 
             _lastLineDrawn = Console.CursorTop;

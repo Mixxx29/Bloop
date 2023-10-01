@@ -2,12 +2,12 @@
 {
     public enum BoundNodeType
     {
-        MISSING_EXPRESSION,
         LITERAL_EXPRESSION,
         UNARY_EXPRESSION,
         BINARY_EXPRESSION,
         VARIABLE_EXPRESSION,
         ASSIGNMENT_EXPRESSION,
+        ERROR_EXPRESSION,
 
         MAIN_STATEMENT,
         BLOCK_STATEMENT,

@@ -1,4 +1,6 @@
-﻿namespace Bloop.CodeAnalysis.Binding
+﻿using Bloop.CodeAnalysis.Symbol;
+
+namespace Bloop.CodeAnalysis.Binding
 {
     internal sealed class BoundUnaryExpression : BoundExpression
     {
@@ -9,7 +11,7 @@
         }
 
         public override BoundNodeType NodeType => BoundNodeType.UNARY_EXPRESSION;
-        public override Type Type => Operand.Type;
+        public override TypeSymbol Type => Operand.Type;
 
         public BoundUnaryOperator Op { get; }
         public BoundExpression Operand { get; }

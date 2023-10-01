@@ -1,4 +1,5 @@
 ﻿using Bloop.CodeAnalysis.Binding;
+using Bloop.CodeAnalysis.Symbol;
 using Bloop.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
@@ -168,7 +169,7 @@ namespace Bloop.CodeAnalysis.Lowering
             var variableExpression = new BoundVariableExpression(node.Variable);
             var condition = new BoundBinaryExpression(
                 variableExpression,
-                BoundBinaryOperator.Bind(SyntaxType.LESS_THAN_TOKEN, typeof(int), typeof(int)),
+                BoundBinaryOperator.Bind(SyntaxType.LESS_THAN_TOKEN, TypeSymbol.Number, TypeSymbol.Number),
                 node.SecondBound
             );
 
@@ -177,7 +178,7 @@ namespace Bloop.CodeAnalysis.Lowering
                     node.Variable,
                     new BoundBinaryExpression(
                         variableExpression,
-                        BoundBinaryOperator.Bind(SyntaxType.PLUS_TOKEN, typeof(int), typeof(int)),
+                        BoundBinaryOperator.Bind(SyntaxType.PLUS_TOKEN, TypeSymbol.Number, TypeSymbol.Number),
                         new BoundLiteralExpression(1)
                     )
                 )

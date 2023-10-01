@@ -1,4 +1,5 @@
 ﻿using Bloop.CodeAnalysis;
+using Bloop.CodeAnalysis.Symbol;
 using Bloop.CodeAnalysis.Syntax;
 
 namespace Bloop.Tests.CodeAnalysis

@@ -1,4 +1,6 @@
-﻿namespace Bloop.CodeAnalysis.Binding
+﻿using Bloop.CodeAnalysis.Symbol;
+
+namespace Bloop.CodeAnalysis.Binding
 {
     internal sealed class BoundAssignmentExpression : BoundExpression
     {
@@ -8,7 +10,7 @@
             Expression = expressionNode;
         }
 
-        public override Type Type => Variable.Type;
+        public override TypeSymbol Type => Variable.Type;
         public override BoundNodeType NodeType => BoundNodeType.ASSIGNMENT_EXPRESSION;
 
         public string Name => Variable.Name;

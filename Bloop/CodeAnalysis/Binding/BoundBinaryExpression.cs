@@ -1,4 +1,6 @@
-﻿namespace Bloop.CodeAnalysis.Binding
+﻿using Bloop.CodeAnalysis.Symbol;
+
+namespace Bloop.CodeAnalysis.Binding
 {
     internal sealed class BoundBinaryExpression : BoundExpression
     {
@@ -10,7 +12,7 @@
         }
 
         public override BoundNodeType NodeType => BoundNodeType.BINARY_EXPRESSION;
-        public override Type Type => Op.ResultType;
+        public override TypeSymbol Type => Op.ResultType;
 
         public BoundExpression FirstOperand { get; }
         public BoundBinaryOperator Op { get; }

@@ -1,4 +1,5 @@
 ﻿using Bloop.CodeAnalysis.Text;
+using System.Text;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Bloop.CodeAnalysis.Syntax
@@ -25,7 +26,7 @@ namespace Bloop.CodeAnalysis.Syntax
         {
             var index = _position + offset;
             if (index >= _sourceText.ToString().Length)
-                return '\0';
+                return '\0'; 
 
             return _sourceText.ToString()[index];
         }
@@ -144,6 +145,10 @@ namespace Bloop.CodeAnalysis.Syntax
                     _position++;
                     break;
 
+                case '\"':
+                    ReadString();
+                    break;
+
                 default:
                     if (char.IsLetter(Current))
                     {
@@ -167,6 +172,40 @@ namespace Bloop.CodeAnalysis.Syntax
                 text = _sourceText.ToString(_start, length);
 
             return new SyntaxToken(_type, _start, text, _value);
+        }
+
+        private void ReadString()
+        {
+            ++_position;
+
+            var builder = new StringBuilder();
+            var isRead = false;
+            while (!isRead)
+            {
+                switch (Current)
+                {
+                    case '\0':
+                    case '\r':
+                    case '\n':
+                        var span = new TextSpan(_start, 1);
+                        _diagnostics.ReportUnterminatedString(span);
+                        isRead = true;
+                        break;
+
+                    case '"':
+                        ++_position;
+                        isRead = true;
+                        break;
+
+                    default:
+                        builder.Append(Current);
+                        ++_position;
+                        break;
+                }
+            }
+
+            _type = SyntaxType.STRING_TOKEN;
+            _value = builder.ToString();
         }
 
         private void ReadNumberToken()

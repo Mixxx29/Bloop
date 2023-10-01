@@ -28,6 +28,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 {
                     tokens.Add(token);
                 }
+
             } while (token.Type != SyntaxType.END_OF_FILE_TOKEN);
 
             _tokens = tokens.ToImmutableArray();
@@ -239,8 +240,8 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.NUMBER_TOKEN:
                     return ParseNumberLiteral();
 
-                case SyntaxType.END_OF_FILE_TOKEN:
-                    return ParseMissingExpression();
+                case SyntaxType.STRING_TOKEN:
+                    return ParseStringLiteral();
 
                 case SyntaxType.IDENTIFIER_TOKEN:
                 default:
@@ -269,16 +270,16 @@ namespace Bloop.CodeAnalysis.Syntax
             return new LiteralExpressionNode(numberToken);
         }
 
+        private ExpressionSyntax ParseStringLiteral()
+        {
+            var stringToken = MatchToken(SyntaxType.STRING_TOKEN);
+            return new LiteralExpressionNode(stringToken);
+        }
+
         private ExpressionSyntax ParseNameExpression()
         {
             var identifierToken = NextToken();
             return new NameExpressionSyntax(identifierToken);
-        }
-
-        private ExpressionSyntax ParseMissingExpression()
-        {
-            var invalidToken = NextToken();
-            return new MissingExpressionSyntax(invalidToken);
         }
     }
 }

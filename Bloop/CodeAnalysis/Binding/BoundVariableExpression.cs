@@ -1,4 +1,5 @@
-﻿using Bloop.CodeAnalysis.Syntax;
+﻿using Bloop.CodeAnalysis.Symbol;
+using Bloop.CodeAnalysis.Syntax;
 
 namespace Bloop.CodeAnalysis.Binding
 {
@@ -13,6 +14,6 @@ namespace Bloop.CodeAnalysis.Binding
 
         public VariableSymbol Variable { get; }
         public string Name => Variable.Name;
-        public override Type Type => Variable.Type;
+        public override TypeSymbol Type => Variable.Type;
     }
 }

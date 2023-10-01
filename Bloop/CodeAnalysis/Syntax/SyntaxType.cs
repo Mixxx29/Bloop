@@ -4,6 +4,7 @@
     {
         IDENTIFIER_TOKEN,
         NUMBER_TOKEN,
+        STRING_TOKEN,
         WHITE_SPACE_TOKEN,
         PLUS_TOKEN,
         MINUS_TOKEN,

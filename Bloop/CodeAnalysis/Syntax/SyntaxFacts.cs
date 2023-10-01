@@ -211,6 +211,9 @@ namespace Bloop.CodeAnalysis.Syntax
         {
             switch (type)
             {
+                case SyntaxType.STRING_TOKEN:
+                    return ConsoleColor.Green;
+
                 case SyntaxType.VAR_KEYWORD:
                 case SyntaxType.CONST_KEYWORD:
                     return ConsoleColor.DarkCyan;

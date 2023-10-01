@@ -1,4 +1,5 @@
-﻿using Bloop.CodeAnalysis.Syntax;
+﻿using Bloop.CodeAnalysis.Symbol;
+using Bloop.CodeAnalysis.Syntax;
 using Bloop.CodeAnalysis.Text;
 using System.Collections;
 using System.Xml.Linq;
@@ -44,13 +45,13 @@ namespace Bloop.CodeAnalysis
             Report(textSpan, messsage);
         }
 
-        internal void ReportUndefinedUnaryOperator(TextSpan textSpan, string text, Type operandType)
+        internal void ReportUndefinedUnaryOperator(TextSpan textSpan, string text, TypeSymbol operandType)
         {
             var message = $"Unary operator '{text}' is not defined for type '{operandType}'";
             Report(textSpan, message);
         }
 
-        internal void ReportUndefinedBinaryOperator(TextSpan textSpan, string text, Type firstOperandType, Type secondOperandType)
+        internal void ReportUndefinedBinaryOperator(TextSpan textSpan, string text, TypeSymbol firstOperandType, TypeSymbol secondOperandType)
         {
             var message = $"Binary operator '{text}' is not defined for types '{firstOperandType}' and '{secondOperandType}'";
             Report(textSpan, message);
@@ -68,7 +69,7 @@ namespace Bloop.CodeAnalysis
             Report(textSpan, message);
         }
 
-        internal void ReportInvalidConversion(TextSpan textSpan, Type type1, Type type2)
+        internal void ReportInvalidConversion(TextSpan textSpan, TypeSymbol type1, TypeSymbol type2)
         {
             var message = $"Cannot convert type '{type1}' to '{type2}'";
             Report(textSpan, message);
@@ -83,6 +84,12 @@ namespace Bloop.CodeAnalysis
         internal void ReportMissingExpression(TextSpan textSpan)
         {
             var message = $"Missing expression";
+            Report(textSpan, message);
+        }
+
+        internal void ReportUnterminatedString(TextSpan textSpan)
+        {
+            var message = $"Unterminated string literal";
             Report(textSpan, message);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Bloop.CodeAnalysis.Binding;
+using Bloop.CodeAnalysis.Symbol;
 using System;
 
 namespace Bloop.CodeAnalysis
@@ -151,6 +152,9 @@ namespace Bloop.CodeAnalysis
             switch (binaryExpression.Op.Type)
             {
                 case BoundBinaryOperatorType.ADDITION:
+                    if (first is string || second is string)
+                        return first?.ToString() + second?.ToString();
+
                     return (int?)first + (int?)second;
 
                 case BoundBinaryOperatorType.SUBSTRACTION:

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Bloop.CodeAnalysis.Symbol;
 
 namespace Bloop.CodeAnalysis.Binding
 {

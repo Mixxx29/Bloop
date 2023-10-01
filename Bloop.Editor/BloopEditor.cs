@@ -3,8 +3,7 @@
 using Bloop.Editor;
 using Bloop.CodeAnalysis;
 using Bloop.CodeAnalysis.Syntax;
-using Bloop.CodeAnalysis.Text;
-using static System.Net.Mime.MediaTypeNames;
+using Bloop.CodeAnalysis.Symbol;
 
 namespace Bloop
 {

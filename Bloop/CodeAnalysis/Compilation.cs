@@ -2,6 +2,7 @@
 using Bloop.CodeAnalysis.Syntax;
 using System.Collections.Immutable;
 using Bloop.CodeAnalysis.Lowering;
+using Bloop.CodeAnalysis.Symbol;
 
 namespace Bloop.CodeAnalysis
 {
@@ -40,12 +41,13 @@ namespace Bloop.CodeAnalysis
 
         public EvaluationResult Evaluate()
         {
+            var statement = Lowerer.Lower(GlobalScope.Statement);
+
             var diagnostics = SyntaxTree.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
-                return new EvaluationResult(diagnostics, null, null);
+                return new EvaluationResult(diagnostics, null, statement);
 
             var variables = new Dictionary<VariableSymbol, object?>();
-            var statement = Lowerer.Lower(GlobalScope.Statement);
             var evaluator = new Evaluator(statement, variables);
             var result = evaluator.Evaluate();
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result, statement);

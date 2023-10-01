@@ -1,4 +1,6 @@
-﻿namespace Bloop.CodeAnalysis.Binding
+﻿using Bloop.CodeAnalysis.Symbol;
+
+namespace Bloop.CodeAnalysis.Binding
 {
     internal sealed class BoundLabelStatement : BoundStatement
     {
