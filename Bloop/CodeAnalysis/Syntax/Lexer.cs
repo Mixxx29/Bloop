@@ -145,7 +145,12 @@ namespace Bloop.CodeAnalysis.Syntax
                     _position++;
                     break;
 
-                case '\"':
+                case ',':
+                    _type = SyntaxType.COMMA_TOKEN;
+                    _position++;
+                    break;
+
+                case '"':
                     ReadString();
                     break;
 
@@ -237,9 +242,18 @@ namespace Bloop.CodeAnalysis.Syntax
 
             var length = _position - _start;
             var text = _sourceText.ToString(_start, length);
-            _type = text.GetKeywordType();
-            if (_type == SyntaxType.IDENTIFIER_TOKEN) 
+
+            if (Current == '(')
+            {
+                _type = SyntaxType.FUNCTION_IDENTIFIER_TOKEN;
                 _value = text;
+            }
+            else
+            {
+                _type = text.GetKeywordType();
+                if (_type == SyntaxType.IDENTIFIER_TOKEN) 
+                    _value = text;
+            }
         }
     }
 }

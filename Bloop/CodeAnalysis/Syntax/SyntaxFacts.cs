@@ -211,6 +211,9 @@ namespace Bloop.CodeAnalysis.Syntax
         {
             switch (type)
             {
+                case SyntaxType.FUNCTION_IDENTIFIER_TOKEN:
+                    return ConsoleColor.DarkYellow;
+
                 case SyntaxType.STRING_TOKEN:
                     return ConsoleColor.Green;
 
@@ -241,6 +244,10 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN:
                 case SyntaxType.LESS_THAN_TOKEN:
                 case SyntaxType.LESS_THAN_OR_EQUALS_TOKEN:
+                case SyntaxType.EXCLAMATION_MARK_TOKEN:
+                case SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN:
+                case SyntaxType.DOUBLE_AMPERSAND_TOKEN:
+                case SyntaxType.DOUBLE_PIPE_TOKEN:
                     return ConsoleColor.Yellow;
 
                 default:

@@ -243,6 +243,9 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.STRING_TOKEN:
                     return ParseStringLiteral();
 
+                case SyntaxType.FUNCTION_IDENTIFIER_TOKEN:
+                    return ParseFunctionCallExpression();
+
                 case SyntaxType.IDENTIFIER_TOKEN:
                 default:
                     return ParseNameExpression();
@@ -274,6 +277,35 @@ namespace Bloop.CodeAnalysis.Syntax
         {
             var stringToken = MatchToken(SyntaxType.STRING_TOKEN);
             return new LiteralExpressionNode(stringToken);
+        }
+
+        private ExpressionSyntax ParseFunctionCallExpression()
+        {
+            var identifier = MatchToken(SyntaxType.FUNCTION_IDENTIFIER_TOKEN);
+            var openParethesis = MatchToken(SyntaxType.OPEN_PARENTHESIS_TOKEN);
+            var arguments = ParseArguments();
+            var closeParenthesis = MatchToken(SyntaxType.CLOSE_PARENTHESIS_TOKEN);
+            return new FunctionCallExpression(identifier, openParethesis, arguments, closeParenthesis);
+        }
+
+        private SeparatedSyntaxList<ExpressionSyntax> ParseArguments()
+        {
+            var nodes = ImmutableArray.CreateBuilder<SyntaxNode>();
+            
+            while (Current.Type != SyntaxType.CLOSE_PARENTHESIS_TOKEN &&
+                   Current.Type != SyntaxType.END_OF_FILE_TOKEN)
+            {
+                var expression = ParseExpression();
+                nodes.Add(expression);
+
+                if (Current.Type == SyntaxType.COMMA_TOKEN)
+                {
+                    var comma = MatchToken(SyntaxType.COMMA_TOKEN);
+                    nodes.Add(comma);
+                }
+            }
+
+            return new SeparatedSyntaxList<ExpressionSyntax>(nodes.ToImmutable());
         }
 
         private ExpressionSyntax ParseNameExpression()

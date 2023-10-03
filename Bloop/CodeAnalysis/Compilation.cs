@@ -10,47 +10,42 @@ namespace Bloop.CodeAnalysis
     {
         private BoundGlobalScope? _globalScope;
 
-        public Compilation(SyntaxTree syntaxTree)
-            : this(null, syntaxTree)
+        public Compilation()
         {
-            SyntaxTree = syntaxTree;
+            Evaluator = new Evaluator();
         }
 
-        public Compilation(Compilation? previous, SyntaxTree syntaxTree)
-        {
-            Previous = previous;
-            SyntaxTree = syntaxTree;
-        }
-
-        BoundGlobalScope GlobalScope
-        {
-            get
-            {
-                if (_globalScope == null)
-                {
-                    var globalScope = Binder.BindGlobalScope(null, SyntaxTree.Root);
-                    Interlocked.CompareExchange(ref _globalScope, globalScope, null);
-                }
-
-                return _globalScope;
-            }
-        }
+        public delegate void CompileHandler();
+        public event CompileHandler? OnCompile;
 
         public Compilation? Previous { get; }
-        public SyntaxTree SyntaxTree { get; }
+        public SyntaxTree SyntaxTree { get; private set; }
 
-        public EvaluationResult Evaluate()
+        public Evaluator Evaluator { get; }
+
+        public EvaluationResult Compile(SyntaxTree syntaxTree)
         {
-            var statement = Lowerer.Lower(GlobalScope.Statement);
+            SyntaxTree = syntaxTree;
 
-            var diagnostics = SyntaxTree.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
+            var globalScope = Binder.BindGlobalScope(null, syntaxTree.Root);
+
+            var statement = Lowerer.Lower(globalScope.Statement);
+
+            OnCompile?.Invoke();
+
+            var diagnostics = SyntaxTree.Diagnostics.Concat(globalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
                 return new EvaluationResult(diagnostics, null, statement);
 
             var variables = new Dictionary<VariableSymbol, object?>();
-            var evaluator = new Evaluator(statement, variables);
-            var result = evaluator.Evaluate();
+            var result = Evaluator.Evaluate(statement, variables);
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result, statement);
+        }
+
+        public void Subscribe(CompilationSubscriber subscriber)
+        {
+            OnCompile += subscriber.OnCompile;
+            Evaluator.Subscribe(subscriber);
         }
     }
 }

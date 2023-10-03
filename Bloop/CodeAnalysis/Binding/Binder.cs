@@ -221,6 +221,9 @@ namespace Bloop.CodeAnalysis.Binding
                 case SyntaxType.NAME_EXPRESSION:
                     return BindNameExpression((NameExpressionSyntax)expressionNode);
 
+                case SyntaxType.FUNCTION_CALL_EXPRESSION:
+                    return BindFunctionCallExpression((FunctionCallExpression)expressionNode);
+
                 case SyntaxType.ASSIGNMENT_EXPRESSION:
                     return BindAssignmentExpression((AssignmentExpressionSyntax)expressionNode);
 
@@ -285,6 +288,55 @@ namespace Bloop.CodeAnalysis.Binding
                 return new BoundErrorExpression();
             }
             return new BoundVariableExpression(variable);
+        }
+
+        private BoundExpression BindFunctionCallExpression(FunctionCallExpression expressionNode)
+        {
+            var arguments = ImmutableArray.CreateBuilder<BoundExpression>();
+            foreach (var argument in expressionNode.Arguments)
+            {
+                arguments.Add(BindExpression(argument));
+            }
+
+            var functions = BuiltinFunctions.GetAll();
+
+            var function = functions.SingleOrDefault(f => f?.Name == expressionNode.Identifier.Text);
+            if (function == null)
+            {
+                _diagnostics.ReportUndefinedFunction(expressionNode.Identifier.Span, expressionNode.Identifier.Text);
+                return new BoundErrorExpression();
+            }
+
+            if (function.Parameters.Length != arguments.Count)
+            {
+                _diagnostics.ReportInvalidArgumentCount(
+                    expressionNode.Span,
+                    expressionNode.Identifier.Text,
+                    arguments.Count,
+                    function.Parameters.Length
+                );
+                return new BoundErrorExpression();
+            }
+
+            for (var i = 0; i < expressionNode.Arguments.Count; i++)
+            {
+                var argument = arguments[i];
+                var parameter = function.Parameters[i];
+
+                if (argument.Type != parameter.Type)
+                {
+                    _diagnostics.ReportInvalidArgumentType(
+                        expressionNode.Span,
+                        parameter.Name,
+                        argument.Type,
+                        parameter.Type
+                    );
+
+                    return new BoundErrorExpression();
+                }
+            }
+
+            return new BoundFunctionCallExpression(function, arguments.ToImmutable());
         }
 
         private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)

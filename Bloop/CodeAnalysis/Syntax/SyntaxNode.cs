@@ -27,6 +27,15 @@ namespace Bloop.CodeAnalysis.Syntax
                     var child = (SyntaxNode?) property.GetValue(this);
                     yield return child;
                 }
+                else if (typeof(SeparatedSyntaxList).IsAssignableFrom(property.PropertyType))
+                {
+                    var list = (SeparatedSyntaxList?)property.GetValue(this);
+                    if (list == null)
+                        continue;
+
+                    foreach (var child in list.GetAll())
+                        yield return child;
+                }
                 else if (typeof(IEnumerable<SyntaxNode>).IsAssignableFrom(property.PropertyType))
                 {
                     var children = (IEnumerable<SyntaxNode>?)property.GetValue(this);

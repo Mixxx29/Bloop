@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using Bloop.CodeAnalysis.Syntax;
+using System.Collections.Immutable;
 using System.Reflection;
 
 namespace Bloop.CodeAnalysis.Binding

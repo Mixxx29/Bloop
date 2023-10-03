@@ -1,6 +1,7 @@
 ﻿using Bloop.CodeAnalysis.Symbol;
 using Bloop.CodeAnalysis.Syntax;
 using Bloop.CodeAnalysis.Text;
+using System;
 using System.Collections;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
@@ -90,6 +91,24 @@ namespace Bloop.CodeAnalysis
         internal void ReportUnterminatedString(TextSpan textSpan)
         {
             var message = $"Unterminated string literal";
+            Report(textSpan, message);
+        }
+
+        internal void ReportUndefinedFunction(TextSpan textSpan, string name)
+        {
+            var message = $"Function '{name}' is not defined";
+            Report(textSpan, message);
+        }
+
+        internal void ReportInvalidArgumentCount(TextSpan textSpan, string name, int given, int expected)
+        {
+            var message = $"Function '{name}' requires {expected} arguments, but was given {given}";
+            Report(textSpan, message);
+        }
+
+        internal void ReportInvalidArgumentType(TextSpan textSpan, string name, TypeSymbol given, TypeSymbol expected)
+        {
+            var message = $"Argument '{name}' requires value of type {expected}, but was given {given}";
             Report(textSpan, message);
         }
     }

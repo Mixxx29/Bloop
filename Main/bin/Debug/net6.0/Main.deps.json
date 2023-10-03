@@ -8,7 +8,6 @@
     ".NETCoreApp,Version=v6.0": {
       "Main/1.0.0": {
         "dependencies": {
-          "Bloop": "1.0.0",
           "Bloop.Editor": "1.0.0"
         },
         "runtime": {

@@ -36,6 +36,15 @@ namespace Bloop.Editor
             }
         }
 
+        public char GetChar(int offset = 0)
+        {
+            var index = _currentCharacterIndex + offset;
+            if (index < 0 || index >= _characters.Count)
+                return '\0';
+                
+            return _characters[index];
+        }
+
         public int Length => _characters.Count;
 
         internal void AddText(string text)

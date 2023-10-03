@@ -212,6 +212,9 @@ namespace Bloop.CodeAnalysis.Binding
                 case BoundNodeType.ASSIGNMENT_EXPRESSION:
                     return RewriteAssignmentExpression((BoundAssignmentExpression)node);
 
+                case BoundNodeType.FUNCTION_CALL_EXPRESSION:
+                    return RewriteFunctionCallExpression((BoundFunctionCallExpression)node);
+
                 default:
                     throw new Exception($"Unexpected node {node.NodeType}");
             }
@@ -258,6 +261,35 @@ namespace Bloop.CodeAnalysis.Binding
                 return node;
 
             return new BoundAssignmentExpression(node.Variable, expression);
+        }
+
+        private BoundExpression RewriteFunctionCallExpression(BoundFunctionCallExpression node)
+        {
+            ImmutableArray<BoundExpression>.Builder? builder = null;
+
+            for (var i = 0; i < node.Arguments.Length; i++)
+            {
+                var oldArgument = node.Arguments[i];
+                var newArgument = RewriteExpression(node.Arguments[i]);
+                if (newArgument != oldArgument)
+                {
+                    if (builder == null)
+                    {
+                        builder = ImmutableArray.CreateBuilder<BoundExpression>(node.Arguments.Length);
+
+                        for (var j = 0; j < i; j++)
+                            builder.Add(node.Arguments[j]);
+                    }
+                }
+
+                if (builder != null)
+                    builder.Add(newArgument);
+            }
+
+            if (builder == null)
+                return node;
+
+            return new BoundFunctionCallExpression(node.Function, builder.MoveToImmutable());
         }
     }
 }

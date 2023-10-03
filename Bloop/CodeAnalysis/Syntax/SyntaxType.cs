@@ -3,6 +3,7 @@
     public enum SyntaxType
     {
         IDENTIFIER_TOKEN,
+        FUNCTION_IDENTIFIER_TOKEN,
         NUMBER_TOKEN,
         STRING_TOKEN,
         WHITE_SPACE_TOKEN,
@@ -25,6 +26,7 @@
         LESS_THAN_OR_EQUALS_TOKEN,
         GREATER_THAN_TOKEN,
         GREATER_THAN_OR_EQUALS_TOKEN,
+        COMMA_TOKEN,
         END_OF_FILE_TOKEN,
         INVALID_TOKEN,
 
@@ -45,6 +47,7 @@
         BINARY_EXPRESSION,
         PARENTHESIZED_EXPRESSION,
         UNARY_EXPRESSION,
+        FUNCTION_CALL_EXPRESSION,
 
         MAIN_STATEMENT,
         BLOCK_STATEMENT,
@@ -53,8 +56,8 @@
         IF_STATEMENT,
         ELSE_STATEMENT,
         WHILE_STATEMENT,
+        FOR_STATEMENT,
 
         COMPILATION_UNIT,
-        FOR_STATEMENT,
     }
 }

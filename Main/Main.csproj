@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bloop.Editor\Bloop.Editor.csproj" />
-    <ProjectReference Include="..\Bloop\Bloop.csproj" />
   </ItemGroup>
 
 </Project>
