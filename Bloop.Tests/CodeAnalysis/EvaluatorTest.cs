@@ -150,9 +150,8 @@ namespace Bloop.Tests.CodeAnalysis
         private static void AssertValue(string text, object expectedValue)
         {
             var syntaxTree = SyntaxTree.Parse(text);
-            var compilation = new Compilation(syntaxTree);
-            var variables = new Dictionary<VariableSymbol, object>();
-            var result = compilation.Evaluate(variables);
+            var compilation = new Compilation();
+            var result = compilation.Compile(syntaxTree);
             Assert.Empty(result.Diagnostics);
             Assert.Equal(expectedValue, result.Value);
         }
@@ -162,8 +161,8 @@ namespace Bloop.Tests.CodeAnalysis
             Console.WriteLine(diagnosticText);
             var annotatedText = AnnotatedText.Parse(text);
             var syntaxTree = SyntaxTree.Parse(annotatedText.Text);
-            var compilation = new Compilation(syntaxTree);
-            var result = compilation.Evaluate(new Dictionary<VariableSymbol, object>());
+            var compilation = new Compilation();
+            var result = compilation.Compile(syntaxTree);
 
             var expectedDiagnostics = AnnotatedText.UnindentLines(diagnosticText);
 

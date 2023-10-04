@@ -81,10 +81,7 @@ namespace Bloop.Editor
         private void JoinWithPreviousLine()
         {
             if (_currentLineIndex == 0)
-            {
-                Console.CursorLeft++;
                 return;
-            }
 
             var previousLine = _lines[_currentLineIndex - 1];
             var end = previousLine.Length;

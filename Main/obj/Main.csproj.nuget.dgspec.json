@@ -128,7 +128,7 @@
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\Main.csproj",
-        "projectName": "Main",
+        "projectName": "BloopIDE",
         "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\Main.csproj",
         "packagesPath": "C:\\Users\\mihaj\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Main\\obj\\",
@@ -138,15 +138,15 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net6.0"
+          "net6.0-windows"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net6.0": {
-            "targetAlias": "net6.0",
+          "net6.0-windows7.0": {
+            "targetAlias": "net6.0-windows",
             "projectReferences": {
               "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Editor\\Bloop.Editor.csproj": {
                 "projectPath": "C:\\Users\\mihaj\\source\\repos\\Bloop\\Bloop.Editor\\Bloop.Editor.csproj"
@@ -161,8 +161,8 @@
         }
       },
       "frameworks": {
-        "net6.0": {
-          "targetAlias": "net6.0",
+        "net6.0-windows7.0": {
+          "targetAlias": "net6.0-windows",
           "imports": [
             "net461",
             "net462",

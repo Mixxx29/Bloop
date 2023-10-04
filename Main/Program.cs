@@ -1,4 +1,7 @@
-﻿namespace Bloop.Editor;
+﻿using System.Runtime.InteropServices;
+using System.Text;
+
+namespace Bloop.Editor;
 
 internal class Program
 {

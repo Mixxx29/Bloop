@@ -41,7 +41,7 @@ namespace Bloop
         {
             while (_processing)
             {
-                var key = Console.ReadKey();
+                var key = Console.ReadKey(true);
                 HandleKey(key, document);
             }
         }
@@ -124,6 +124,12 @@ namespace Bloop
 
             if (currentChar == '}' && previousChar == '{')
             {
+                if (!document.CurrentLine.ToString().Split(" ")[0].StartsWith("{"))
+                {
+                    document.MoveCursorLeft();
+                    document.NewLine();
+                    document.MoveCursorRight();
+                }
                 document.NewLine();
                 document.NewLine();
                 document.MoveCursorUp();
@@ -136,12 +142,23 @@ namespace Bloop
 
         private void HandleBackspace(BloopDocument document)
         {
+            var currentChar = document.CurrentLine.GetChar();
+            var previousChar = document.CurrentLine.GetChar(-1);
+
+            if ((currentChar == ')' && previousChar == '(') ||
+                (currentChar == '}' && previousChar == '{') ||
+                (currentChar == '"' && previousChar == '"'))
+            {
+                document.MoveCursorRight();
+                document.DeleteCharacter();
+            }
+
             document.DeleteCharacter();
         }
 
         private void HandleTab(BloopDocument document)
         {
-            if (_suggestedText != "")
+            if (_suggestedText != null && _suggestedText != "")
             {
                 document.AddText(_suggestedText);
                 _suggestedText = "";
@@ -258,6 +275,10 @@ namespace Bloop
 
         private void ClearSuggestedText()
         {
+            return;
+            if (_suggestedText == "")
+                return;
+
             _suggestedText = "";
 
             Console.CursorVisible = false;

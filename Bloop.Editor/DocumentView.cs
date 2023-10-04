@@ -10,8 +10,6 @@ namespace Bloop.Editor
     {
         private readonly BloopDocument _document;
 
-        private int _lastLineDrawn;
-
         public DocumentView(BloopDocument document)
         {
             _document = document;
@@ -42,13 +40,12 @@ namespace Bloop.Editor
 
             DrawSeparator();
 
-            _lastLineDrawn = Console.CursorTop - 1;
             _document.UpdateCursor();
         }
 
         private void ClearLastLine()
         {
-            Console.SetCursorPosition(0, _lastLineDrawn);
+            Console.SetCursorPosition(0, _document.Lines.Count + 2);
             FillUnusedSpace();
             Console.WriteLine();
         }
@@ -92,8 +89,8 @@ namespace Bloop.Editor
 
             FillUnusedSpace();
 
-            if (lineIndex < _document.Lines.Count - 1)
-                ++Console.CursorTop;
+            if (_document.CurrentLineIndex < _document.Lines.Count)
+                Console.WriteLine();
         }
 
         private void DrawPrefix(int lineNumber)
@@ -108,7 +105,7 @@ namespace Bloop.Editor
 
         private static void FillUnusedSpace()
         {
-            var unusedSpaceLength = Console.BufferWidth - Console.CursorLeft;
+            var unusedSpaceLength = Console.WindowWidth - Console.CursorLeft - 1;
             var unusedSpace = new string(' ', unusedSpaceLength);
             Console.Write(unusedSpace);
         }
