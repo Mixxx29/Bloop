@@ -110,6 +110,8 @@ namespace Bloop
             {
                 //throw new Exception("Invalid input");
             }
+
+            CompileDocument(document, false);
         }
 
         private void HandleEscape(BloopDocument document)
@@ -195,10 +197,10 @@ namespace Bloop
             document.MoveCursorLeft();
         }
 
-        private void CompileDocument(BloopDocument document)
+        private void CompileDocument(BloopDocument document, bool invoke = true)
         {
             var syntaxTree = SyntaxTree.Parse(document.ToString());
-            var result = _compilation.Compile(syntaxTree);
+            var result = _compilation.Compile(syntaxTree, invoke);
         }
 
         private void HandleTyping(BloopDocument document, string text)
@@ -233,8 +235,7 @@ namespace Bloop
             var cursorLeft = Console.CursorLeft;
             var cursorTop = Console.CursorTop;
 
-            var curretLine = document.CurrentLine.ToString();
-            MatchForStatement(curretLine);
+            Match(document);
 
             if (_suggestedText != "")
             {
@@ -248,11 +249,28 @@ namespace Bloop
             Console.CursorVisible = true;
         }
 
-        private bool MatchForStatement(string line)
+        private void Match(BloopDocument document)
+        {
+            var currentLineText = document.CurrentLine.ToString();
+            if (currentLineText == null)
+                return;
+
+            if (MatchForStatement(currentLineText))
+                return;
+
+            var lastWord = currentLineText.Split(" ").Last();
+            if (lastWord == null || lastWord == "")
+                return;
+
+            if (MatchIdentifiers(lastWord))
+                return;
+        }
+
+        private bool MatchForStatement(string currentLine)
         {
             string pattern = @"for\s+i\s*=\s*\d+\s+$";
             Regex regex = new Regex(pattern);
-            Match match = regex.Match(line);
+            Match match = regex.Match(currentLine);
 
             if (match.Success)
             {
@@ -262,7 +280,7 @@ namespace Bloop
 
             pattern = @"for\s+$";
             regex = new Regex(pattern);
-            match = regex.Match(line);
+            match = regex.Match(currentLine);
 
             if (match.Success)
             {
@@ -273,9 +291,72 @@ namespace Bloop
             return false;
         }
 
+        private bool MatchIdentifiers(string lastWord)
+        {
+            if (MatchVariable(lastWord))
+                return true;
+
+            if (MatchKeywords(lastWord))
+                return true;
+
+            if (MatchBuiltinFunctions(lastWord))
+                return true;
+
+            return false;
+        }
+
+        private bool MatchBuiltinFunctions(string lastWord)
+        {
+            foreach (var function in BuiltinFunctions.GetAll())
+            {
+                if (function.Name.StartsWith(lastWord))
+                {
+                    _suggestedText = function.Name.Substring(lastWord.Length) + "()";
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool MatchVariable(string lastWord)
+        {
+            if (_compilation.Variables == null)
+                return false;
+
+            foreach (var variable in _compilation.Variables.Keys)
+            {
+                if (variable.Name.StartsWith(lastWord.Trim()))
+                {
+                    _suggestedText = variable.Name.Substring(lastWord.Trim().Length);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool MatchKeywords(string lastWord)
+        {
+            foreach (var enumValue in Enum.GetValues(typeof(SyntaxType)).Cast<SyntaxType>())
+            {
+                var enumText = enumValue.ToString();
+                if (!enumText.EndsWith("_KEYWORD"))
+                    continue;
+
+                var text = SyntaxFacts.GetText(enumValue);
+                if (text.StartsWith(lastWord.Trim()))
+                {
+                    _suggestedText = text.Substring(lastWord.Trim().Length);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private void ClearSuggestedText()
         {
-            return;
             if (_suggestedText == "")
                 return;
 

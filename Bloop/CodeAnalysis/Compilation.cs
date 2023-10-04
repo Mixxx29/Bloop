@@ -20,10 +20,11 @@ namespace Bloop.CodeAnalysis
 
         public Compilation? Previous { get; }
         public SyntaxTree SyntaxTree { get; private set; }
+        public Dictionary<VariableSymbol, object?> Variables { get; private set; }
 
         public Evaluator Evaluator { get; }
 
-        public EvaluationResult Compile(SyntaxTree syntaxTree)
+        public EvaluationResult Compile(SyntaxTree syntaxTree, bool invoke = true)
         {
             SyntaxTree = syntaxTree;
 
@@ -31,14 +32,15 @@ namespace Bloop.CodeAnalysis
 
             var statement = Lowerer.Lower(globalScope.Statement);
 
-            OnCompile?.Invoke();
+            if (invoke) 
+                OnCompile?.Invoke();
 
             var diagnostics = SyntaxTree.Diagnostics.Concat(globalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
                 return new EvaluationResult(diagnostics, null, statement);
 
-            var variables = new Dictionary<VariableSymbol, object?>();
-            var result = Evaluator.Evaluate(statement, variables);
+            Variables = new Dictionary<VariableSymbol, object?>();
+            var result = Evaluator.Evaluate(statement, Variables, invoke);
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, result, statement);
         }
 
