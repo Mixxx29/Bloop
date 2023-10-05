@@ -3,7 +3,7 @@ using Bloop.CodeAnalysis.Symbol;
 
 namespace Bloop.CodeAnalysis.Binding
 {
-    internal sealed class BoundScope
+    public sealed class BoundScope
     { 
         private Dictionary<string, VariableSymbol> _variables = new Dictionary<string, VariableSymbol>();
 

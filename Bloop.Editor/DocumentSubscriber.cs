@@ -10,6 +10,7 @@ namespace Bloop.Editor
     public interface DocumentSubscriber
     {
         void OnDocumentChanged(object? sender, NotifyCollectionChangedEventArgs e);
-        void OnLineChanged(object? sender, NotifyCollectionChangedEventArgs e);
+        void OnDocumentChanged();
+        void OnLineChanged();
     }
 }

@@ -6,7 +6,7 @@ namespace Bloop.CodeAnalysis.Symbol
     public class BuiltinFunctions
     {
         public static readonly FunctionSymbol Print = new FunctionSymbol(
-            "print",
+            "Print",
             ImmutableArray.Create(
                 new ParameterSymbol("text", TypeSymbol.String)
             ),
@@ -14,13 +14,13 @@ namespace Bloop.CodeAnalysis.Symbol
         );
 
         public static readonly FunctionSymbol Read = new FunctionSymbol(
-            "read",
+            "Read",
             ImmutableArray<ParameterSymbol>.Empty,
             TypeSymbol.String
         );
 
         public static readonly FunctionSymbol ParseInt = new FunctionSymbol(
-            "parseInt",
+            "ParseInt",
             ImmutableArray.Create(
                 new ParameterSymbol("text", TypeSymbol.String)
             ),

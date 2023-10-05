@@ -6,19 +6,21 @@ using Bloop.CodeAnalysis.Syntax;
 using Bloop.CodeAnalysis.Symbol;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Bloop
 {
     public partial class BloopEditor
     {
-        private Dictionary<VariableSymbol, object> _variables = new Dictionary<VariableSymbol, object>();
-
         private Compilation _compilation;
 
         private bool _processing = true;
+
         private DocumentView _documentView;
         private ConsoleView _consoleView;
-        private string _suggestedText;
+
+        private SuggestionGenerator _suggestionGenerator;
+        private string? _suggestedText;
 
         public void Run()
         {
@@ -34,6 +36,8 @@ namespace Bloop
             _compilation = new Compilation();
             _consoleView = new ConsoleView(document, _compilation);
 
+            _suggestionGenerator = new SuggestionGenerator(document);
+
             return document;
         }
 
@@ -42,6 +46,7 @@ namespace Bloop
             while (_processing)
             {
                 var key = Console.ReadKey(true);
+                //SuggestionWindow.Instance.CloseWindow(document);
                 HandleKey(key, document);
             }
         }
@@ -110,17 +115,33 @@ namespace Bloop
             {
                 //throw new Exception("Invalid input");
             }
-
-            CompileDocument(document, false);
         }
 
         private void HandleEscape(BloopDocument document)
         {
+            if (SuggestionWindow.Instance.Visible)
+            {
+                SuggestionWindow.Instance.CloseWindow(document);
+                return;
+            }
+
             _processing = false;
         }
 
         private void HandleEnter(BloopDocument document)
         {
+            if (SuggestionWindow.Instance.Visible)
+            {
+                var lastToken = SyntaxTree.ParseTokens(document.CurrentLine.ToString()).LastOrDefault();
+
+                var suggestion = SuggestionWindow.Instance.Enter();
+                if (suggestion != null)
+                    document.AddText(suggestion.Substring(lastToken.Text.Length));
+
+                SuggestionWindow.Instance.CloseWindow(document);
+                return;
+            }
+
             var currentChar = document.CurrentLine.GetChar();
             var previousChar = document.CurrentLine.GetChar(-1);
 
@@ -132,6 +153,7 @@ namespace Bloop
                     document.NewLine();
                     document.MoveCursorRight();
                 }
+
                 document.NewLine();
                 document.NewLine();
                 document.MoveCursorUp();
@@ -144,6 +166,11 @@ namespace Bloop
 
         private void HandleBackspace(BloopDocument document)
         {
+            if (SuggestionWindow.Instance.Visible)
+            {
+                SuggestionWindow.Instance.CloseWindow(document);
+            }
+
             var currentChar = document.CurrentLine.GetChar();
             var previousChar = document.CurrentLine.GetChar(-1);
 
@@ -160,10 +187,10 @@ namespace Bloop
 
         private void HandleTab(BloopDocument document)
         {
-            if (_suggestedText != null && _suggestedText != "")
+
+            if (_suggestedText != null)
             {
                 document.AddText(_suggestedText);
-                _suggestedText = "";
                 return;
             }
             document.AddText("    ");
@@ -179,34 +206,53 @@ namespace Bloop
 
         private void HandleUpArrow(BloopDocument document)
         {
+            if (SuggestionWindow.Instance.Visible)
+            {
+                SuggestionWindow.Instance.Up();
+                return;
+            }
+
             document.MoveCursorUp();
         }
 
         private void HandleDownArrow(BloopDocument document)
         {
+            if (SuggestionWindow.Instance.Visible)
+            {
+                SuggestionWindow.Instance.Down();
+                return;
+            }
+
             document.MoveCursorDown();
         }
 
         private void HandleRightArrow(BloopDocument document)
         {
+            if (SuggestionWindow.Instance.Visible)
+                SuggestionWindow.Instance.CloseWindow(document);
+
             document.MoveCursorRight();
         }
 
         private void HandleLeftArrow(BloopDocument document)
         {
+            if (SuggestionWindow.Instance.Visible)
+                SuggestionWindow.Instance.CloseWindow(document);
+
             document.MoveCursorLeft();
         }
 
-        private void CompileDocument(BloopDocument document, bool invoke = true)
+        private void CompileDocument(BloopDocument document)
         {
+            if (SuggestionWindow.Instance.Visible)
+                SuggestionWindow.Instance.CloseWindow(document);
+
             var syntaxTree = SyntaxTree.Parse(document.ToString());
-            var result = _compilation.Compile(syntaxTree, invoke);
+            _compilation.Compile(syntaxTree);
         }
 
         private void HandleTyping(BloopDocument document, string text)
         {
-            ClearSuggestedText();
-
             document.AddText(text);
             if (text == "(")
             {
@@ -222,151 +268,29 @@ namespace Bloop
             }
             else
             {
-                SuggestText(document);
+                if (SuggestionWindow.Instance.Visible)
+                    SuggestionWindow.Instance.CloseWindow(document);
+
+                SuggestText();
                 return;
             }
 
             document.MoveCursorLeft();
         }
 
-        private void SuggestText(BloopDocument document)
+        private void SuggestText()
         {
-            Console.CursorVisible = false;
-            var cursorLeft = Console.CursorLeft;
-            var cursorTop = Console.CursorTop;
-
-            Match(document);
-
-            if (_suggestedText != "")
-            {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(_suggestedText);
-                Console.ResetColor();
-            }
-
-            Console.CursorLeft = cursorLeft;
-            Console.CursorTop = cursorTop;
-            Console.CursorVisible = true;
-        }
-
-        private void Match(BloopDocument document)
-        {
-            var currentLineText = document.CurrentLine.ToString();
-            if (currentLineText == null)
-                return;
-
-            if (MatchForStatement(currentLineText))
-                return;
-
-            var lastWord = currentLineText.Split(" ").Last();
-            if (lastWord == null || lastWord == "")
-                return;
-
-            if (MatchIdentifiers(lastWord))
-                return;
-        }
-
-        private bool MatchForStatement(string currentLine)
-        {
-            string pattern = @"for\s+i\s*=\s*\d+\s+$";
-            Regex regex = new Regex(pattern);
-            Match match = regex.Match(currentLine);
-
-            if (match.Success)
-            {
-                _suggestedText = "to ";
-                return true;
-            }
-
-            pattern = @"for\s+$";
-            regex = new Regex(pattern);
-            match = regex.Match(currentLine);
-
-            if (match.Success)
-            {
-                _suggestedText = "i = ";
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool MatchIdentifiers(string lastWord)
-        {
-            if (MatchVariable(lastWord))
-                return true;
-
-            if (MatchKeywords(lastWord))
-                return true;
-
-            if (MatchBuiltinFunctions(lastWord))
-                return true;
-
-            return false;
-        }
-
-        private bool MatchBuiltinFunctions(string lastWord)
-        {
-            foreach (var function in BuiltinFunctions.GetAll())
-            {
-                if (function.Name.StartsWith(lastWord))
-                {
-                    _suggestedText = function.Name.Substring(lastWord.Length) + "()";
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private bool MatchVariable(string lastWord)
-        {
-            if (_compilation.Variables == null)
-                return false;
-
-            foreach (var variable in _compilation.Variables.Keys)
-            {
-                if (variable.Name.StartsWith(lastWord.Trim()))
-                {
-                    _suggestedText = variable.Name.Substring(lastWord.Trim().Length);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private bool MatchKeywords(string lastWord)
-        {
-            foreach (var enumValue in Enum.GetValues(typeof(SyntaxType)).Cast<SyntaxType>())
-            {
-                var enumText = enumValue.ToString();
-                if (!enumText.EndsWith("_KEYWORD"))
-                    continue;
-
-                var text = SyntaxFacts.GetText(enumValue);
-                if (text.StartsWith(lastWord.Trim()))
-                {
-                    _suggestedText = text.Substring(lastWord.Trim().Length);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private void ClearSuggestedText()
-        {
-            if (_suggestedText == "")
-                return;
-
-            _suggestedText = "";
-
-            Console.CursorVisible = false;
             var cursorLeft = Console.CursorLeft;
 
-            var blankspace = new string(' ', Console.BufferWidth - cursorLeft);
-            Console.Write(blankspace);
+            _suggestionGenerator.Suggest();
+            if (_suggestedText == null)
+                return;
+
+            Console.CursorVisible = false;
+
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write(_suggestedText);
+            Console.ResetColor();
 
             Console.CursorLeft = cursorLeft;
             Console.CursorVisible = true;

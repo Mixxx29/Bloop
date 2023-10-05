@@ -3,7 +3,7 @@ using Bloop.CodeAnalysis.Symbol;
 
 namespace Bloop.CodeAnalysis.Binding
 {
-    internal sealed class BoundGlobalScope
+    public sealed class BoundGlobalScope
     {
         public BoundGlobalScope(BoundGlobalScope? previous, ImmutableArray<Diagnostic> diagnostics, ImmutableArray<VariableSymbol> variables, BoundStatement statement)
         {

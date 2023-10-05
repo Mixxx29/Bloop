@@ -14,7 +14,6 @@ namespace Bloop.Editor
 
         private int _lastLineDrawn;
 
-        private EvaluationResult _result;
         private Compilation _compilation;
 
         public ConsoleView(BloopDocument document, Compilation compilation)
@@ -31,7 +30,12 @@ namespace Bloop.Editor
             Render();
         }
 
-        public void OnLineChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        public void OnDocumentChanged()
+        {
+            Render();
+        }
+
+        public void OnLineChanged()
         {
             
         }
@@ -48,7 +52,7 @@ namespace Bloop.Editor
             Console.CursorLeft = 1;
             Console.CursorTop = _document.Lines.Count + 2;
 
-            if (_result != null && _result.Diagnostics.Any())
+            if (_compilation.Diagnostics != null && _compilation.Diagnostics.Any())
                 PrintDiagnostics();
 
             //Console.WriteLine(_compilation.SyntaxTree.Root.ToString());
@@ -63,20 +67,12 @@ namespace Bloop.Editor
             Console.CursorVisible = true;
         }
 
-        private void PrintResult()
-        {
-            if (_result.Value == null)
-                return;
-
-            Console.ForegroundColor = ConsoleColor.Blue;
-            PrintText($" {_result.Value}");
-            Console.ResetColor();
-        }
-
         private void PrintDiagnostics()
         {
+            Console.CursorLeft = 0;
+
             var sourceText = _compilation.SyntaxTree.SourceText;
-            foreach (var diagnostic in _result.Diagnostics)
+            foreach (var diagnostic in _compilation.Diagnostics)
             {
                 var lineIndex = sourceText.GetLineIndex(diagnostic.Span.Start);
                 var line = sourceText.Lines[lineIndex];
@@ -111,8 +107,7 @@ namespace Bloop.Editor
 
         public void OnCompile()
         {
-            Clear();
-            _lastLineDrawn = _document.Lines.Count + 2;
+            Render();
         }
 
         public void OnPrint(string text)

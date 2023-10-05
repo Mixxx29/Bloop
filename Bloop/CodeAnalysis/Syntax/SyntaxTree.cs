@@ -31,6 +31,17 @@ namespace Bloop.CodeAnalysis.Syntax
             return new SyntaxTree(sourceText);
         }
 
+        public static SyntaxToken? GetTokenAtPosition(string text, int position)
+        {
+            foreach (var token in ParseTokens(text))
+            {
+                if (token.Span.Start <= position && token.Span.End >= position)
+                    return token;
+            }
+
+            return null;
+        }
+
         public static IEnumerable<SyntaxToken> ParseTokens(string text)
         {
             var sourceText = SourceText.FromText(text);

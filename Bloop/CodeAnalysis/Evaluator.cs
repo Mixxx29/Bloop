@@ -23,7 +23,7 @@ namespace Bloop.CodeAnalysis
             OnRead+= subscriber.OnRead;
         }
 
-        internal object? Evaluate(BoundBlockStatement root, Dictionary<VariableSymbol, object?> variables, bool invoke = true)
+        internal object? Evaluate(BoundBlockStatement root, Dictionary<VariableSymbol, object?> variables)
         {
             var labelToIndex = new Dictionary<LabelSymbol, int>();
 
@@ -40,12 +40,12 @@ namespace Bloop.CodeAnalysis
                 switch (statement.NodeType)
                 {
                     case BoundNodeType.VARIABLE_DECLARATION_STATEMENT:
-                        EvaluateVariableDeclarationStatement((BoundVariableDeclarationStatement)statement, variables, invoke);
+                        EvaluateVariableDeclarationStatement((BoundVariableDeclarationStatement)statement, variables);
                         index++;
                         break;
 
                     case BoundNodeType.EXPRESSION_STATEMENT:
-                        EvaluateExpressionStatement((BoundExpressionStatement)statement, variables, invoke);
+                        EvaluateExpressionStatement((BoundExpressionStatement)statement, variables);
                         index++;
                         break;
 
@@ -56,7 +56,7 @@ namespace Bloop.CodeAnalysis
 
                     case BoundNodeType.CONDITIONAL_GOTO_STATEMENT:
                         var conditionalGotoStatement = (BoundConditionalGotoStatement)statement;
-                        var condition = (bool)EvaluateExpression(conditionalGotoStatement.Condition, variables, invoke);
+                        var condition = (bool)EvaluateExpression(conditionalGotoStatement.Condition, variables);
                         if (condition && conditionalGotoStatement.JumpIfTrue ||
                             !condition && !conditionalGotoStatement.JumpIfTrue)
                             index = labelToIndex[conditionalGotoStatement.Label];
@@ -76,19 +76,19 @@ namespace Bloop.CodeAnalysis
             return _lastValue;
         }
 
-        private void EvaluateVariableDeclarationStatement(BoundVariableDeclarationStatement variableDeclarationStatement, Dictionary<VariableSymbol, object?> variables, bool invoke)
+        private void EvaluateVariableDeclarationStatement(BoundVariableDeclarationStatement variableDeclarationStatement, Dictionary<VariableSymbol, object?> variables)
         {
-            var value = EvaluateExpression(variableDeclarationStatement.Expression, variables, invoke);
+            var value = EvaluateExpression(variableDeclarationStatement.Expression, variables);
             variables[variableDeclarationStatement.Variable] = value;
             _lastValue = value;
         }
 
-        private void EvaluateExpressionStatement(BoundExpressionStatement expressionStatement, Dictionary<VariableSymbol, object?> variables, bool invoke)
+        private void EvaluateExpressionStatement(BoundExpressionStatement expressionStatement, Dictionary<VariableSymbol, object?> variables)
         {
-            _lastValue = EvaluateExpression(expressionStatement.Expression, variables, invoke);
+            _lastValue = EvaluateExpression(expressionStatement.Expression, variables);
         }
 
-        private object? EvaluateExpression(BoundExpression node, Dictionary<VariableSymbol, object?> variables, bool invoke)
+        private object? EvaluateExpression(BoundExpression node, Dictionary<VariableSymbol, object?> variables)
         {
             switch (node)
             {
@@ -99,16 +99,16 @@ namespace Bloop.CodeAnalysis
                     return EvaluateVariableExpression(variableExpression, variables);
 
                 case BoundAssignmentExpression assignmentExpression:
-                    return EvaluateAssignmentExpression(assignmentExpression, variables, invoke);
+                    return EvaluateAssignmentExpression(assignmentExpression, variables);
 
                 case BoundUnaryExpression unaryExpression:
-                    return EvaluateUnaryExpression(unaryExpression, variables, invoke);
+                    return EvaluateUnaryExpression(unaryExpression, variables);
 
                 case BoundBinaryExpression binaryExpression:
-                    return EvaluateBinaryExpression(binaryExpression, variables, invoke);
+                    return EvaluateBinaryExpression(binaryExpression, variables);
 
                 case BoundFunctionCallExpression functionCallExpression:
-                    return EvaluateFunctionCallExpression(functionCallExpression, variables, invoke);
+                    return EvaluateFunctionCallExpression(functionCallExpression, variables);
 
                 default:
                     throw new Exception($"Unexpected node {node.Type}");
@@ -125,16 +125,16 @@ namespace Bloop.CodeAnalysis
             return variables[variableExpression.Variable];
         }
 
-        private object? EvaluateAssignmentExpression(BoundAssignmentExpression assignmentExpression, Dictionary<VariableSymbol, object?> variables, bool invoke)
+        private object? EvaluateAssignmentExpression(BoundAssignmentExpression assignmentExpression, Dictionary<VariableSymbol, object?> variables)
         {
-            var value = EvaluateExpression(assignmentExpression.Expression, variables, invoke);
+            var value = EvaluateExpression(assignmentExpression.Expression, variables);
             variables[assignmentExpression.Variable] = value;
             return value;
         }
 
-        private object? EvaluateUnaryExpression(BoundUnaryExpression unaryExpression, Dictionary<VariableSymbol, object?> variables, bool invoke)
+        private object? EvaluateUnaryExpression(BoundUnaryExpression unaryExpression, Dictionary<VariableSymbol, object?> variables)
         {
-            var operand = EvaluateExpression(unaryExpression.Operand, variables, invoke);
+            var operand = EvaluateExpression(unaryExpression.Operand, variables);
 
             switch (unaryExpression.Op.Type)
             {
@@ -152,10 +152,10 @@ namespace Bloop.CodeAnalysis
             }
         }
 
-        private object? EvaluateBinaryExpression(BoundBinaryExpression binaryExpression, Dictionary<VariableSymbol, object?> variables, bool invoke)
+        private object? EvaluateBinaryExpression(BoundBinaryExpression binaryExpression, Dictionary<VariableSymbol, object?> variables)
         {
-            var first = EvaluateExpression(binaryExpression.FirstOperand, variables, invoke);
-            var second = EvaluateExpression(binaryExpression.SecondOperand, variables, invoke);
+            var first = EvaluateExpression(binaryExpression.FirstOperand, variables);
+            var second = EvaluateExpression(binaryExpression.SecondOperand, variables);
 
             switch (binaryExpression.Op.Type)
             {
@@ -206,14 +206,11 @@ namespace Bloop.CodeAnalysis
             }
         }
 
-        private object? EvaluateFunctionCallExpression(BoundFunctionCallExpression functionCallExpression, Dictionary<VariableSymbol, object?> variables, bool invoke)
+        private object? EvaluateFunctionCallExpression(BoundFunctionCallExpression functionCallExpression, Dictionary<VariableSymbol, object?> variables)
         {
-            if (!invoke)
-                return null;
-
             if (functionCallExpression.Function == BuiltinFunctions.Print)
             {
-                var value = (string?)EvaluateExpression(functionCallExpression.Arguments[0], variables, invoke);
+                var value = (string?)EvaluateExpression(functionCallExpression.Arguments[0], variables);
                 if (value != null)
                     OnPrint?.Invoke(value);
 
@@ -225,7 +222,7 @@ namespace Bloop.CodeAnalysis
             }
             else if (functionCallExpression.Function == BuiltinFunctions.ParseInt)
             {
-                var value = (string?)EvaluateExpression(functionCallExpression.Arguments[0], variables, invoke);
+                var value = (string?)EvaluateExpression(functionCallExpression.Arguments[0], variables);
                 if (value != null)
                     try
                     {

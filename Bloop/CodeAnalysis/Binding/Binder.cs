@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Bloop.CodeAnalysis.Binding
 {
 
-    internal sealed class Binder
+    public sealed class Binder
     { 
         private readonly DiagnosticsPool _diagnostics = new DiagnosticsPool();
 

@@ -22,13 +22,19 @@ namespace Bloop.Editor
             RenderDocument();
         }
 
-        public void OnLineChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        public void OnDocumentChanged()
+        {
+            RenderDocument();
+        }
+
+        public void OnLineChanged()
         {
             RenderLine();
         }
 
         private void RenderDocument()
         {
+            Console.CursorVisible = false;
             ClearLastLine();
 
             Console.SetCursorPosition(0, 0);
@@ -41,6 +47,7 @@ namespace Bloop.Editor
             DrawSeparator();
 
             _document.UpdateCursor();
+            Console.CursorVisible = true;
         }
 
         private void ClearLastLine()
@@ -50,10 +57,17 @@ namespace Bloop.Editor
             Console.WriteLine();
         }
 
+        public void UpdateLine()
+        {
+            RenderLine();
+        }
+
         private void RenderLine()
         {
+            Console.CursorVisible = false;
             DrawLine();
             _document.UpdateCursor();
+            Console.CursorVisible = true;
         }
 
         private void DrawSeparator()

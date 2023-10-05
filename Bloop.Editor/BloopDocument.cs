@@ -36,12 +36,16 @@ namespace Bloop.Editor
 
         public DocumentLine CurrentLine => _lines[_currentLineIndex];
 
-        public delegate void LineChangedHandler(object? sender, NotifyCollectionChangedEventArgs e);
+        public delegate void DocumentChangedHandler();
+        public event DocumentChangedHandler? DocumentChanged;
+
+        public delegate void LineChangedHandler();
         public event LineChangedHandler? LineChanged;
 
         public void Subscribe(DocumentSubscriber subscriber)
         {
             Lines.CollectionChanged += subscriber.OnDocumentChanged;
+            DocumentChanged += subscriber.OnDocumentChanged;
             LineChanged += subscriber.OnLineChanged;
         }
 
@@ -52,7 +56,12 @@ namespace Bloop.Editor
             Console.SetCursorPosition(column, row);
         }
 
-        internal void NewLine()
+        public void Update()
+        {
+            DocumentChanged?.Invoke();
+        }
+
+        public void NewLine()
         {
             var slicedText = CurrentLine.Slice();
             AddLine(slicedText, CurrentLineIndex + 1);
@@ -109,6 +118,8 @@ namespace Bloop.Editor
             CurrentLine.SetCharacterIndex(characterIndex);
 
             Console.CursorVisible = true;
+
+            LineChanged?.Invoke();
         }
 
         internal void MoveCursorDown()
@@ -123,6 +134,8 @@ namespace Bloop.Editor
             CurrentLine.SetCharacterIndex(characterIndex);
 
             Console.CursorVisible = true;
+
+            LineChanged?.Invoke();
         }
 
         internal void MoveCursorRight()
@@ -135,6 +148,8 @@ namespace Bloop.Editor
             CurrentLine.SetCharacterIndex(CurrentLine.CurrentCharacterIndex + 1);
             
             Console.CursorVisible = true;
+
+            LineChanged?.Invoke();
         }
 
         internal void MoveCursorLeft()
@@ -147,6 +162,8 @@ namespace Bloop.Editor
             CurrentLine.SetCharacterIndex(CurrentLine.CurrentCharacterIndex - 1);
             
             Console.CursorVisible = true;
+
+            LineChanged?.Invoke();
         }
 
         public void AddText(string text)
@@ -156,7 +173,7 @@ namespace Bloop.Editor
 
         internal void OnLineChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            LineChanged?.Invoke(this, e);
+            LineChanged?.Invoke();
         }
 
         public override string ToString()
