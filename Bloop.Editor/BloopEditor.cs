@@ -132,11 +132,9 @@ namespace Bloop
         {
             if (SuggestionWindow.Instance.Visible)
             {
-                var lastToken = SyntaxTree.ParseTokens(document.CurrentLine.ToString()).LastOrDefault();
-
                 var suggestion = SuggestionWindow.Instance.Enter();
                 if (suggestion != null)
-                    document.AddText(suggestion.Substring(lastToken.Text.Length));
+                    document.AddText(suggestion);
 
                 SuggestionWindow.Instance.CloseWindow(document);
                 return;
@@ -187,12 +185,16 @@ namespace Bloop
 
         private void HandleTab(BloopDocument document)
         {
-
-            if (_suggestedText != null)
+            if (SuggestionWindow.Instance.Visible)
             {
-                document.AddText(_suggestedText);
+                var suggestion = SuggestionWindow.Instance.Enter();
+                if (suggestion != null)
+                    document.AddText(suggestion);
+
+                SuggestionWindow.Instance.CloseWindow(document);
                 return;
             }
+
             document.AddText("    ");
         }
 

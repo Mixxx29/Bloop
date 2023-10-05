@@ -62,7 +62,7 @@ namespace Bloop.Editor
         {
             foreach (var function in BuiltinFunctions.GetAll())
             {
-                if (function.Name.StartsWith(token.Text))
+                if (function.Name.StartsWith(token.Text) && function.Name != token.Text)
                 {
                     builder.Add(function.Name + "()");
                 }
@@ -80,7 +80,7 @@ namespace Bloop.Editor
                     continue;
 
                 var keywordText = SyntaxFacts.GetText(enumValue);
-                if (keywordText.StartsWith(token.Text))
+                if (keywordText.StartsWith(token.Text) && keywordText != token.Text)
                 {
                     builder.Add(keywordText);
                 }
@@ -94,9 +94,7 @@ namespace Bloop.Editor
             if (!suggestions.Any())
                 return;
 
-            int left = 8 + _document.CurrentLine.CurrentCharacterIndex - token.Text.Length;
-            int top = Console.CursorTop + 1;
-            SuggestionWindow.Instance.Create(_document, left, top, suggestions);
+            SuggestionWindow.Instance.Create(_document, token, suggestions);
         }
     }
 }

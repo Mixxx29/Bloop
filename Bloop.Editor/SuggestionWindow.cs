@@ -1,10 +1,13 @@
-﻿using System.Collections.Immutable;
+﻿using Bloop.CodeAnalysis.Syntax;
+using System.Collections.Immutable;
 
 namespace Bloop.Editor
 {
     public sealed class SuggestionWindow
     {
         private static SuggestionWindow? _instance;
+
+        private SyntaxToken? _token;
 
         private int _left;
         private int _top;
@@ -28,15 +31,17 @@ namespace Bloop.Editor
 
         public bool Visible { get; private set; }
 
-        public void Create(BloopDocument document, int left, int top, ImmutableArray<string> suggestions)
+        public void Create(BloopDocument document, SyntaxToken token, ImmutableArray<string> suggestions)
         {
             CloseWindow(document);
 
-            _left = left;
-            _top = top;
+            _token = token;
 
-            _suggestions = suggestions;
+            _left = 8 + document.CurrentLine.CurrentCharacterIndex - token.Text.Length;
+            _top = Console.CursorTop + 1;
+
             _selectedIndex = 0;
+            _suggestions = suggestions;
 
             Visible = true;
             Render();
@@ -47,6 +52,7 @@ namespace Bloop.Editor
             Visible = false;
             Render();
             _suggestions = ImmutableArray<string>.Empty;
+            _token = null;
             document.Update();
         }
 
@@ -73,7 +79,7 @@ namespace Bloop.Editor
             if (_suggestions == null || !_suggestions.Any())
                 return null;
 
-            return _suggestions[_selectedIndex];
+            return _suggestions[_selectedIndex].Substring(_token.Text.Length);
         }
 
         private void Render()
@@ -90,8 +96,6 @@ namespace Bloop.Editor
 
             if (Visible)
             {
-                Console.ForegroundColor = ConsoleColor.Black;
-
                 for (var i = 0; i < _suggestions.Length; i++)
                 {
                     var suggestion = _suggestions[i];
@@ -101,8 +105,12 @@ namespace Bloop.Editor
                     else
                         Console.BackgroundColor = ConsoleColor.Gray;
 
+
                     Console.CursorLeft = _left;
-                    Console.Write($" {suggestion}");
+                    Console.ForegroundColor = ConsoleColor.DarkBlue;
+                    Console.Write(" " + _token.Text);
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.Write(suggestion.Substring(_token.Text.Length));
                     Console.Write(new string(' ', width - suggestion.Length - 1));
                     Console.CursorTop++;
                 }
