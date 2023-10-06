@@ -213,7 +213,7 @@ namespace Bloop.CodeAnalysis.Binding
                     return RewriteAssignmentExpression((BoundAssignmentExpression)node);
 
                 case BoundNodeType.CONVERSION_EXPRESSION:
-                    return RewriteCastExpression((BoundConversionExpression)node);
+                    return RewriteConversionExpression((BoundConversionExpression)node);
 
                 case BoundNodeType.FUNCTION_CALL_EXPRESSION:
                     return RewriteFunctionCallExpression((BoundFunctionCallExpression)node);
@@ -266,7 +266,7 @@ namespace Bloop.CodeAnalysis.Binding
             return new BoundAssignmentExpression(node.Variable, expression);
         }
 
-        private BoundExpression RewriteCastExpression(BoundConversionExpression node)
+        private BoundExpression RewriteConversionExpression(BoundConversionExpression node)
         {
             var expression = RewriteExpression(node.Expression);
             if (expression == node.Expression)
