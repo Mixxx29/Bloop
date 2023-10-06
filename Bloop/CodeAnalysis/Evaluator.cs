@@ -107,6 +107,9 @@ namespace Bloop.CodeAnalysis
                 case BoundBinaryExpression binaryExpression:
                     return EvaluateBinaryExpression(binaryExpression, variables);
 
+                case BoundConversionExpression castExpression:
+                    return EvaluateCastExpression(castExpression, variables);
+
                 case BoundFunctionCallExpression functionCallExpression:
                     return EvaluateFunctionCallExpression(functionCallExpression, variables);
 
@@ -204,6 +207,30 @@ namespace Bloop.CodeAnalysis
                 default:
                     throw new Exception($"Unexpected bynary operator {binaryExpression.Op}");
             }
+        }
+
+        private object? EvaluateCastExpression(BoundConversionExpression castExpression, Dictionary<VariableSymbol, object?> variables)
+        {
+            var result = EvaluateExpression(castExpression.Expression, variables);
+            try
+            {
+                if (castExpression.TargetType == TypeSymbol.Number)
+                    return Convert.ToInt32(result);
+
+                if (castExpression.TargetType == TypeSymbol.String)
+                    return Convert.ToString(result);
+
+                if (castExpression.TargetType == TypeSymbol.Bool)
+                    return Convert.ToBoolean(result);
+
+                throw new Exception($"Invalid type '{castExpression.TargetType}'");
+            }
+            catch (InvalidCastException e)
+            {
+                
+            }
+
+            return null;
         }
 
         private object? EvaluateFunctionCallExpression(BoundFunctionCallExpression functionCallExpression, Dictionary<VariableSymbol, object?> variables)

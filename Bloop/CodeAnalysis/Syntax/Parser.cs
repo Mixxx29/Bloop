@@ -1,5 +1,7 @@
-﻿using Bloop.CodeAnalysis.Text;
+﻿using Bloop.CodeAnalysis.Symbol;
+using Bloop.CodeAnalysis.Text;
 using System.Collections.Immutable;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
 namespace Bloop.CodeAnalysis.Syntax
@@ -210,6 +212,22 @@ namespace Bloop.CodeAnalysis.Syntax
             else
             {
                 first = ParsePrimaryExpression();
+
+                if (Current.Type == SyntaxType.AS_KEYWORD)
+                {
+                    var asKeyword = MatchToken(SyntaxType.AS_KEYWORD);
+
+                    var targetTypeToken = NextToken();
+                    var targetType = targetTypeToken.Type.GetTypeSymbol();
+                    if (targetType != null)
+                    {
+                        first = new ConversionExpression(first, asKeyword, targetType);
+                    }
+                    else
+                    {
+                        _diagnostics.ReportInvalidType(targetTypeToken.Span, targetTypeToken.Text);
+                    }
+                }
             }
 
             while (true)

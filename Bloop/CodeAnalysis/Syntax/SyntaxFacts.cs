@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bloop.CodeAnalysis.Symbol;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -93,6 +94,18 @@ namespace Bloop.CodeAnalysis.Syntax
                 case "const":
                     return SyntaxType.CONST_KEYWORD;
 
+                case "number":
+                    return SyntaxType.NUMBER_KEYWORD;
+
+                case "string":
+                    return SyntaxType.STRING_KEYWORD;
+
+                case "bool":
+                    return SyntaxType.BOOL_KEYWORD;
+
+                case "as":
+                    return SyntaxType.AS_KEYWORD;
+
                 case "if":
                     return SyntaxType.IF_KEYWORD;
 
@@ -186,6 +199,18 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.CONST_KEYWORD:
                     return "const";
 
+                case SyntaxType.NUMBER_KEYWORD:
+                    return "number";
+
+                case SyntaxType.STRING_KEYWORD:
+                    return "string";
+
+                case SyntaxType.BOOL_KEYWORD:
+                    return "bool";
+
+                case SyntaxType.AS_KEYWORD:
+                    return "as";
+
                 case SyntaxType.IF_KEYWORD:
                     return "if";
 
@@ -207,6 +232,24 @@ namespace Bloop.CodeAnalysis.Syntax
             return null;
         }
 
+        public static TypeSymbol? GetTypeSymbol(this SyntaxType syntaxType)
+        {
+            switch (syntaxType)
+            {
+                case SyntaxType.NUMBER_KEYWORD:
+                    return TypeSymbol.Number;
+
+                case SyntaxType.STRING_KEYWORD:
+                    return TypeSymbol.String;
+
+                case SyntaxType.BOOL_KEYWORD:
+                    return TypeSymbol.Bool;
+
+                default:
+                    return null;
+            }
+        }
+
         public static ConsoleColor GetColor(SyntaxType type)
         {
             switch (type)
@@ -219,6 +262,9 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case SyntaxType.VAR_KEYWORD:
                 case SyntaxType.CONST_KEYWORD:
+                case SyntaxType.NUMBER_KEYWORD:
+                case SyntaxType.STRING_KEYWORD:
+                case SyntaxType.BOOL_KEYWORD:
                     return ConsoleColor.DarkCyan;
 
                 case SyntaxType.TRUE_KEYWORD:
@@ -231,6 +277,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.WHILE_KEYWORD:
                 case SyntaxType.FOR_KEYWORD:
                 case SyntaxType.TO_KEYWORD:
+                case SyntaxType.AS_KEYWORD:
                     return ConsoleColor.Magenta;
 
                 case SyntaxType.EQUALS_TOKEN:

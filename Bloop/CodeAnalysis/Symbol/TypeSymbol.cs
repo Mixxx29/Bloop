@@ -1,4 +1,6 @@
-﻿namespace Bloop.CodeAnalysis.Symbol
+﻿using Bloop.CodeAnalysis.Syntax;
+
+namespace Bloop.CodeAnalysis.Symbol
 {
     public sealed class TypeSymbol : Symbol
     {

@@ -111,5 +111,17 @@ namespace Bloop.CodeAnalysis
             var message = $"Argument '{name}' requires value of type {expected}, but was given {given}";
             Report(textSpan, message);
         }
+
+        internal void ReportUnexpectedVoidExpression(TextSpan textSpan)
+        {
+            var message = "Unexpected void expression";
+            Report(textSpan, message);
+        }
+
+        internal void ReportInvalidType(TextSpan textSpan, string name)
+        {
+            var message = $"Invalid type '{name}'";
+            Report(textSpan, message);
+        }
     }
 }

@@ -44,19 +44,29 @@ namespace Bloop.CodeAnalysis.Binding
                 previous = previous.Previous;
             }
 
-            BoundScope parent = null;
+            BoundScope parent = CreateRootScope();
 
             while (stack.Count > 0)
             {
                 previous = stack.Pop();
                 var scope = new BoundScope(parent);
                 foreach (var v in previous.Variables)
-                    scope.TryDeclare(v);
+                    scope.TryDeclareVariable(v);
 
                 parent = scope;
             }
 
             return parent;
+        }
+
+        private static BoundScope CreateRootScope()
+        {
+            var result = new BoundScope(null);
+
+            foreach (var function in BuiltinFunctions.GetAll())
+                result.TryDeclareFunction(function);
+
+            return result;  
         }
 
         public BoundStatement BindStatement(StatementSyntax syntax)
@@ -178,14 +188,14 @@ namespace Bloop.CodeAnalysis.Binding
 
             var variable = new VariableSymbol(name, isReadOnly, expression.Type);
 
-            if (!_scope.TryDeclare(variable))
+            if (!_scope.TryDeclareVariable(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
             return variable;
         }
 
         private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
         {
-            var expression = BindExpression(syntax.Expression);
+            var expression = BindExpression(syntax.Expression, true);
             return new BoundExpressionStatement(expression);
         }
 
@@ -202,7 +212,19 @@ namespace Bloop.CodeAnalysis.Binding
             return result;
         }
 
-        public BoundExpression BindExpression(ExpressionSyntax expressionNode)
+        public BoundExpression BindExpression(ExpressionSyntax expressionNode, bool canBeVoid = false)
+        {
+            var result = BindExpressionInternal(expressionNode);
+            if (!canBeVoid && result.Type == TypeSymbol.Void)
+            {
+                _diagnostics.ReportUnexpectedVoidExpression(expressionNode.Span);
+                return new BoundErrorExpression();
+            }
+
+            return result;
+        }
+
+        public BoundExpression BindExpressionInternal(ExpressionSyntax expressionNode)
         {
             switch (expressionNode.Type)
             {
@@ -226,6 +248,9 @@ namespace Bloop.CodeAnalysis.Binding
 
                 case SyntaxType.ASSIGNMENT_EXPRESSION:
                     return BindAssignmentExpression((AssignmentExpressionSyntax)expressionNode);
+
+                case SyntaxType.CONVERSION_EXPRESSION:
+                    return BindConversionExpression((ConversionExpression)expressionNode);
 
                 default:
                     throw new Exception($"Unexpected syntax {expressionNode.Type}");
@@ -282,7 +307,7 @@ namespace Bloop.CodeAnalysis.Binding
                 return new BoundErrorExpression();
 
             var name = syntax.IdentifierToken.Text;
-            if (!_scope.TryLookup(name, out var variable))
+            if (!_scope.TryLookupVariable(name, out var variable))
             {
                 _diagnostics.ReportUndefinedVariable(syntax.IdentifierToken.Span, name);
                 return new BoundErrorExpression();
@@ -298,10 +323,7 @@ namespace Bloop.CodeAnalysis.Binding
                 arguments.Add(BindExpression(argument));
             }
 
-            var functions = BuiltinFunctions.GetAll();
-
-            var function = functions.SingleOrDefault(f => f?.Name == expressionNode.Identifier.Text);
-            if (function == null)
+            if (!_scope.TryLookupFunction(expressionNode.Identifier.Text, out var function))
             {
                 _diagnostics.ReportUndefinedFunction(expressionNode.Identifier.Span, expressionNode.Identifier.Text);
                 return new BoundErrorExpression();
@@ -344,7 +366,7 @@ namespace Bloop.CodeAnalysis.Binding
             var name = syntax.IdentifierToken.Text;
             var boundExpression = BindExpression(syntax.Expression);
 
-            if (!_scope.TryLookup(name, out var variable))
+            if (!_scope.TryLookupVariable(name, out var variable))
             {
                 _diagnostics.ReportUndefinedVariable(syntax.IdentifierToken.Span, name);
                 return boundExpression;
@@ -360,6 +382,12 @@ namespace Bloop.CodeAnalysis.Binding
             }
 
             return new BoundAssignmentExpression(variable, boundExpression);
+        }
+
+        private BoundExpression BindConversionExpression(ConversionExpression expressionNode)
+        {
+            var expression = BindExpression(expressionNode.Expression);
+            return new BoundConversionExpression(expression, expressionNode.TargetType);
         }
     }
 }
