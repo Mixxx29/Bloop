@@ -1,5 +1,6 @@
 ﻿using Bloop.CodeAnalysis.Symbol;
 using Bloop.CodeAnalysis.Syntax;
+using Bloop.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -161,7 +162,7 @@ namespace Bloop.CodeAnalysis.Binding
             _scope = new BoundScope(_scope);
 
             var identifier = syntax.Identifier;
-            var variable = BindVariable(identifier, false, firstBound);
+            var variable = BindVariable(identifier, false, TypeSymbol.Number);
 
             var statement = BindStatement(syntax.Statement);
 
@@ -173,20 +174,35 @@ namespace Bloop.CodeAnalysis.Binding
         private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatement syntax)
         {
             var isReadOnly = syntax.Keyword.Type == SyntaxType.CONST_KEYWORD;
+            var type = BindTypeClause(syntax.TypeClause);
             var expression = BindExpression(syntax.Expression);
+            var variableType = type ?? expression.Type;
             var identifier = syntax.Identifier;
-            VariableSymbol variable = BindVariable(identifier, isReadOnly, expression);
+            var variable = BindVariable(identifier, isReadOnly, variableType);
+            var convertedExpression = BindConversion(syntax.Expression.Span, expression, variableType);
 
-            return new BoundVariableDeclarationStatement(variable, expression);
+            return new BoundVariableDeclarationStatement(variable, convertedExpression);
         }
 
-        private VariableSymbol BindVariable(SyntaxToken identifier, bool isReadOnly, BoundExpression expression)
+        private TypeSymbol? BindTypeClause(TypeClauseSyntax? syntax)
+        {
+            if (syntax == null)
+                return null;
+
+            var typeSymbol = syntax.Identifier.Type.GetTypeSymbol();
+            if (typeSymbol == null)
+                _diagnostics.ReportUndefinedType(syntax.Identifier.Span, syntax.Identifier.Text);
+
+            return typeSymbol;
+        }
+
+        private VariableSymbol BindVariable(SyntaxToken identifier, bool isReadOnly, TypeSymbol type)
         {
             var name = identifier.Text;
             if (name == "")
                 name = "?";
 
-            var variable = new VariableSymbol(name, isReadOnly, expression.Type);
+            var variable = new VariableSymbol(name, isReadOnly, type);
 
             if (!_scope.TryDeclareVariable(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
@@ -387,7 +403,25 @@ namespace Bloop.CodeAnalysis.Binding
         private BoundExpression BindConversionExpression(ConversionExpression expressionNode)
         {
             var expression = BindExpression(expressionNode.Expression);
-            return new BoundConversionExpression(expression, expressionNode.TargetType);
+            return BindConversion(expressionNode.Span, expression, expressionNode.TargetType);
+        }
+
+        private BoundExpression BindConversion(TextSpan textSpan, BoundExpression expression, TypeSymbol targetType)
+        {
+            var conversion = Conversion.Classify(expression.Type, targetType);
+
+            if (!conversion.IsValid)
+            {
+                if (expression.Type != TypeSymbol.Error && targetType != TypeSymbol.Error)
+                {
+                    _diagnostics.ReportInvalidConversion(textSpan, expression.Type, targetType);
+                }
+            }
+
+            if (conversion.IsIdentity)
+                return expression;
+
+            return new BoundConversionExpression(expression, targetType);
         }
     }
 }

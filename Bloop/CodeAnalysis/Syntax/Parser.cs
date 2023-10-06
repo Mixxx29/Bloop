@@ -135,9 +135,25 @@ namespace Bloop.CodeAnalysis.Syntax
             var expected = Current.Type == SyntaxType.VAR_KEYWORD ? SyntaxType.VAR_KEYWORD : SyntaxType.CONST_KEYWORD;
             var keyword = MatchToken(expected);
             var identifier = MatchToken(SyntaxType.IDENTIFIER_TOKEN);
+            var typeClause = ParseOptionalTypeClause();
             var equals = MatchToken(SyntaxType.EQUALS_TOKEN);
             var expression = ParseExpression();
-            return new VariableDeclarationStatement(keyword, identifier, equals, expression);
+            return new VariableDeclarationStatement(keyword, identifier, typeClause, equals, expression);
+        }
+
+        private TypeClauseSyntax? ParseOptionalTypeClause()
+        {
+            if (Current.Type != SyntaxType.COLON_TOKEN)
+                return null;
+
+            return ParseTypeClause();
+        }
+
+        private TypeClauseSyntax? ParseTypeClause()
+        {
+            var colonToken = MatchToken(SyntaxType.COLON_TOKEN);
+            var identifier = NextToken();
+            return new TypeClauseSyntax(colonToken, identifier);
         }
 
         private IfStatementSyntax ParseIfStatement()
@@ -225,7 +241,7 @@ namespace Bloop.CodeAnalysis.Syntax
                     }
                     else
                     {
-                        _diagnostics.ReportInvalidType(targetTypeToken.Span, targetTypeToken.Text);
+                        _diagnostics.ReportUndefinedType(targetTypeToken.Span, targetTypeToken.Text);
                     }
                 }
             }

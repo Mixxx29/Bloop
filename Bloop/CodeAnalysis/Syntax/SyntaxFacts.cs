@@ -145,6 +145,9 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.SLASH_TOKEN:
                     return "/";
 
+                case SyntaxType.COLON_TOKEN:
+                    return ":";
+
                 case SyntaxType.OPEN_PARENTHESIS_TOKEN:
                     return "(";
 
@@ -285,8 +288,9 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.PLUS_TOKEN:
                 case SyntaxType.MINUS_TOKEN:
                 case SyntaxType.ASTERIX_TOKEN:
-                case SyntaxType.MODULO_KEYWORD:
                 case SyntaxType.SLASH_TOKEN:
+                case SyntaxType.COLON_TOKEN:
+                case SyntaxType.MODULO_KEYWORD:
                 case SyntaxType.GREATER_THAN_TOKEN:
                 case SyntaxType.GREATER_THAN_OR_EQUALS_TOKEN:
                 case SyntaxType.LESS_THAN_TOKEN:

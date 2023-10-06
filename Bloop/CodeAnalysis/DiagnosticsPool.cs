@@ -118,9 +118,9 @@ namespace Bloop.CodeAnalysis
             Report(textSpan, message);
         }
 
-        internal void ReportInvalidType(TextSpan textSpan, string name)
+        internal void ReportUndefinedType(TextSpan textSpan, string name)
         {
-            var message = $"Invalid type '{name}'";
+            var message = $"Undefined type '{name}'";
             Report(textSpan, message);
         }
     }

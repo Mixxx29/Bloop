@@ -11,7 +11,7 @@
         MINUS_TOKEN,
         ASTERIX_TOKEN,
         SLASH_TOKEN,
-        MODULO_KEYWORD,
+        COLON_TOKEN,
         OPEN_PARENTHESIS_TOKEN,
         CLOSE_PARENTHESIS_TOKEN,
         OPEN_BRACE_TOKEN,
@@ -32,6 +32,7 @@
 
         TRUE_KEYWORD,
         FALSE_KEYWORD,
+        MODULO_KEYWORD,
         VAR_KEYWORD,
         CONST_KEYWORD,
         NUMBER_KEYWORD,
@@ -64,5 +65,6 @@
         FOR_STATEMENT,
 
         COMPILATION_UNIT,
+        TYPE_CLAUSE,
     }
 }
