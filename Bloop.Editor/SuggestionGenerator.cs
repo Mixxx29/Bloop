@@ -49,7 +49,7 @@ namespace Bloop.Editor
 
             var syntaxTree = SyntaxTree.Parse(textBuilder.ToString());
 
-            var globalScope = Binder.BindGlobalScope(null, syntaxTree.Root);
+            var globalScope = Binder.BindGlobalScope(syntaxTree.Root);
 
             foreach (var variable in globalScope.Variables)
             {

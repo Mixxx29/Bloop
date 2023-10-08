@@ -69,22 +69,89 @@ namespace Bloop.CodeAnalysis.Syntax
 
         public CompilationUnitSyntax ParseCompilationUnit()
         {
-            var statement = ParseMainStatement();
+            var members = ParseMembers();
             var endOfFileToken = MatchToken(SyntaxType.END_OF_FILE_TOKEN);
-            return new CompilationUnitSyntax(statement, endOfFileToken);
+            return new CompilationUnitSyntax(members, endOfFileToken);
         }
 
-        private MainStatementSyntax ParseMainStatement()
+        private ImmutableArray<MemberSyntax> ParseMembers()
         {
-            var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
+            var members = ImmutableArray.CreateBuilder<MemberSyntax>();
+
 
             while (Current.Type != SyntaxType.END_OF_FILE_TOKEN)
             {
-                var statement = ParseStatement();
-                statements.Add(statement);
+                var startToken = Current;
+
+                var member = ParseMember();
+                members.Add(member);
+
+                if (Current == startToken)
+                    NextToken();
             }
 
-            return new MainStatementSyntax(statements.ToImmutable());
+            return members.ToImmutable();
+        }
+
+        private MemberSyntax ParseMember()
+        {
+            if (Current.Type == SyntaxType.FUNCTION_KEYWORD)
+                return ParseFunctionDeclaration();
+
+            return ParseGlobalStatement();
+        }
+
+        private MemberSyntax ParseFunctionDeclaration()
+        {
+            var functionKeyword = MatchToken(SyntaxType.FUNCTION_KEYWORD);
+            var identifier = MatchToken(SyntaxType.FUNCTION_IDENTIFIER_TOKEN);
+            var openParenthesis = MatchToken(SyntaxType.OPEN_PARENTHESIS_TOKEN);
+            var parameters = ParseParameters();
+            var closeParenthesis = MatchToken(SyntaxType.CLOSE_PARENTHESIS_TOKEN);
+            var typeClause = ParseOptionalTypeClause();
+            var body = ParseBlockStatement();
+            return new FunctionDeclarationSyntax(
+                functionKeyword,
+                identifier,
+                openParenthesis,
+                parameters,
+                closeParenthesis,
+                typeClause,
+                body
+            );
+        }
+
+        private SeparatedSyntaxList<ParameterSyntax> ParseParameters()
+        {
+            var nodes = ImmutableArray.CreateBuilder<SyntaxNode>();
+
+            while (Current.Type != SyntaxType.CLOSE_PARENTHESIS_TOKEN &&
+                   Current.Type != SyntaxType.END_OF_FILE_TOKEN)
+            {
+                var parameter = ParseParameter();
+                nodes.Add(parameter);
+
+                if (Current.Type == SyntaxType.COMMA_TOKEN)
+                {
+                    var comma = MatchToken(SyntaxType.COMMA_TOKEN);
+                    nodes.Add(comma);
+                }
+            }
+
+            return new SeparatedSyntaxList<ParameterSyntax>(nodes.ToImmutable());
+        }
+
+        private ParameterSyntax ParseParameter()
+        {
+            var identifier = MatchToken(SyntaxType.IDENTIFIER_TOKEN);
+            var typeClause = ParseTypeClause();
+            return new ParameterSyntax(identifier, typeClause);
+        }
+
+        private MemberSyntax ParseGlobalStatement()
+        {
+            var statement = ParseStatement();
+            return new GlobalStatementSyntax(statement);
         }
 
         private StatementSyntax ParseStatement()
@@ -121,8 +188,13 @@ namespace Bloop.CodeAnalysis.Syntax
             while (Current.Type != SyntaxType.END_OF_FILE_TOKEN &&
                    Current.Type != SyntaxType.CLOSE_BRACE_TOKEN)
             {
+                var startToken = Current;
+
                 var statement = ParseStatement();
                 statements.Add(statement);
+
+                if (Current == startToken)
+                    NextToken();
             }
 
             var closeBraceToken = MatchToken(SyntaxType.CLOSE_BRACE_TOKEN);
@@ -149,7 +221,7 @@ namespace Bloop.CodeAnalysis.Syntax
             return ParseTypeClause();
         }
 
-        private TypeClauseSyntax? ParseTypeClause()
+        private TypeClauseSyntax ParseTypeClause()
         {
             var colonToken = MatchToken(SyntaxType.COLON_TOKEN);
             var identifier = NextToken();

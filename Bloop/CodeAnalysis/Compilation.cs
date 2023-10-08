@@ -20,6 +20,8 @@ namespace Bloop.CodeAnalysis
 
         public Compilation? Previous { get; }
         public SyntaxTree SyntaxTree { get; private set; }
+        public BoundStatement BoundRoot { get; private set; }
+        public BoundStatement LoweredRoot { get; private set; }
         public Evaluator Evaluator { get; }
         public ImmutableArray<Diagnostic> Diagnostics { get; private set; }
 
@@ -27,10 +29,9 @@ namespace Bloop.CodeAnalysis
         {
             SyntaxTree = syntaxTree;
 
-            var globalScope = Binder.BindGlobalScope(null, syntaxTree.Root);
+            var globalScope = Binder.BindGlobalScope(syntaxTree.Root);
 
-            var statement = Lowerer.Lower(globalScope.Statement);
-
+            BoundRoot = globalScope.Statement;
             Diagnostics = SyntaxTree.Diagnostics.Concat(globalScope.Diagnostics).ToImmutableArray();
 
             OnCompile?.Invoke();
@@ -38,8 +39,16 @@ namespace Bloop.CodeAnalysis
             if (Diagnostics.Any())
                 return;
 
+            var program = Binder.BindProgram(globalScope);
+
+            Diagnostics.AddRange(program.Diagnostics);
+            if (Diagnostics.Any())
+                return;
+
+            LoweredRoot = Lowerer.Lower(BoundRoot);
+
             var variables = new Dictionary<VariableSymbol, object?>();
-            Evaluator.Evaluate(statement, variables);
+            Evaluator.Evaluate(program.FunctionBodies, (BoundBlockStatement)LoweredRoot, variables);
         }
 
         public void Subscribe(CompilationSubscriber subscriber)

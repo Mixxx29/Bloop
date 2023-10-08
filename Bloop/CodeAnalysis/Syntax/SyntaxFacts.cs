@@ -87,6 +87,9 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case "false":
                     return SyntaxType.FALSE_KEYWORD;
+                
+                case "function":
+                    return SyntaxType.FUNCTION_KEYWORD;
 
                 case "var":
                     return SyntaxType.VAR_KEYWORD;
@@ -196,6 +199,9 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.FALSE_KEYWORD:
                     return "false";
 
+                case SyntaxType.FUNCTION_KEYWORD:
+                    return "function";
+
                 case SyntaxType.VAR_KEYWORD:
                     return "var";
 
@@ -268,6 +274,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.NUMBER_KEYWORD:
                 case SyntaxType.STRING_KEYWORD:
                 case SyntaxType.BOOL_KEYWORD:
+                case SyntaxType.FUNCTION_KEYWORD:
                     return ConsoleColor.DarkCyan;
 
                 case SyntaxType.TRUE_KEYWORD:
@@ -299,6 +306,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.EXCLAMATION_MARK_EQUALS_TOKEN:
                 case SyntaxType.DOUBLE_AMPERSAND_TOKEN:
                 case SyntaxType.DOUBLE_PIPE_TOKEN:
+                case SyntaxType.COMMA_TOKEN:
                     return ConsoleColor.Yellow;
 
                 default:

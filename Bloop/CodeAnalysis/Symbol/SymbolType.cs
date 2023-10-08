@@ -2,8 +2,10 @@
 {
     public enum SymbolType
     {
-        VARIABLE,
+        GLOBAL_VARIABLE,
         LABEL,
         TYPE,
+        LOCAL_VARIABLE,
+        PARAMETER,
     }
 }

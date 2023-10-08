@@ -9,9 +9,6 @@ namespace Bloop.Editor
     {
         private readonly BloopDocument _document;
 
-        private readonly List<List<string>> _lines = new List<List<string>>();
-        private readonly List<List<ConsoleColor>> _colors = new List<List<ConsoleColor>>();
-
         private int _lastLineDrawn;
 
         private Compilation _compilation;
@@ -55,10 +52,11 @@ namespace Bloop.Editor
             if (_compilation.Diagnostics != null && _compilation.Diagnostics.Any())
                 PrintDiagnostics();
 
-            //Console.WriteLine(_compilation.SyntaxTree.Root.ToString());
+            /*if (_compilation.SyntaxTree != null)
+                Console.WriteLine(_compilation.SyntaxTree.Root.ToString());*/
 
-            /*if (_result.Root != null)
-                _result.Root.ToConsole();*/
+            /*if (_compilation.BoundRoot != null)
+                _compilation.BoundRoot.ToConsole();*/
 
             _lastLineDrawn = Console.CursorTop;
 
@@ -74,6 +72,15 @@ namespace Bloop.Editor
             var sourceText = _compilation.SyntaxTree.SourceText;
             foreach (var diagnostic in _compilation.Diagnostics)
             {
+                if (diagnostic.Span.Start == -1)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($" (0, 0): ");
+                    Console.WriteLine($"{diagnostic}");
+                    Console.ResetColor();
+                    continue;
+                }
+
                 var lineIndex = sourceText.GetLineIndex(diagnostic.Span.Start);
                 var line = sourceText.Lines[lineIndex];
                 var lineNumber = lineIndex + 1;

@@ -33,6 +33,7 @@
         TRUE_KEYWORD,
         FALSE_KEYWORD,
         MODULO_KEYWORD,
+        FUNCTION_KEYWORD,
         VAR_KEYWORD,
         CONST_KEYWORD,
         NUMBER_KEYWORD,
@@ -66,5 +67,8 @@
 
         COMPILATION_UNIT,
         TYPE_CLAUSE,
+        GLOBAL_STATEMENT,
+        FUNCTION_DECLARATION,
+        PARAMETER,
     }
 }

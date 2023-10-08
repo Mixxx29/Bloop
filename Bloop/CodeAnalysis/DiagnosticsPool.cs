@@ -123,5 +123,29 @@ namespace Bloop.CodeAnalysis
             var message = $"Undefined type '{name}'";
             Report(textSpan, message);
         }
+
+        internal void ReportParameterAlreadyDeclared(TextSpan textSpan, string name)
+        {
+            var message = $"Parameter with name '{name}' is already used";
+            Report(textSpan, message);
+        }
+
+        internal void ReportFunctionAlreadyDeclared(TextSpan textSpan, string name)
+        {
+            var message = $"Function with name '{name}' is already defined";
+            Report(textSpan, message);
+        }
+
+        internal void ReportMainMissing()
+        {
+            var message = "Main function missing";
+            Report(TextSpan.FromBounds(-1, 0), message);
+        }
+
+        internal void ReportStatementNotAllowed(TextSpan textSpan)
+        {
+            var message = "Only variable and function declarations are allowed";
+            Report(textSpan, message);
+        }
     }
 }

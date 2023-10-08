@@ -1,16 +1,17 @@
-﻿namespace Bloop.CodeAnalysis.Syntax
+﻿using System.Collections.Immutable;
+
+namespace Bloop.CodeAnalysis.Syntax
 {
     public sealed class CompilationUnitSyntax : SyntaxNode
     { 
-        public CompilationUnitSyntax(StatementSyntax statement, SyntaxToken endOfFileToken)
+        public CompilationUnitSyntax(ImmutableArray<MemberSyntax> members, SyntaxToken endOfFileToken)
         {
-            Statement = statement;
+            Members = members;
             EndOfFileToken = endOfFileToken;
         }
         public override SyntaxType Type => SyntaxType.COMPILATION_UNIT;
 
-        public StatementSyntax Statement { get; }
+        public ImmutableArray<MemberSyntax> Members { get; }
         public SyntaxToken EndOfFileToken { get; }
-
     }
 }

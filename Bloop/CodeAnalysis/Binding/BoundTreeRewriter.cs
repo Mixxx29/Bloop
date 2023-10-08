@@ -16,9 +16,6 @@ namespace Bloop.CodeAnalysis.Binding
         {
             switch (node.NodeType)
             {
-                case BoundNodeType.MAIN_STATEMENT:
-                    return RewriteMainStatement((BoundMainStatement)node);
-
                 case BoundNodeType.BLOCK_STATEMENT:
                     return RewriteBlockStatement((BoundBlockStatement)node);
 
@@ -52,35 +49,6 @@ namespace Bloop.CodeAnalysis.Binding
                 default:
                     throw new Exception($"Unexpected node {node.NodeType}");
             }
-        }
-
-        protected virtual BoundStatement RewriteMainStatement(BoundMainStatement node)
-        {
-            ImmutableArray<BoundStatement>.Builder? builder = null;
-
-            for (var i = 0; i < node.Statements.Length; i++)
-            {
-                var oldStatement = node.Statements[i];
-                var newStatement = RewriteStatement(node.Statements[i]);
-                if (newStatement != oldStatement)
-                {
-                    if (builder == null)
-                    {
-                        builder = ImmutableArray.CreateBuilder<BoundStatement>(node.Statements.Length);
-
-                        for (var j = 0; j < i; j++)
-                            builder.Add(node.Statements[j]);
-                    }
-                }
-
-                if (builder != null)
-                    builder.Add(newStatement);
-            }
-
-            if (builder == null)
-                return new BoundBlockStatement(node.Statements);
-
-            return new BoundBlockStatement(builder.MoveToImmutable());
         }
 
         protected virtual BoundStatement RewriteBlockStatement(BoundBlockStatement node)

@@ -1,4 +1,5 @@
-﻿using Bloop.CodeAnalysis.Symbol;
+﻿using Bloop.CodeAnalysis.Lowering;
+using Bloop.CodeAnalysis.Symbol;
 using Bloop.CodeAnalysis.Syntax;
 using Bloop.CodeAnalysis.Text;
 using System;
@@ -12,52 +13,143 @@ using System.Threading.Tasks;
 
 namespace Bloop.CodeAnalysis.Binding
 {
-
     public sealed class Binder
-    { 
+    {
         private readonly DiagnosticsPool _diagnostics = new DiagnosticsPool();
+        private readonly FunctionSymbol? _function;
 
-        private BoundScope? _scope;
+        private BoundScope _scope;
 
-        public Binder(BoundScope? parent)
+        public Binder(BoundScope? parent, FunctionSymbol? function)
         {
             _scope = new BoundScope(parent);
+            _function = function;
+
+            if (_function != null)
+            {
+                foreach (var parameter in _function.Parameters)
+                {
+                    _scope.TryDeclareVariable(parameter);
+                }
+            }
         }
 
         public DiagnosticsPool Diagnostics => _diagnostics;
 
-        public static BoundGlobalScope BindGlobalScope(BoundGlobalScope? previous, CompilationUnitSyntax syntax)
+        public static BoundGlobalScope BindGlobalScope(CompilationUnitSyntax syntax)
         {
-            var parentScope = CreateParentScopes(previous);
-            var binder = new Binder(parentScope);
-            var statement = binder.BindStatement(syntax.Statement);
-            var variables = binder._scope != null ? binder._scope.GetDeclaredVariables() : ImmutableArray<VariableSymbol>.Empty;
+            var parentScope = CreateScope();
+            var binder = new Binder(parentScope, null);
+
+            foreach (var function in syntax.Members.OfType<FunctionDeclarationSyntax>())
+                binder.BindFunctionDeclaration(function);
+
+            var statementBuilder = ImmutableArray.CreateBuilder<BoundStatement>();
+
+            foreach (var globalStatement in syntax.Members.OfType<GlobalStatementSyntax>())
+            {
+                if (globalStatement.Statement.Type != SyntaxType.VARIABLE_DECLARATION_STATEMENT)
+                {
+                    binder._diagnostics.ReportStatementNotAllowed(globalStatement.Span);
+                    continue;
+                }
+                var boundGlobalStatement = binder.BindStatement(globalStatement.Statement);
+                statementBuilder.Add(boundGlobalStatement);
+            }
+
+            var mainCall = BindMainCall(binder);
+            statementBuilder.Add(mainCall);
+
+            var statement = new BoundBlockStatement(statementBuilder.ToImmutable());
+
+            var functions = binder._scope.GetDeclaredFunctions();
+            var variables = binder._scope.GetDeclaredVariables();
+
             var diagnostics = binder._diagnostics.ToImmutableArray();
-            return new BoundGlobalScope(previous, diagnostics, variables, statement);
+
+            return new BoundGlobalScope(diagnostics, functions, variables, statement);
         }
 
-        private static BoundScope? CreateParentScopes(BoundGlobalScope? previous)
+        private static BoundStatement BindMainCall(Binder binder)
         {
-            var stack = new Stack<BoundGlobalScope>();
-            while (previous != null)
+            if (!binder._scope.TryLookupFunction("Main", out var mainFunction))
             {
-                stack.Push(previous);
-                previous = previous.Previous;
+                binder._diagnostics.ReportMainMissing();
             }
 
-            BoundScope parent = CreateRootScope();
+            var expression = mainFunction == null
+                                                ? (BoundExpression) new BoundErrorExpression()
+                                                : new BoundFunctionCallExpression(mainFunction, ImmutableArray<BoundExpression>.Empty);
 
-            while (stack.Count > 0)
+            return new BoundExpressionStatement(expression);
+        }
+
+        public static BoundProgram BindProgram(BoundGlobalScope gloalScope)
+        {
+            var parentScope = CreateScope(gloalScope);
+
+            var functionBodies = new Dictionary<FunctionSymbol, BoundBlockStatement>();
+            var diagnostics = new DiagnosticsPool();
+
+            foreach (var function in gloalScope.Functions)
             {
-                previous = stack.Pop();
-                var scope = new BoundScope(parent);
-                foreach (var v in previous.Variables)
-                    scope.TryDeclareVariable(v);
+                var binder = new Binder(parentScope, function);
+                var body = binder.BindStatement(function.Declaration.Body);
+                var loweredBody = Lowerer.Lower(body);
+                functionBodies.Add(function, loweredBody);
 
-                parent = scope;
+                diagnostics.AddRange(binder.Diagnostics);
             }
 
-            return parent;
+            return new BoundProgram(gloalScope, diagnostics, functionBodies);
+        }
+
+        private void BindFunctionDeclaration(FunctionDeclarationSyntax syntax)
+        {
+            var parameters = ImmutableArray.CreateBuilder<ParameterSymbol>();
+
+            var declaredParameters = new HashSet<string>();
+
+            foreach (var parameterSyntax in syntax.Parameters)
+            {
+                var parameterName = parameterSyntax.Identifier.Text;
+                var parameterType = BindTypeClause(parameterSyntax.TypeClause);
+                if (!declaredParameters.Add(parameterName))
+                {
+                    _diagnostics.ReportParameterAlreadyDeclared(parameterSyntax.Span, parameterName);
+                }
+                else
+                {
+                    var parameter = new ParameterSymbol(parameterName, parameterType);
+                    parameters.Add(parameter);
+                }
+            }
+
+            var returnType = BindTypeClause(syntax.TypeClause) ?? TypeSymbol.Void;
+
+            var function = new FunctionSymbol(syntax.Identifier.Text, parameters.ToImmutable(), returnType, syntax);
+            if (!_scope.TryDeclareFunction(function))
+                _diagnostics.ReportFunctionAlreadyDeclared(syntax.Identifier.Span, function.Name);
+        }
+
+        private static BoundScope? CreateScope(BoundGlobalScope? previous = null)
+        {
+            BoundScope root = CreateRootScope();
+
+            if (previous != null)
+            {
+                var scope = new BoundScope(root);
+
+                foreach (var function in previous.Functions)
+                    scope.TryDeclareFunction(function);
+
+                foreach (var variable in previous.Variables)
+                    scope.TryDeclareVariable(variable);
+
+                root = scope;
+            }
+
+            return root;
         }
 
         private static BoundScope CreateRootScope()
@@ -74,9 +166,6 @@ namespace Bloop.CodeAnalysis.Binding
         {
             switch (syntax.Type)
             {
-                case SyntaxType.MAIN_STATEMENT:
-                    return BindMainStatement((MainStatementSyntax)syntax);
-
                 case SyntaxType.BLOCK_STATEMENT:
                     return BindBlockStatement((BlockStatementSyntax)syntax);
 
@@ -89,9 +178,6 @@ namespace Bloop.CodeAnalysis.Binding
                 case SyntaxType.IF_STATEMENT:
                     return BindIfStatement((IfStatementSyntax)syntax);
 
-                case SyntaxType.ELSE_STATEMENT:
-                    return BindElseStatement((ElseStatementSyntax)syntax);
-
                 case SyntaxType.WHILE_STATEMENT:
                     return BindWhileStatement((WhileStatementSyntax)syntax);
 
@@ -101,19 +187,6 @@ namespace Bloop.CodeAnalysis.Binding
                 default:
                     throw new Exception($"Unexpected syntax {syntax.Type}");
             }
-        }
-
-        private BoundMainStatement BindMainStatement(MainStatementSyntax syntax)
-        {
-            var statements = ImmutableArray.CreateBuilder<BoundStatement>();
-
-            foreach (var statementSyntax in syntax.Statements)
-            {
-                var statement = BindStatement(statementSyntax);
-                statements.Add(statement);
-            }
-
-            return new BoundMainStatement(statements.ToImmutable());
         }
 
         private BoundBlockStatement BindBlockStatement(BlockStatementSyntax syntax)
@@ -137,14 +210,8 @@ namespace Bloop.CodeAnalysis.Binding
         {
             var condition = BindExpression(syntax.Condition, TypeSymbol.Bool);
             var thenStatement = BindStatement(syntax.Statement);
-            var elseStatement = syntax.ElseStatement == null ? null : BindStatement(syntax.ElseStatement);
+            var elseStatement = syntax.ElseStatement == null ? null : BindStatement(syntax.ElseStatement.Statement);
             return new BoundIfStatement(condition, thenStatement, elseStatement);
-        }
-
-        private BoundStatement BindElseStatement(ElseStatementSyntax syntax)
-        {
-            var statement = BindStatement(syntax.Statement);
-            return new BoundElseStatement(statement);
         }
 
         private BoundStatement BindWhileStatement(WhileStatementSyntax syntax)
@@ -202,7 +269,9 @@ namespace Bloop.CodeAnalysis.Binding
             if (name == "")
                 name = "?";
 
-            var variable = new VariableSymbol(name, isReadOnly, type);
+            var variable = _function == null
+                                ? (VariableSymbol) new GlobalVariableSymbol(name, isReadOnly, type)
+                                : new LocalVariableSymbol(name, isReadOnly, type);
 
             if (!_scope.TryDeclareVariable(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
