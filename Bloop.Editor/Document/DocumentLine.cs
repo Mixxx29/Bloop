@@ -1,13 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace Bloop.Editor
+namespace Bloop.Editor.Document
 {
     internal class DocumentLine
     {
         private readonly BloopDocument _document;
         private readonly ObservableCollection<char> _characters;
 
-        public DocumentLine(BloopDocument document, string text) 
+        public DocumentLine(BloopDocument document, string text)
             : this(document)
         {
             AddText(0, text);
@@ -27,7 +27,7 @@ namespace Bloop.Editor
         {
             if (index < 0 || index >= _characters.Count)
                 return '\0';
-                
+
             return _characters[index];
         }
 

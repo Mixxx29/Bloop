@@ -2,6 +2,7 @@
 using Bloop.CodeAnalysis;
 using System.Collections.Specialized;
 using System.Text;
+using Bloop.Editor.Document;
 
 namespace Bloop.Editor
 {

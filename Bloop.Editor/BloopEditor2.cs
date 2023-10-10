@@ -1,6 +1,6 @@
 ﻿
 
-using Bloop.Editor;
+using Bloop.Editor.Document;
 using Bloop.Editor.Configuration;
 using Bloop.Editor.Window;
 
@@ -26,7 +26,7 @@ namespace Bloop
                 leftOffset,
                 topOffset,
                 30,
-                Console.BufferHeight
+                Console.BufferHeight - 1
             );
             _projectWindow = new ProjectWindow(projectWindowFrame);
 
@@ -39,7 +39,7 @@ namespace Bloop
                 leftOffset,
                 topOffset,
                 Console.BufferWidth - leftOffset,
-                Console.BufferHeight
+                Console.BufferHeight - 1
             );
             _documentWindow = new DocumentWindow(document, documentWindowFrame);
 

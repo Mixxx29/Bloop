@@ -1,4 +1,5 @@
 ﻿using Bloop.CodeAnalysis.Syntax;
+using Bloop.Editor.Document;
 using System.Collections.Immutable;
 
 namespace Bloop.Editor

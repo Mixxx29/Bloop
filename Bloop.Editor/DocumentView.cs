@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Text;
 using Bloop.CodeAnalysis.Syntax;
 using Bloop.CodeAnalysis.Text;
+using Bloop.Editor.Document;
 
 namespace Bloop.Editor
 {

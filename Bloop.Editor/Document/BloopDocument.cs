@@ -2,7 +2,7 @@
 using System.Collections.Specialized;
 using System.Text;
 
-namespace Bloop.Editor
+namespace Bloop.Editor.Document
 {
     internal class BloopDocument
     {
@@ -54,6 +54,7 @@ namespace Bloop.Editor
             var slicedText = _lines[cursor.Top].Slice(cursor);
             AddLine(slicedText, cursor.Top + 1);
             cursor.MoveDown();
+            cursor.ResetLeft();
         }
 
         private void AddLine(string text, int index = 0)

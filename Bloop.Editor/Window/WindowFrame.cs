@@ -58,7 +58,7 @@ namespace Bloop.Editor.Window
             Console.Write("└");
             var line = new string('─', Width - 2);
             Console.Write(line);
-            //Console.Write("┘");
+            Console.Write("┘");
         }
 
         private void DrawLeftEdge()

@@ -1,53 +1,40 @@
-﻿using Bloop.Editor;
+﻿using Bloop.Editor.Document;
 using System.Collections.Specialized;
 using System.Reflection.Metadata;
 
 namespace Bloop.Editor.Window
 {
-    internal class DocumentWindow : BloopWindow, DocumentSubscriber
+    internal class DocumentWindow : BloopWindow
     {
-        private readonly BloopDocument _document;
         private readonly WindowFrame _frame;
         private readonly WindowCursor _cursor;
 
-        private readonly int _leftOffset = 9;
-        private readonly int _topOffset = 2;
+        private readonly BloopDocument _document;
+        private readonly DocumentRenderer _documentRenderer;
 
+        private readonly string _allowedChars = " (){}+-*/";
+        
         private List<int> _lengths;
 
         public DocumentWindow(BloopDocument document, WindowFrame frame)
         {
-            _document = document;
-            _document.Subscribe(this);
-
             _frame = frame;
+            _cursor = new WindowCursor(_frame.Left + 9, _frame.Top + 2);
 
-            _cursor = new WindowCursor(
-                _frame.Left + _leftOffset, 
-                _frame.Top + _topOffset, 
-                _frame.Width - _leftOffset - 2, 
-                _frame.Height - _topOffset - 3
-            );
+            _document = document;
+            _documentRenderer = new DocumentRenderer(_document, _frame.Left + 1, _frame.Top + 2);
 
             _lengths = new List<int>();
             foreach (var line in _document.Lines)
                 _lengths.Add(line.Length);
         }
 
-        public void OnDocumentChanged(int index)
-        {
-            RenderDocument(index);
-        }
-
-        public void OnLineChanged(int index)
-        {
-
-        }
-
         public void Render()
         {
             _frame.Render();
-            RenderDocument(0);
+            _documentRenderer.Render();
+            RenderStatusBar();
+            _cursor.Reset();
         }
 
         public void HandleKey(ConsoleKeyInfo keyInfo)
@@ -73,7 +60,21 @@ namespace Bloop.Editor.Window
                 case ConsoleKey.DownArrow:
                     HandleDownArrow();
                     break;
+
+                case ConsoleKey.LeftArrow:
+                    HandleLeftArrow();
+                    break;
+
+                case ConsoleKey.RightArrow:
+                    HandleRightArrow();
+                    break;
+
+                default:
+                    HandleTyping(keyInfo);
+                    break;
             }
+
+            RenderStatusBar();
         }
 
         private void HandleEscape()
@@ -93,86 +94,68 @@ namespace Bloop.Editor.Window
 
         private void HandleUpArrow()
         {
+            if (_cursor.Top == 0)
+            {
+                ScrollUp();
+                return;
+            }
+
             _cursor.MoveUp();
         }
 
         private void HandleDownArrow()
         {
-            _cursor.MoveDown();
-        }
-
-        private void RenderDocument(int startIndex)
-        {
-            Console.CursorVisible = false;
-            
-            ResetCursorLeft();
-            ResetCursorTop();
-
-            Console.CursorTop += startIndex;
-            DrawLines(startIndex);
-
-            _cursor.Reset();
-
-            Console.CursorVisible = true;
-        }
-
-        private void DrawLines(int startIndex)
-        {
-            for (var i = startIndex; i < _document.Lines.Count; i++)
-                DrawLine(i);
-        }
-
-        private void DrawLine(int lineIndex)
-        {
-            ResetCursorLeft();
-            DrawLineNumber(lineIndex + 1);
-            DrawLineContent(lineIndex);
-        }
-
-        private void DrawLineNumber(int lineNumber)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write(" " + lineNumber);
-            Console.ResetColor();
-            Console.Write(new string(' ', _leftOffset - lineNumber.ToString().Length - 1));
-        }
-
-        private void DrawLineContent(int lineIndex)
-        {
-            var content = _document.Lines[lineIndex].ToString();
-            Console.Write(content);
-
-            if (lineIndex >= _lengths.Count)
+            if (_cursor.Top == _document.Lines.Count - 1)
             {
-                _lengths.Add(content.Length);
+                ScrollUp();
                 return;
             }
 
-            if (content.Length < _lengths[lineIndex])
-                Fill(_lengths[lineIndex] - content.Length);
-
-            _lengths[lineIndex] = content.Length;
+            _cursor.MoveDown();
         }
 
-        private void Fill(int length)
+        private void HandleLeftArrow()
         {
-            Fill(' ', length);
+            if (_cursor.Left == 0)
+                return;
+
+            _cursor.MoveLeft();
         }
 
-        private void Fill(char c, int length)
+        private void HandleRightArrow()
         {
-            var fill = new string(c, length);
-            Console.Write(fill);
+            if (_cursor.Left == _document.Lines[_cursor.Top].Length)
+                return;
+
+            _cursor.MoveRight();
         }
 
-        private void ResetCursorLeft()
+        private void HandleTyping(ConsoleKeyInfo keyInfo)
+        {
+            if (char.IsLetterOrDigit(keyInfo.KeyChar) || _allowedChars.Contains(keyInfo.KeyChar))
+            {
+                _document.AddText(_cursor.Top, keyInfo.KeyChar.ToString());
+                _cursor.MoveRight();
+                return;
+            }
+        }
+
+        private void ScrollUp()
+        {
+            
+        }
+
+        private void ScrollDown()
+        {
+            
+        }
+
+        private void RenderStatusBar()
         {
             Console.CursorLeft = _frame.Left + 1;
-        }
-
-        private void ResetCursorTop()
-        {
-            Console.CursorTop = _frame.Top + 2;
+            Console.CursorTop = _frame.Top + _frame.Height;
+            Console.Write($"Line: {_cursor.Top + 1} Char: {_cursor.Left + 1}  ");
+            _cursor.Reset();
         }
     }
 }

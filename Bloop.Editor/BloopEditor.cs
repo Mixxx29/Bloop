@@ -7,6 +7,7 @@ using Bloop.CodeAnalysis.Symbol;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
+using Bloop.Editor.Document;
 
 namespace Bloop
 {

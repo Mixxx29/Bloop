@@ -4,20 +4,16 @@ namespace Bloop.Editor
 {
     internal class WindowCursor
     {
-        private readonly int _leftBound;
-        private readonly int _topBound;
-        private readonly int _width;
-        private readonly int _height;
+        private readonly int _leftOffset;
+        private readonly int _topOffset;
 
         private int _left;
         private int _top;
 
-        public WindowCursor(int leftBound, int topBound, int width, int height)
+        public WindowCursor(int leftBound, int topBound)
         {
-            _leftBound = leftBound;
-            _topBound = topBound;
-            _width = width;
-            _height = height;
+            _leftOffset = leftBound;
+            _topOffset = topBound;
         }
 
         public int Left => _left;
@@ -25,42 +21,42 @@ namespace Bloop.Editor
 
         public void Reset()
         {
-            Console.SetCursorPosition(_leftBound + _left, _topBound + _top);
+            Console.SetCursorPosition(_leftOffset + _left, _topOffset + _top);
         }
 
         public void MoveUp()
         {
-            if (_top == 0)
-                return;
-
             --_top;
             Reset();
         }
 
         public void MoveDown()
         {
-            if (_top >= _height)
-                return;
-
             ++_top;
             Reset();
         }
 
         public void MoveLeft()
         {
-            if (_left <= 0)
-                return;
-
             --_left;
             Reset();
         }
 
         public void MoveRight()
         {
-            if (_left >= _width)
-                return;
-
             ++_left;
+            Reset();
+        }
+
+        public void ResetLeft()
+        {
+            _left = 0;
+            Reset();
+        }
+
+        public void ResetTop()
+        {
+            _top = 0;
             Reset();
         }
     }
