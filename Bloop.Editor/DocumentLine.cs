@@ -2,17 +2,15 @@
 
 namespace Bloop.Editor
 {
-    public class DocumentLine
+    internal class DocumentLine
     {
-        private readonly ObservableCollection<char> _characters;
         private readonly BloopDocument _document;
-
-        private int _currentCharacterIndex;
+        private readonly ObservableCollection<char> _characters;
 
         public DocumentLine(BloopDocument document, string text) 
             : this(document)
         {
-            AddText(text);
+            AddText(0, text);
         }
 
         public DocumentLine(BloopDocument document)
@@ -23,75 +21,50 @@ namespace Bloop.Editor
             _characters.CollectionChanged += _document.OnLineChanged;
         }
 
-        public int CurrentCharacterIndex
-        {
-            get => _currentCharacterIndex;
-            set
-            {
-                if (_currentCharacterIndex != value)
-                {
-                    _currentCharacterIndex = value;
-                    _document.UpdateCursor();
-                }
-            }
-        }
+        public int Length => _characters.Count;
 
-        public char GetChar(int offset = 0)
+        public char GetChar(int index)
         {
-            var index = _currentCharacterIndex + offset;
             if (index < 0 || index >= _characters.Count)
                 return '\0';
                 
             return _characters[index];
         }
 
-        public int Length => _characters.Count;
-
         internal void AddText(string text)
+        {
+            AddText(_characters.Count, text);
+        }
+
+        internal void AddText(int index, string text)
         {
             foreach (char character in text)
             {
-                _characters.Insert(_currentCharacterIndex++, character);
+                _characters.Insert(index, character);
             }
         }
 
-        internal bool DeleteCharacter()
+        internal string Slice(WindowCursor cursor)
         {
-            if (_currentCharacterIndex == 0)
+            var slicedText = ToString().Substring(cursor.Left);
+            DeleteText(cursor, slicedText.Length);
+            return slicedText;
+        }
+
+        internal bool DeleteText(WindowCursor cursor, int length = 1)
+        {
+            if (cursor.Left <= 0 || cursor.Left > _characters.Count - length)
                 return false;
 
-            _characters.RemoveAt(--CurrentCharacterIndex);
+            while (length-- > 0)
+                _characters.RemoveAt(cursor.Left);
+
             return true;
         }
 
         public override string ToString()
         {
             return new string(_characters.ToArray());
-        }
-
-        internal void SetCharacterIndex(int index)
-        {
-            if (index < 0)
-            {
-                index = 0;
-            }
-            else if (index > _characters.Count)
-            {
-                index = _characters.Count;
-            }
-
-            CurrentCharacterIndex = index;
-        }
-
-        internal string Slice()
-        {
-            var slicedText = ToString().Substring(CurrentCharacterIndex);
-
-            // Remove sliced text
-            while (_characters.Count > CurrentCharacterIndex)
-                _characters.RemoveAt(_characters.Count - 1);
-
-            return slicedText;
         }
     }
 }

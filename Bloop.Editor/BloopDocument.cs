@@ -4,176 +4,91 @@ using System.Text;
 
 namespace Bloop.Editor
 {
-    public class BloopDocument
+    internal class BloopDocument
     {
-        private const int _columnOffset = 8;
-        private const int _rowOffset = 1;
-
         private readonly ObservableCollection<DocumentLine> _lines;
 
-        private int _currentLineIndex;
-
-        public BloopDocument()
+        public BloopDocument(string name = "NewBloopDocument")
         {
+            Name = name;
+
             _lines = new ObservableCollection<DocumentLine>();
             AddLine("");
         }
 
+        public string Name { get; }
+
         public ObservableCollection<DocumentLine> Lines => _lines;
 
-        public int CurrentLineIndex 
-        { 
-            get => _currentLineIndex;
-            set
-            {
-                if (_currentLineIndex != value)
-                {
-                    _currentLineIndex = value;
-                    UpdateCursor();
-                }
-            } 
-        }
-
-        public DocumentLine CurrentLine => _lines[_currentLineIndex];
-
-        public delegate void DocumentChangedHandler();
+        public delegate void DocumentChangedHandler(int lineIndex);
         public event DocumentChangedHandler? DocumentChanged;
 
-        public delegate void LineChangedHandler();
+        public delegate void LineChangedHandler(int charIndex);
         public event LineChangedHandler? LineChanged;
 
         public void Subscribe(DocumentSubscriber subscriber)
         {
-            Lines.CollectionChanged += subscriber.OnDocumentChanged;
+            Lines.CollectionChanged += OnCollectionChanged;
             DocumentChanged += subscriber.OnDocumentChanged;
             LineChanged += subscriber.OnLineChanged;
         }
 
-        public void UpdateCursor()
+        private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            var column = _columnOffset + CurrentLine.CurrentCharacterIndex;
-            var row = _rowOffset + _currentLineIndex;
-            Console.SetCursorPosition(column, row);
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                DocumentChanged?.Invoke(e.OldStartingIndex);
+                return;
+            }
+
+            DocumentChanged?.Invoke(e.NewStartingIndex);
         }
 
-        public void Update()
+        internal void OnLineChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            DocumentChanged?.Invoke();
+            LineChanged?.Invoke(e.NewStartingIndex);
         }
 
-        public void NewLine()
+        public void NewLine(WindowCursor cursor)
         {
-            var slicedText = CurrentLine.Slice();
-            AddLine(slicedText, CurrentLineIndex + 1);
-            ++CurrentLineIndex;
-            CurrentLine.CurrentCharacterIndex = 0;
+            var slicedText = _lines[cursor.Top].Slice(cursor);
+            AddLine(slicedText, cursor.Top + 1);
+            cursor.MoveDown();
         }
 
-        private void AddLine(string text)
-        {
-            var line = new DocumentLine(this, text);
-            Lines.Add(line);
-        }
-
-        private void AddLine(string text, int index)
+        private void AddLine(string text, int index = 0)
         {
             var line = new DocumentLine(this, text);
             Lines.Insert(index, line);
         }
 
-        internal void DeleteCharacter()
+        public void DeleteCharacter(WindowCursor cursor)
         {
-            if (!CurrentLine.DeleteCharacter())
-                JoinWithPreviousLine();
+            if (!_lines[cursor.Top].DeleteText(cursor))
+                JoinWithPreviousLine(cursor);
         }
 
-        private void JoinWithPreviousLine()
+        private void JoinWithPreviousLine(WindowCursor cursor)
         {
-            if (_currentLineIndex == 0)
+            if (cursor.Top == 0)
                 return;
 
-            var previousLine = _lines[_currentLineIndex - 1];
-            var end = previousLine.Length;
-
-            var textToJoin = CurrentLine.ToString();
+            var previousLine = _lines[cursor.Top - 1];
+            var textToJoin = _lines[cursor.Top].ToString();
             previousLine.AddText(textToJoin);
-            previousLine.CurrentCharacterIndex = end;
-            DeleteLine();
+
+            DeleteLine(cursor.Top);
+            cursor.MoveUp();
         }
 
-        private void DeleteLine()
+        private void DeleteLine(int index)
         {
-            _lines.RemoveAt(CurrentLineIndex--);
+            _lines.RemoveAt(index);
         }
 
-        internal void MoveCursorUp()
+        public void AddText(int index, string text)
         {
-            if (CurrentLineIndex - 1 < 0)
-                return;
-
-            Console.CursorVisible = false;
-
-            var characterIndex = CurrentLine.CurrentCharacterIndex;
-            --CurrentLineIndex;
-            CurrentLine.SetCharacterIndex(characterIndex);
-
-            Console.CursorVisible = true;
-
-            LineChanged?.Invoke();
-        }
-
-        internal void MoveCursorDown()
-        {
-            if (CurrentLineIndex + 1 >= _lines.Count)
-                return;
-
-            Console.CursorVisible = false;
-
-            var characterIndex = CurrentLine.CurrentCharacterIndex;
-            ++CurrentLineIndex;
-            CurrentLine.SetCharacterIndex(characterIndex);
-
-            Console.CursorVisible = true;
-
-            LineChanged?.Invoke();
-        }
-
-        internal void MoveCursorRight()
-        {
-            if (CurrentLine.CurrentCharacterIndex + 1 > CurrentLine.Length)
-                return;
-
-            Console.CursorVisible = false;
-
-            CurrentLine.SetCharacterIndex(CurrentLine.CurrentCharacterIndex + 1);
-            
-            Console.CursorVisible = true;
-
-            LineChanged?.Invoke();
-        }
-
-        internal void MoveCursorLeft()
-        {
-            if (CurrentLine.CurrentCharacterIndex - 1 < 0)
-                return;
-
-            Console.CursorVisible = false;
-            
-            CurrentLine.SetCharacterIndex(CurrentLine.CurrentCharacterIndex - 1);
-            
-            Console.CursorVisible = true;
-
-            LineChanged?.Invoke();
-        }
-
-        public void AddText(string text)
-        {
-            Lines[_currentLineIndex].AddText(text);
-        }
-
-        internal void OnLineChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            LineChanged?.Invoke();
+            Lines[index].AddText(text);
         }
 
         public override string ToString()

@@ -53,7 +53,7 @@ namespace Bloop
 
         private void HandleKey(ConsoleKeyInfo key, BloopDocument document)
         {
-            if (key.Modifiers == default(ConsoleModifiers))
+            /*if (key.Modifiers == default(ConsoleModifiers))
             {
                 switch (key.Key)
                 {
@@ -114,7 +114,7 @@ namespace Bloop
             else
             {
                 //throw new Exception("Invalid input");
-            }
+            }*/
         }
 
         private void HandleEscape(BloopDocument document)
@@ -128,7 +128,7 @@ namespace Bloop
             _processing = false;
         }
 
-        private void HandleEnter(BloopDocument document)
+        /*private void HandleEnter(BloopDocument document)
         {
             if (SuggestionWindow.Instance.Visible)
             {
@@ -296,6 +296,6 @@ namespace Bloop
 
             Console.CursorLeft = cursorLeft;
             Console.CursorVisible = true;
-        }
+        }*/
     }
 }

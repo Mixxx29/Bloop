@@ -7,7 +7,13 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        var editor = new BloopEditor();
+        var maxWidth = Console.LargestWindowWidth;
+        var maxHeigth = Console.LargestWindowHeight;
+
+        Console.SetBufferSize(maxWidth, maxHeigth);
+        Console.SetWindowSize(maxWidth, maxHeigth);
+
+        var editor = new BloopEditor2();
         editor.Run();
     }
 }

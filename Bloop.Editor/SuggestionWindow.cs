@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace Bloop.Editor
 {
-    public sealed class SuggestionWindow
+    internal sealed class SuggestionWindow
     {
         private static SuggestionWindow? _instance;
 
@@ -37,7 +37,7 @@ namespace Bloop.Editor
 
             _token = token;
 
-            _left = 8 + document.CurrentLine.CurrentCharacterIndex - token.Text.Length;
+            //_left = 8 + document.CurrentLine.CurrentCharIndex - token.Text.Length;
             _top = Console.CursorTop + 1;
 
             _selectedIndex = 0;
@@ -53,7 +53,7 @@ namespace Bloop.Editor
             Render();
             _suggestions = ImmutableArray<string>.Empty;
             _token = null;
-            document.Update();
+            //document.Update();
         }
 
         public void Up()

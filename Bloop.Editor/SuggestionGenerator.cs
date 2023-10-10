@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Bloop.Editor
 {
-    public sealed class SuggestionGenerator
+    internal sealed class SuggestionGenerator
     {
         private readonly BloopDocument _document;
 
@@ -17,7 +17,7 @@ namespace Bloop.Editor
 
         public void Suggest()
         {
-            var position = _document.CurrentLine.CurrentCharacterIndex;
+            /*var position = _document.CurrentLine.CurrentCharIndex;
             var text = _document.CurrentLine.ToString().Substring(0, position);
             var token = SyntaxTree.ParseTokens(text).LastOrDefault();
 
@@ -25,7 +25,7 @@ namespace Bloop.Editor
                 return;
 
             var suggestions = Suggest(token);
-            PrintSuggestions(token, suggestions);
+            PrintSuggestions(token, suggestions);*/
         }
 
         private ImmutableArray<string> Suggest(SyntaxToken token)
@@ -42,10 +42,10 @@ namespace Bloop.Editor
         private void SuggestVariable(SyntaxToken token, ImmutableArray<string>.Builder builder)
         {
             var textBuilder = new StringBuilder();
-            for (var i = 0; i < _document.CurrentLineIndex; i++)
+            /*for (var i = 0; i < _document.CurrentLineIndex; i++)
             {
                 textBuilder.AppendLine(_document.Lines[i].ToString());
-            }
+            }*/
 
             var syntaxTree = SyntaxTree.Parse(textBuilder.ToString());
 

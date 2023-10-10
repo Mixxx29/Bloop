@@ -6,14 +6,14 @@ using Bloop.CodeAnalysis.Text;
 
 namespace Bloop.Editor
 {
-    public sealed class DocumentView : DocumentSubscriber
+    internal sealed class DocumentView 
     {
         private readonly BloopDocument _document;
 
         public DocumentView(BloopDocument document)
         {
             _document = document;
-            _document.Subscribe(this);
+            //_document.Subscribe(this);
             RenderDocument();
         }
 
@@ -46,7 +46,7 @@ namespace Bloop.Editor
 
             DrawSeparator();
 
-            _document.UpdateCursor();
+            //_document.UpdateCursor();
             Console.CursorVisible = true;
         }
 
@@ -66,7 +66,7 @@ namespace Bloop.Editor
         {
             Console.CursorVisible = false;
             DrawLine();
-            _document.UpdateCursor();
+            //_document.UpdateCursor();
             Console.CursorVisible = true;
         }
 
@@ -81,7 +81,7 @@ namespace Bloop.Editor
 
         private void DrawLine()
         {
-            DrawLine(_document.CurrentLineIndex);
+            //DrawLine(_document.CurrentLineIndex);
         }
 
         private void DrawLine(int lineIndex)
@@ -103,8 +103,8 @@ namespace Bloop.Editor
 
             FillUnusedSpace();
 
-            if (_document.CurrentLineIndex < _document.Lines.Count)
-                Console.WriteLine();
+            /*if (_document.CurrentLineIndex < _document.Lines.Count)
+                Console.WriteLine();*/
         }
 
         private void DrawPrefix(int lineNumber)

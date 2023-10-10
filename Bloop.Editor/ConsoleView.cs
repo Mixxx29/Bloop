@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Bloop.Editor
 {
-    public class ConsoleView : DocumentSubscriber, CompilationSubscriber
+    internal class ConsoleView : CompilationSubscriber
     {
         private readonly BloopDocument _document;
 
@@ -16,7 +16,7 @@ namespace Bloop.Editor
         public ConsoleView(BloopDocument document, Compilation compilation)
         {
             _document = document;
-            _document.Subscribe(this);
+            //_document.Subscribe(this);
 
             _compilation = compilation;
             _compilation.Subscribe(this);
