@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bloop.Editor
+namespace Bloop.Editor.Document
 {
     public interface DocumentSubscriber
     {
         void OnDocumentChanged(int lineIndex);
-        void OnLineChanged(int charIndex);
+        void OnLineChanged(int lineIndex, int charIndex);
     }
 }

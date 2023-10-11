@@ -6,80 +6,68 @@ namespace Bloop.Editor.Document
 {
     internal class BloopDocument
     {
-        private readonly ObservableCollection<DocumentLine> _lines;
+        private readonly List<DocumentLine> _lines;
 
         public BloopDocument(string name = "NewBloopDocument")
         {
             Name = name;
 
-            _lines = new ObservableCollection<DocumentLine>();
-            AddLine("");
+            _lines = new List<DocumentLine>();
+            AddLine("", 0);
         }
 
         public string Name { get; }
 
-        public ObservableCollection<DocumentLine> Lines => _lines;
+        public List<DocumentLine> Lines => _lines;
 
         public delegate void DocumentChangedHandler(int lineIndex);
         public event DocumentChangedHandler? DocumentChanged;
 
-        public delegate void LineChangedHandler(int charIndex);
+        public delegate void LineChangedHandler(int lineIndex, int charIndex);
         public event LineChangedHandler? LineChanged;
 
         public void Subscribe(DocumentSubscriber subscriber)
         {
-            Lines.CollectionChanged += OnCollectionChanged;
             DocumentChanged += subscriber.OnDocumentChanged;
             LineChanged += subscriber.OnLineChanged;
         }
 
-        private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        public void NewLine(int lineIndex, int charIndex)
         {
-            if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                DocumentChanged?.Invoke(e.OldStartingIndex);
-                return;
-            }
-
-            DocumentChanged?.Invoke(e.NewStartingIndex);
+            var slicedText = _lines[lineIndex].Slice(charIndex);
+            AddLine(slicedText, lineIndex + 1);
+            DocumentChanged?.Invoke(lineIndex);
         }
 
-        internal void OnLineChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            LineChanged?.Invoke(e.NewStartingIndex);
-        }
-
-        public void NewLine(WindowCursor cursor)
-        {
-            var slicedText = _lines[cursor.Top].Slice(cursor);
-            AddLine(slicedText, cursor.Top + 1);
-            cursor.MoveDown();
-            cursor.ResetLeft();
-        }
-
-        private void AddLine(string text, int index = 0)
+        private void AddLine(string text, int index)
         {
             var line = new DocumentLine(this, text);
             Lines.Insert(index, line);
         }
 
-        public void DeleteCharacter(WindowCursor cursor)
+        public void DeleteCharacter(int lineIndex, int charIndex)
         {
-            if (!_lines[cursor.Top].DeleteText(cursor))
-                JoinWithPreviousLine(cursor);
+            if (_lines[lineIndex].RemoveChar(charIndex))
+            {
+                LineChanged?.Invoke(lineIndex, charIndex);
+                return;
+            }
+
+            JoinWithPreviousLine(lineIndex);
+            DocumentChanged?.Invoke(lineIndex - 1);
         }
 
-        private void JoinWithPreviousLine(WindowCursor cursor)
+        private void JoinWithPreviousLine(int index)
         {
-            if (cursor.Top == 0)
+            if (index == 0)
                 return;
 
-            var previousLine = _lines[cursor.Top - 1];
-            var textToJoin = _lines[cursor.Top].ToString();
+            var previousLine = _lines[index - 1];
+
+            var textToJoin = _lines[index].ToString();
             previousLine.AddText(textToJoin);
 
-            DeleteLine(cursor.Top);
-            cursor.MoveUp();
+            DeleteLine(index);
         }
 
         private void DeleteLine(int index)
@@ -87,9 +75,10 @@ namespace Bloop.Editor.Document
             _lines.RemoveAt(index);
         }
 
-        public void AddText(int index, string text)
+        public void AddText(int lineIndex, int charIndex, string text)
         {
-            Lines[index].AddText(text);
+            Lines[lineIndex].AddText(charIndex, text);
+            LineChanged?.Invoke(lineIndex, charIndex);
         }
 
         public override string ToString()

@@ -9,34 +9,39 @@ namespace Bloop.Editor.Document
     internal class DocumentRenderer : DocumentSubscriber
     {
         private readonly BloopDocument _document;
-        private readonly int _startLeft;
-        private readonly int _startTop;
-
-        private readonly int _offset = 8;
+        private readonly int _leftStart;
+        private readonly int _topStart;
+        private readonly int _width;
+        private readonly int _height;
+        private readonly int _offset = 6;
 
         private List<int> _lengths;
 
-        public DocumentRenderer(BloopDocument document, int startLeft, int startTop)
+        public DocumentRenderer(BloopDocument document, int leftStart, int topStart, int width, int height)
         {
             _document = document;
             _document.Subscribe(this);
 
-            _startLeft = startLeft;
-            _startTop = startTop;
+            _leftStart = leftStart;
+            _topStart = topStart;
+            _width = width;
+            _height = height;
 
             _lengths = new List<int>();
             foreach (var line in _document.Lines)
                 _lengths.Add(line.Length);
         }
 
+        public int Offset => _offset;
+
         public void OnDocumentChanged(int lineIndex)
         {
             RenderDocument(lineIndex);
         }
 
-        public void OnLineChanged(int charIndex)
+        public void OnLineChanged(int lineIndex, int charIndex)
         {
-            RenderDocument(0);
+            RenderLine(lineIndex, charIndex);
         }
 
         public void Render()
@@ -44,32 +49,50 @@ namespace Bloop.Editor.Document
             RenderDocument(0);
         }
 
-        private void RenderDocument(int startIndex)
+        private void RenderDocument(int lineIndex)
         {
             Console.CursorVisible = false;
             var originalLeft = Console.CursorLeft;
             var originalTop = Console.CursorTop;
 
-            DrawLines(startIndex);
+            DrawLines(lineIndex);
+            ClearLine();
 
             Console.CursorLeft = originalLeft;
             Console.CursorTop = originalTop;
             Console.CursorVisible = true;
         }
 
+        private void RenderLine(int lineIndex, int charIndex)
+        {
+            Console.CursorVisible = false;
+            var originalLeft = Console.CursorLeft;
+
+            DrawLine(lineIndex);
+
+            Console.CursorLeft = originalLeft;
+            Console.CursorVisible = true;
+        }
+
+        private void ClearLine()
+        {
+            Console.CursorLeft = _leftStart;
+            Fill(_width);
+        }
+
         private void DrawLines(int startIndex)
         {
-            Console.CursorTop = _startTop + startIndex;
-
+            Console.CursorTop = _topStart + startIndex;
             for (var i = startIndex; i < _document.Lines.Count; i++)
                 DrawLine(i);
         }
 
         private void DrawLine(int lineIndex)
         {
-            Console.CursorLeft = _startLeft;
+            Console.CursorLeft = _leftStart;
             DrawLineNumber(lineIndex + 1);
             DrawLineContent(lineIndex);
+            Console.WriteLine();
         }
 
         private void DrawLineNumber(int lineNumber)

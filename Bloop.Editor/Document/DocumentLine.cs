@@ -5,7 +5,7 @@ namespace Bloop.Editor.Document
     internal class DocumentLine
     {
         private readonly BloopDocument _document;
-        private readonly ObservableCollection<char> _characters;
+        private readonly List<char> _characters;
 
         public DocumentLine(BloopDocument document, string text)
             : this(document)
@@ -16,9 +16,7 @@ namespace Bloop.Editor.Document
         public DocumentLine(BloopDocument document)
         {
             _document = document;
-
-            _characters = new ObservableCollection<char>();
-            _characters.CollectionChanged += _document.OnLineChanged;
+            _characters = new List<char>();
         }
 
         public int Length => _characters.Count;
@@ -40,25 +38,29 @@ namespace Bloop.Editor.Document
         {
             foreach (char character in text)
             {
-                _characters.Insert(index, character);
+                _characters.Insert(index++, character);
             }
         }
 
-        internal string Slice(WindowCursor cursor)
+        internal string Slice(int index)
         {
-            var slicedText = ToString().Substring(cursor.Left);
-            DeleteText(cursor, slicedText.Length);
+            var slicedText = ToString().Substring(index);
+            RemoveText(index, slicedText.Length);
             return slicedText;
         }
 
-        internal bool DeleteText(WindowCursor cursor, int length = 1)
+        private void RemoveText(int index, int length = 1)
         {
-            if (cursor.Left <= 0 || cursor.Left > _characters.Count - length)
+            while (length-- > 0 && _characters.Count - index >= length)
+                _characters.RemoveAt(index);
+        }
+
+        internal bool RemoveChar(int index)
+        {
+            if (index == -1)
                 return false;
 
-            while (length-- > 0)
-                _characters.RemoveAt(cursor.Left);
-
+            _characters.RemoveAt(index);
             return true;
         }
 

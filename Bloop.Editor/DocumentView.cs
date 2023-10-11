@@ -47,7 +47,6 @@ namespace Bloop.Editor
 
             DrawSeparator();
 
-            //_document.UpdateCursor();
             Console.CursorVisible = true;
         }
 
