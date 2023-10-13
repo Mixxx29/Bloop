@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Bloop.Editor.Configuration
 {
-    internal class Configure
+    public class Configure
     {
         private static readonly string _defaultAppName = "New Bloop Document";
         private static readonly bool _defaultFullscreen = false;

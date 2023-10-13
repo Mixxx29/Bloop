@@ -211,13 +211,18 @@ namespace Bloop.Editor.Window
 
         private void RenderStatusBar()
         {
-            Console.CursorLeft = _frame.Left + _frame.Width - 19;
             Console.CursorTop = _frame.Top + _frame.Height;
+            Console.CursorLeft = _frame.Left + _frame.Width - 19;
             Console.Write($"Line: {CurrentLineIndex + 1}");
             Console.Write(new string(' ', 3 - (CurrentLineIndex + 1).ToString().Length));
             Console.Write($"Char: {CurrentCharIndex + 1}");
             Console.Write(new string(' ', 3 - (CurrentCharIndex + 1).ToString().Length));
             _cursor.Reset();
+        }
+
+        public void SetFocus(bool focus)
+        {
+            _frame.SetFocus(focus);
         }
     }
 }

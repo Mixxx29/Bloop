@@ -13,3 +13,4 @@ C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Release\net6.0\Bloop.Editor.d
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Release\net6.0\refint\Bloop.Editor.dll
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Release\net6.0\Bloop.Editor.pdb
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Release\net6.0\ref\Bloop.Editor.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Release\net6.0\Configuration\editor-settings.json

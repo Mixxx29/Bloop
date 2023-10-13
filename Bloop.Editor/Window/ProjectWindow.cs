@@ -17,12 +17,17 @@ namespace Bloop.Editor.Window
 
         public void HandleKey(ConsoleKeyInfo keyInfo)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void Render()
         {
             _frame.Render();
+        }
+
+        public void SetFocus(bool focus)
+        {
+            _frame.SetFocus(focus);
         }
     }
 }

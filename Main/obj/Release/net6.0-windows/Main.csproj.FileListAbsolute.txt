@@ -19,3 +19,15 @@ C:\Users\mihaj\source\repos\Bloop\Main\obj\Release\net6.0-windows\refint\BloopID
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Release\net6.0-windows\BloopIDE.pdb
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Release\net6.0-windows\Main.genruntimeconfig.cache
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Release\net6.0-windows\ref\BloopIDE.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Configuration\editor-settings.json
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Extensions.Configuration.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Extensions.Primitives.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\System.Text.Encodings.Web.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\System.Text.Json.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll

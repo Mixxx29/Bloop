@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>BloopIDE</id>
+    <version>1.0.0</version>
+    <authors>BloopIDE</authors>
+    <description>Package Description</description>
+    <dependencies>
+      <group targetFramework="net6.0-windows7.0">
+        <dependency id="Bloop.Editor" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <contentFiles>
+      <files include="any/net6.0-windows7.0/bloop.ico" buildAction="Content" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\BloopIDE.runtimeconfig.json" target="lib\net6.0-windows7.0\BloopIDE.runtimeconfig.json" />
+    <file src="C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\BloopIDE.dll" target="lib\net6.0-windows7.0\BloopIDE.dll" />
+    <file src="C:\Users\mihaj\source\repos\Bloop\Main\bloop.ico" target="content\bloop.ico" />
+    <file src="C:\Users\mihaj\source\repos\Bloop\Main\bloop.ico" target="contentFiles\any\net6.0-windows7.0\bloop.ico" />
+  </files>
+</package>

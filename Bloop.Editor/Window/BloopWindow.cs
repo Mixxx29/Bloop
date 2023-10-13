@@ -10,5 +10,6 @@ namespace Bloop.Editor.Window
     {
         void Render();
         void HandleKey(ConsoleKeyInfo keyInfo);
+        void SetFocus(bool focus);
     }
 }
