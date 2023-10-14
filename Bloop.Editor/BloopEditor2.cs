@@ -17,29 +17,25 @@ namespace Bloop
 
         public BloopEditor2()
         {
-            var leftOffset = 0;
-            var topOffset = 1;
             var projectWindowFrame = new WindowFrame(
-                "Demo Project",
+                "DemoProject",
                 "Ctrl+P",
-                leftOffset,
-                topOffset,
-                30,
-                Console.BufferHeight - 2
+                0,
+                0,
+                0.3f,
+                1.0f
             );
             _projectWindow = new ProjectWindow(projectWindowFrame);
 
             var document = new BloopDocument();
 
-            leftOffset = 30;
-            topOffset = 1;
             var documentWindowFrame = new WindowFrame(
                 document.Name,
                 "Ctrl+E",
-                leftOffset,
-                topOffset,
-                Console.BufferWidth - leftOffset,
-                Console.BufferHeight - 2
+                0.3f,
+                0,
+                0.7f,
+                1.0f
             );
             _documentWindow = new DocumentWindow(document, documentWindowFrame);
 
@@ -49,11 +45,24 @@ namespace Bloop
 
         public void Run()
         {
+            Render();
+
+            ProccessInput();
+        }
+
+        private void Render()
+        {
             RenderToolBar();
+            RenderStatusBar();
             _projectWindow.Render();
             _documentWindow.Render();
 
-            ProccessInput();
+        }
+
+        private void Update()
+        {
+            Console.Clear();
+            Render();
         }
 
         private void ProccessInput()
@@ -73,6 +82,14 @@ namespace Bloop
                     HandleEscapeKey();
                     break;
 
+                case ConsoleKey.Add:
+                    HandlePlusKey(key);
+                    break;
+
+                case ConsoleKey.Subtract:
+                    HandleMinusKey(key);
+                    break;
+
                 case ConsoleKey.E:
                     HandleEKey(key);
                     break;
@@ -90,11 +107,30 @@ namespace Bloop
             _processing = false;
         }
 
+        private void HandlePlusKey(ConsoleKeyInfo key)
+        {
+            if (key.Modifiers == ConsoleModifiers.Control)
+            {
+                Configure.IncrementFontSize();
+                Update();
+            }
+        }
+
+        private void HandleMinusKey(ConsoleKeyInfo key)
+        {
+            if (key.Modifiers == ConsoleModifiers.Control)
+            {
+                Configure.DecrementFontSize();
+                Update();
+            }
+        }
+
         private void HandleEKey(ConsoleKeyInfo key)
         {
             if (key.Modifiers == ConsoleModifiers.Control)
             {
                 SetFocusedWindow(_documentWindow);
+                Console.CursorVisible = true;
             }
         }
 
@@ -103,13 +139,19 @@ namespace Bloop
             if (key.Modifiers == ConsoleModifiers.Control)
             {
                 SetFocusedWindow(_projectWindow);
+                Console.CursorVisible = false;
             }
         }
 
         private void SetFocusedWindow(BloopWindow window)
         {
             if (_focusedWindow != null)
+            {
+                if (_focusedWindow == window)
+                    return;
+
                 _focusedWindow.SetFocus(false);
+            }
             
             _focusedWindow = window;
             _focusedWindow.SetFocus(true);
@@ -117,15 +159,41 @@ namespace Bloop
 
         private void RenderToolBar()
         {
-            Console.CursorLeft = (Console.BufferWidth - 10) / 2;
             Console.CursorTop = 0;
+            Console.CursorLeft = 0;
+
+            Console.ResetColor();
+            Console.Write(" File  Edit  Settings");
+
+            Console.CursorLeft = (Console.BufferWidth - 10) / 2;
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.OutputEncoding = System.Text.Encoding.UTF8; // Ensure UTF-8 encoding for Unicode characters
             Console.Write("▶");
 
             Console.ResetColor();
-            Console.Write(" Run (F5)");
+            Console.Write(" Run (");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("F5");
+            Console.ResetColor();
+            Console.Write(")");
+        }
+
+        private void RenderStatusBar()
+        {
+            Console.CursorLeft = 0;
+            Console.CursorTop = Console.BufferHeight - 1;
+
+            Console.ResetColor();
+            Console.Write(" Help (");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("Ctrl");
+            Console.ResetColor();
+            Console.Write("+");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("H");
+            Console.ResetColor();
+            Console.Write(")");
         }
     }
 }

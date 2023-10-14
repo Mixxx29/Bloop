@@ -12,7 +12,7 @@ namespace Bloop.Editor.Window
         private readonly int _paddingLeft = 1;
         private readonly int _paddingTop = 2;
 
-        private readonly string _allowedChars = " (){}+-*/";
+        private readonly string _allowedChars = " (){}+-*/=,:<>!|&\"";
         
         private List<int> _lengths;
 
@@ -23,13 +23,7 @@ namespace Bloop.Editor.Window
             _frame = frame;
 
             _document = document;
-            _documentRenderer = new DocumentRenderer(
-                _document, 
-                _frame.Left + _paddingLeft, 
-                _frame.Top + _paddingTop,
-                _frame.Width - 2,
-                _frame.Height - 2
-            );
+            _documentRenderer = new DocumentRenderer(_document, _frame);
 
             _cursor = new WindowCursor(
                 _frame.Left + _paddingLeft + _documentRenderer.Offset, 
@@ -50,6 +44,9 @@ namespace Bloop.Editor.Window
             _documentRenderer.Render();
             RenderStatusBar();
             _cursor.Reset();
+
+            var targetCursorLeft = _lastCharIndex + _frame.Left + _paddingLeft + _documentRenderer.Offset;
+            _cursor.MoveRight(targetCursorLeft - _cursor.Left);
         }
 
         public void HandleKey(ConsoleKeyInfo keyInfo)
@@ -212,11 +209,17 @@ namespace Bloop.Editor.Window
         private void RenderStatusBar()
         {
             Console.CursorTop = _frame.Top + _frame.Height;
-            Console.CursorLeft = _frame.Left + _frame.Width - 19;
-            Console.Write($"Line: {CurrentLineIndex + 1}");
+            Console.CursorLeft = _frame.Left + _frame.Width - 20;
+            Console.ResetColor();
+            Console.Write("Line: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write(CurrentLineIndex + 1);
             Console.Write(new string(' ', 3 - (CurrentLineIndex + 1).ToString().Length));
-            Console.Write($"Char: {CurrentCharIndex + 1}");
-            Console.Write(new string(' ', 3 - (CurrentCharIndex + 1).ToString().Length));
+            Console.ResetColor();
+            Console.Write(" Char: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write(CurrentCharIndex + 1);
+            Console.ResetColor();
             _cursor.Reset();
         }
 

@@ -11,22 +11,28 @@ namespace Bloop.Editor.Window
     {
         private bool _inFocus;
 
-        public WindowFrame(string title, string command, int left, int top, int width, int height)
+        private float _left;
+        private float _top;
+        private float _width;
+        private float _height;
+
+        public WindowFrame(string title, string command, float left, float top, float width, float height)
         {
             Title = title;
             Command = command;
-            Left = left;
-            Top = top;
-            Width = width;
-            Height = height;
+
+            _left = left;
+            _top = top;
+            _width = width;
+            _height = height;
         }
 
         public string Title { get; }
         public string Command { get; }
-        public int Left { get; }
-        public int Top { get; }
-        public int Width { get; }
-        public int Height { get; }
+        public int Left => (int)(_left * Console.BufferWidth);
+        public int Top => (int)(_top * Console.BufferHeight + 1);
+        public int Width => (int)(_width * Console.BufferWidth);
+        public int Height => (int)(_height * Console.BufferHeight - 2);
 
         internal void SetFocus(bool focus)
         {
@@ -36,6 +42,7 @@ namespace Bloop.Editor.Window
 
         internal void Render()
         {
+            Console.CursorVisible = false;
             DrawTopEdge();
 
             for (int i = 1; i < Height - 1; i++)
@@ -45,6 +52,7 @@ namespace Bloop.Editor.Window
             }
 
             DrawBottomEdge();
+            Console.CursorVisible = true;
         }
 
         private void DrawTopEdge()

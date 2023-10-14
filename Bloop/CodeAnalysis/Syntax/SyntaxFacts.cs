@@ -127,6 +127,9 @@ namespace Bloop.CodeAnalysis.Syntax
                 case "mod":
                     return SyntaxType.MODULO_KEYWORD;
 
+                case "return":
+                    return SyntaxType.RETURN_KEYWORD;
+
                 default:
                     return SyntaxType.IDENTIFIER_TOKEN;
             }
@@ -237,6 +240,9 @@ namespace Bloop.CodeAnalysis.Syntax
 
                 case SyntaxType.MODULO_KEYWORD:
                     return "mod";
+
+                case SyntaxType.RETURN_KEYWORD:
+                    return "return";
             }
             return null;
         }
@@ -288,6 +294,7 @@ namespace Bloop.CodeAnalysis.Syntax
                 case SyntaxType.FOR_KEYWORD:
                 case SyntaxType.TO_KEYWORD:
                 case SyntaxType.AS_KEYWORD:
+                case SyntaxType.RETURN_KEYWORD:
                     return ConsoleColor.Magenta;
 
                 case SyntaxType.EQUALS_TOKEN:

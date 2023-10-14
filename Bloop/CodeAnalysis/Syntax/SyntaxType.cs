@@ -45,6 +45,7 @@
         WHILE_KEYWORD,
         FOR_KEYWORD,
         TO_KEYWORD,
+        RETURN_KEYWORD,
 
         MISSING_EXPRESSION,
         NAME_EXPRESSION,

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Bloop.CodeAnalysis.Syntax;
+using Bloop.Editor.Window;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,23 +11,17 @@ namespace Bloop.Editor.Document
     internal class DocumentRenderer : DocumentSubscriber
     {
         private readonly BloopDocument _document;
-        private readonly int _leftStart;
-        private readonly int _topStart;
-        private readonly int _width;
-        private readonly int _height;
+        private readonly WindowFrame _frame;
         private readonly int _offset = 6;
 
         private List<int> _lengths;
 
-        public DocumentRenderer(BloopDocument document, int leftStart, int topStart, int width, int height)
+        public DocumentRenderer(BloopDocument document, WindowFrame frame)
         {
             _document = document;
             _document.Subscribe(this);
 
-            _leftStart = leftStart;
-            _topStart = topStart;
-            _width = width;
-            _height = height;
+            _frame = frame;
 
             _lengths = new List<int>();
             foreach (var line in _document.Lines)
@@ -76,20 +72,20 @@ namespace Bloop.Editor.Document
 
         private void ClearLine()
         {
-            Console.CursorLeft = _leftStart;
-            Fill(_width);
+            Console.CursorLeft = _frame.Left + 1;
+            Fill(_frame.Width - 2);
         }
 
         private void DrawLines(int startIndex)
         {
-            Console.CursorTop = _topStart + startIndex;
+            Console.CursorTop = _frame.Top + 2 + startIndex;
             for (var i = startIndex; i < _document.Lines.Count; i++)
                 DrawLine(i);
         }
 
         private void DrawLine(int lineIndex)
         {
-            Console.CursorLeft = _leftStart;
+            Console.CursorLeft = _frame.Left + 1;
             DrawLineNumber(lineIndex + 1);
             DrawLineContent(lineIndex);
             Console.WriteLine();
@@ -106,7 +102,12 @@ namespace Bloop.Editor.Document
         private void DrawLineContent(int lineIndex)
         {
             var content = _document.Lines[lineIndex].ToString();
-            Console.Write(content);
+            var tokens = SyntaxTree.ParseTokens(content);
+
+            foreach (var token in tokens)
+                DrawToken(token);
+
+            Console.ResetColor();
 
             if (lineIndex >= _lengths.Count)
             {
@@ -118,6 +119,12 @@ namespace Bloop.Editor.Document
                 Fill(_lengths[lineIndex] - content.Length);
 
             _lengths[lineIndex] = content.Length;
+        }
+
+        private void DrawToken(SyntaxToken token)
+        {
+            Console.ForegroundColor = SyntaxFacts.GetColor(token.Type);
+            Console.Write(token.Text);
         }
 
         private void Fill(int length)
