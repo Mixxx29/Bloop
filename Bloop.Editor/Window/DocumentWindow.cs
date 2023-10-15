@@ -1,4 +1,6 @@
 ﻿using Bloop.Editor.Document;
+using System.Collections.Immutable;
+using System.Text;
 
 namespace Bloop.Editor.Window
 {
@@ -9,12 +11,10 @@ namespace Bloop.Editor.Window
         private readonly DocumentRenderer _documentRenderer;
         private readonly WindowCursor _cursor;
 
-        private readonly int _paddingLeft = 1;
+        private readonly int _paddingLeft = 2;
         private readonly int _paddingTop = 2;
 
         private readonly string _allowedChars = " (){}+-*/=,:<>!|&\"";
-        
-        private List<int> _lengths;
 
         private int _lastCharIndex;
 
@@ -29,10 +29,6 @@ namespace Bloop.Editor.Window
                 _frame.Left + _paddingLeft + _documentRenderer.Offset, 
                 _frame.Top + _paddingTop
             );
-
-            _lengths = new List<int>();
-            foreach (var line in _document.Lines)
-                _lengths.Add(line.Length);
         }
 
         private int CurrentLineIndex => _cursor.Top - _frame.Top - _paddingTop;
@@ -43,10 +39,9 @@ namespace Bloop.Editor.Window
             _frame.Render();
             _documentRenderer.Render();
             RenderStatusBar();
-            _cursor.Reset();
 
             var targetCursorLeft = _lastCharIndex + _frame.Left + _paddingLeft + _documentRenderer.Offset;
-            _cursor.MoveRight(targetCursorLeft - _cursor.Left);
+            //_cursor.MoveRight(targetCursorLeft - _cursor.Left);
         }
 
         public void HandleKey(ConsoleKeyInfo keyInfo)
@@ -208,24 +203,29 @@ namespace Bloop.Editor.Window
 
         private void RenderStatusBar()
         {
-            Console.CursorTop = _frame.Top + _frame.Height;
-            Console.CursorLeft = _frame.Left + _frame.Width - 20;
-            Console.ResetColor();
-            Console.Write("Line: ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(CurrentLineIndex + 1);
-            Console.Write(new string(' ', 3 - (CurrentLineIndex + 1).ToString().Length));
-            Console.ResetColor();
-            Console.Write(" Char: ");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write(CurrentCharIndex + 1);
-            Console.ResetColor();
-            _cursor.Reset();
+            var rect = new Rect()
+            {
+                X = _frame.Left + _frame.Width - 20,
+                Y = _frame.Top + _frame.Height,
+                Width = 19,
+                Height = 1
+            };
+
+            var builder = ImmutableArray.CreateBuilder<CharInfo>();
+
+            builder.AddRange(CharInfo.FromText("Line: ", ConsoleColor.White));
+            builder.AddRange(CharInfo.FromText((CurrentLineIndex + 1).ToString().PadRight(4), ConsoleColor.Yellow));
+
+            builder.AddRange(CharInfo.FromText("Char: ", ConsoleColor.White));
+            builder.AddRange(CharInfo.FromText((CurrentCharIndex + 1).ToString().PadRight(3), ConsoleColor.Yellow));
+
+            ConsoleManager.Write(builder.ToImmutable(), rect);
         }
 
         public void SetFocus(bool focus)
         {
             _frame.SetFocus(focus);
+            _documentRenderer.Render();
         }
     }
 }

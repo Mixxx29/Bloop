@@ -31,3 +31,4 @@ C:\Users\mihaj\source\repos\Bloop\Main\obj\Debug\net6.0-windows\refint\BloopIDE.
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Debug\net6.0-windows\BloopIDE.pdb
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Debug\net6.0-windows\Main.genruntimeconfig.cache
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Debug\net6.0-windows\ref\BloopIDE.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\Font\CascadiaMono.ttf

@@ -8,10 +8,16 @@
 
   <ItemGroup>
     <None Remove="Configuration\editor-settings.json" />
+    <None Remove="Font\Cascadia.ttf" />
+    <None Remove="Font\CascadiaCode.ttf" />
+    <None Remove="Font\CascadiaMono.ttf" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Configuration\editor-settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Font\CascadiaMono.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

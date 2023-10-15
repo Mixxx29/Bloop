@@ -14,3 +14,4 @@ C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0\Bloop.Editor.dll
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0\refint\Bloop.Editor.dll
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0\Bloop.Editor.pdb
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0\ref\Bloop.Editor.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Debug\net6.0\Font\CascadiaMono.ttf

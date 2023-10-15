@@ -3,6 +3,8 @@
 using Bloop.Editor.Document;
 using Bloop.Editor.Configuration;
 using Bloop.Editor.Window;
+using Bloop.Editor;
+using System.Collections.Immutable;
 
 namespace Bloop
 {
@@ -46,7 +48,6 @@ namespace Bloop
         public void Run()
         {
             Render();
-
             ProccessInput();
         }
 
@@ -111,7 +112,7 @@ namespace Bloop
         {
             if (key.Modifiers == ConsoleModifiers.Control)
             {
-                Configure.IncrementFontSize();
+                Settings.IncrementFontSize();
                 Update();
             }
         }
@@ -120,7 +121,7 @@ namespace Bloop
         {
             if (key.Modifiers == ConsoleModifiers.Control)
             {
-                Configure.DecrementFontSize();
+                Settings.DecrementFontSize();
                 Update();
             }
         }
@@ -159,41 +160,43 @@ namespace Bloop
 
         private void RenderToolBar()
         {
-            Console.CursorTop = 0;
-            Console.CursorLeft = 0;
+            var rect = new Rect()
+            {
+                X = (Console.BufferWidth - 10) / 2,
+                Y = 0,
+                Width = 10,
+                Height = 1
+            };
 
-            Console.ResetColor();
-            Console.Write(" File  Edit  Settings");
+            var builder = ImmutableArray.CreateBuilder<CharInfo>();
 
-            Console.CursorLeft = (Console.BufferWidth - 10) / 2;
+            builder.AddRange(CharInfo.FromText("▶", ConsoleColor.Green));
+            builder.AddRange(CharInfo.FromText(" Run (", ConsoleColor.White));
+            builder.AddRange(CharInfo.FromText("F5", ConsoleColor.Yellow));
+            builder.AddRange(CharInfo.FromText(")", ConsoleColor.White));
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.OutputEncoding = System.Text.Encoding.UTF8; // Ensure UTF-8 encoding for Unicode characters
-            Console.Write("▶");
-
-            Console.ResetColor();
-            Console.Write(" Run (");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("F5");
-            Console.ResetColor();
-            Console.Write(")");
+            ConsoleManager.Write(builder.ToImmutable(), rect);
         }
 
         private void RenderStatusBar()
         {
-            Console.CursorLeft = 0;
-            Console.CursorTop = Console.BufferHeight - 1;
+            var rect = new Rect()
+            {
+                X = 1,
+                Y = Console.BufferHeight - 1,
+                Width = 13,
+                Height = 1
+            };
 
-            Console.ResetColor();
-            Console.Write(" Help (");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("Ctrl");
-            Console.ResetColor();
-            Console.Write("+");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("H");
-            Console.ResetColor();
-            Console.Write(")");
+            var builder = ImmutableArray.CreateBuilder<CharInfo>();
+
+            builder.AddRange(CharInfo.FromText("Help (", ConsoleColor.White));
+            builder.AddRange(CharInfo.FromText("Ctrl", ConsoleColor.Yellow));
+            builder.AddRange(CharInfo.FromText("+", ConsoleColor.White));
+            builder.AddRange(CharInfo.FromText("H", ConsoleColor.Yellow));
+            builder.AddRange(CharInfo.FromText(")", ConsoleColor.White));
+
+            ConsoleManager.Write(builder.ToImmutable(), rect);
         }
     }
 }

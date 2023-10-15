@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,7 @@ namespace Bloop.Editor.Window
             _height = height;
         }
 
+        public bool InFocus => _inFocus;
         public string Title { get; }
         public string Command { get; }
         public int Left => (int)(_left * Console.BufferWidth);
@@ -42,85 +44,110 @@ namespace Bloop.Editor.Window
 
         internal void Render()
         {
-            Console.CursorVisible = false;
             DrawTopEdge();
-
-            for (int i = 1; i < Height - 1; i++)
-            {
-                DrawLeftEdge();
-                DrawRightEdge();
-            }
-
             DrawBottomEdge();
-            Console.CursorVisible = true;
+            DrawLeftEdge();
+            DrawRightEdge();
         }
 
         private void DrawTopEdge()
         {
-            Console.ResetColor();
-            Console.CursorLeft = Left;
-            Console.CursorTop = Top;
+            var color = _inFocus ? ConsoleColor.White : ConsoleColor.DarkGray;
 
-            if (!_inFocus)
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+            var rect = new Rect()
+            {
+                X = Left,
+                Y = Top,
+                Width = Width,
+                Height = 1
+            };
 
-            Console.Write("┌──");
+            var text = new StringBuilder();
 
             if (_inFocus)
             {
-                Console.BackgroundColor = ConsoleColor.Gray;
-                Console.ForegroundColor = ConsoleColor.Black;
+                text.Append($"┏━━ {Title} ");
+                text.Append(new string('━', Width - text.Length - 1));
+                text.Append('┓');
+            }
+            else
+            {
+                text.Append($"┌── {Title} ");
+                text.Append(new string('─', Width - text.Length - 1));
+                text.Append('┐');
             }
 
-            Console.Write($" {Title} ");
-
-            Console.ResetColor();
-            if (!_inFocus)
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-
-            var line = new string('─', Width - (Console.CursorLeft - Left) - 1);
-            Console.Write(line);
-
-            if (Console.CursorLeft < Console.BufferWidth - 1)
-                Console.WriteLine("┐");
-            else
-                Console.Write("┐");
-
-            Console.ResetColor();
+            var data = ImmutableArray.Create(CharInfo.FromText(text.ToString(), color));
+            ConsoleManager.Write(data, rect);
         }
 
         private void DrawBottomEdge()
         {
-            if (!_inFocus)
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+            var color = _inFocus ? ConsoleColor.White : ConsoleColor.DarkGray;
 
-            Console.CursorLeft = Left;
-            Console.CursorTop = Top + Height - 1;
-            Console.Write($"└─ {Command} ");
-            var line = new string('─', Width - 5 - Command.Length);
-            Console.Write(line);
-            Console.Write("┘");
+            var rect = new Rect()
+            {
+                X = Left,
+                Y = Top + Height - 1,
+                Width = Width,
+                Height = 1
+            };
+
+            var text = new StringBuilder();
+
+            if (_inFocus )
+            {
+                text.Append($"┗━ {Command} ");
+                text.Append(new string('━', Width - text.Length - 1));
+                text.Append('┛');
+            }
+            else
+            { 
+                text.Append($"└─ {Command} ");
+                text.Append(new string('─', Width - text.Length - 1));
+                text.Append('┘');
+            }
+
+            var data = ImmutableArray.Create(CharInfo.FromText(text.ToString(), color));
+            ConsoleManager.Write(data, rect);
         }
 
         private void DrawLeftEdge()
         {
-            if (!_inFocus)
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+            var character = _inFocus ? '┃' : '│';
+            var color = _inFocus ? ConsoleColor.White : ConsoleColor.DarkGray;
 
-            Console.CursorLeft = Left;
-            Console.Write("│");
+            var rect = new Rect()
+            {
+                X = Left,
+                Y = Top + 1,
+                Width = 1,
+                Height = Height - 2
+            };
+
+            var text = new string(character, rect.Height);
+
+            var data = ImmutableArray.Create(CharInfo.FromText(text, color));
+            ConsoleManager.Write(data, rect);
         }
 
         private void DrawRightEdge()
         {
-            if (!_inFocus)
-                Console.ForegroundColor = ConsoleColor.DarkGray;
+            var character = _inFocus ? '┃' : '│';
+            var color = _inFocus ? ConsoleColor.White : ConsoleColor.DarkGray;
 
-            Console.CursorLeft = Left + Width - 1;
-            if (Console.CursorLeft < Console.BufferWidth - 1)
-                Console.WriteLine("│");
-            else
-                Console.Write("│");
+            var rect = new Rect()
+            {
+                X = Left + Width - 1,
+                Y = Top + 1,
+                Width = 1,
+                Height = Height - 2
+            };
+
+            var text = new string(character, rect.Height);
+
+            var data = ImmutableArray.Create(CharInfo.FromText(text, color));
+            ConsoleManager.Write(data, rect);
         }
     }
 }

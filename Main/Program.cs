@@ -8,7 +8,7 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        Configure.LoadSettings();
+        Settings.LoadSettings();
 
         var editor = new BloopEditor2();
         editor.Run();

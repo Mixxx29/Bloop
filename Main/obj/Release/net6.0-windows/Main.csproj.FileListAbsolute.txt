@@ -31,3 +31,5 @@ C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Microsoft.Exte
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\System.Text.Encodings.Web.dll
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\System.Text.Json.dll
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Font\Cascadia.ttf
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\Font\CascadiaCode.ttf

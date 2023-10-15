@@ -5,19 +5,19 @@ using System.Text.Json;
 
 namespace Bloop.Editor.Configuration
 {
-    public class Configure
+    public class Settings
     {
         private static readonly string _defaultAppName = "New Bloop Document";
         private static readonly int _defaultFontSize = 24;
 
-        private static Configure? _instance;
+        private static Settings? _instance;
 
         private IConfigurationRoot _settings;
 
         private string _title;
         private int _fontSize;
 
-        private Configure()
+        private Settings()
         {
             _title = _defaultAppName;
             _fontSize = _defaultFontSize;
@@ -28,21 +28,24 @@ namespace Bloop.Editor.Configuration
                 .Build();
         }
 
-        private static Configure Instance
+        private static Settings Instance
         {
             get
             {
                 if (_instance == null)
-                    _instance = new Configure();
+                    _instance = new Settings();
 
                 return _instance;
             }
         }
 
+        public static int FontSize => Instance._fontSize;
+
         public static void LoadSettings()
         {
             SetFullscreen();
             LoadTitle();
+            LoadFont();
             LoadFont();
         }
 
@@ -105,7 +108,7 @@ namespace Bloop.Editor.Configuration
         }
 
         [DllImport("ConsoleManager.dll")]
-        private static extern int SetupConsoleFontSize(int size);
+        public static extern int SetupConsoleFontSize(int size);
 
         private static void Save()
         {

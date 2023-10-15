@@ -2,7 +2,10 @@
 using Bloop.Editor.Window;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Drawing;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,18 +17,12 @@ namespace Bloop.Editor.Document
         private readonly WindowFrame _frame;
         private readonly int _offset = 6;
 
-        private List<int> _lengths;
-
         public DocumentRenderer(BloopDocument document, WindowFrame frame)
         {
             _document = document;
             _document.Subscribe(this);
 
             _frame = frame;
-
-            _lengths = new List<int>();
-            foreach (var line in _document.Lines)
-                _lengths.Add(line.Length);
         }
 
         public int Offset => _offset;
@@ -47,95 +44,79 @@ namespace Bloop.Editor.Document
 
         private void RenderDocument(int lineIndex)
         {
-            Console.CursorVisible = false;
-            var originalLeft = Console.CursorLeft;
-            var originalTop = Console.CursorTop;
+            var rect = new Rect()
+            {
+                X = _frame.Left + 2,
+                Y = _frame.Top + lineIndex + 2,
+                Width = _frame.Width - 3,
+                Height = _document.Lines.Count - lineIndex + 1,
+            };
 
-            DrawLines(lineIndex);
-            ClearLine();
-
-            Console.CursorLeft = originalLeft;
-            Console.CursorTop = originalTop;
-            Console.CursorVisible = true;
+            var builder = ImmutableArray.CreateBuilder<CharInfo>();
+            DrawLines(lineIndex, builder);
+            ConsoleManager.Write(builder.ToImmutable(), rect);
         }
 
         private void RenderLine(int lineIndex, int charIndex)
         {
-            Console.CursorVisible = false;
-            var originalLeft = Console.CursorLeft;
+            var rect = new Rect()
+            {
+                X = _frame.Left + 2,
+                Y = _frame.Top + lineIndex + 2,
+                Width = _frame.Width - 3,
+                Height = 1,
+            };
 
-            DrawLine(lineIndex);
+            var builder = ImmutableArray.CreateBuilder<CharInfo>();
+            DrawLine(lineIndex, builder);
 
-            Console.CursorLeft = originalLeft;
-            Console.CursorVisible = true;
+            ConsoleManager.Write(builder.ToImmutable(), rect);
         }
 
-        private void ClearLine()
+        private void DrawLines(int startIndex, ImmutableArray<CharInfo>.Builder builder)
         {
-            Console.CursorLeft = _frame.Left + 1;
-            Fill(_frame.Width - 2);
-        }
-
-        private void DrawLines(int startIndex)
-        {
-            Console.CursorTop = _frame.Top + 2 + startIndex;
             for (var i = startIndex; i < _document.Lines.Count; i++)
-                DrawLine(i);
+                DrawLine(i, builder);
+
+            builder.AddRange(
+                CharInfo.FromText(" ".PadRight(_frame.Width - 3), ConsoleColor.White)
+            );
         }
 
-        private void DrawLine(int lineIndex)
+        private void DrawLine(int lineIndex, ImmutableArray<CharInfo>.Builder builder)
         {
-            Console.CursorLeft = _frame.Left + 1;
-            DrawLineNumber(lineIndex + 1);
-            DrawLineContent(lineIndex);
-            Console.WriteLine();
+            DrawLineNumber(lineIndex + 1, builder);
+            DrawLineContent(lineIndex, builder);
         }
 
-        private void DrawLineNumber(int lineNumber)
+        private void DrawLineNumber(int lineNumber, ImmutableArray<CharInfo>.Builder builder)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write(" " + lineNumber);
-            Console.ResetColor();
-            Console.Write(new string(' ', (_offset - 1) - lineNumber.ToString().Length));
+            builder.AddRange(CharInfo.FromText(lineNumber.ToString().PadRight(_offset), ConsoleColor.DarkGray));
         }
 
-        private void DrawLineContent(int lineIndex)
+        private void DrawLineContent(int lineIndex, ImmutableArray<CharInfo>.Builder builder)
         {
             var content = _document.Lines[lineIndex].ToString();
             var tokens = SyntaxTree.ParseTokens(content);
 
             foreach (var token in tokens)
-                DrawToken(token);
+                DrawToken(token, builder);
 
-            Console.ResetColor();
-
-            if (lineIndex >= _lengths.Count)
-            {
-                _lengths.Add(content.Length);
-                return;
-            }
-
-            if (content.Length < _lengths[lineIndex])
-                Fill(_lengths[lineIndex] - content.Length);
-
-            _lengths[lineIndex] = content.Length;
+            builder.AddRange(
+                CharInfo.FromText(
+                    "".PadRight(_frame.Width - _offset - content.Length - 3), 
+                    ConsoleColor.White
+                )
+            );
         }
 
-        private void DrawToken(SyntaxToken token)
+        private void DrawToken(SyntaxToken token, ImmutableArray<CharInfo>.Builder builder)
         {
-            Console.ForegroundColor = SyntaxFacts.GetColor(token.Type);
-            Console.Write(token.Text);
-        }
+            var color = _frame.InFocus 
+                ? SyntaxFacts.GetColor(token.Type) 
+                : ConsoleColor.DarkGray;
 
-        private void Fill(int length)
-        {
-            Fill(' ', length);
-        }
-
-        private void Fill(char c, int length)
-        {
-            var fill = new string(c, length);
-            Console.Write(fill);
+            builder.AddRange(CharInfo.FromText(token.Text, color));
         }
     }
 }
