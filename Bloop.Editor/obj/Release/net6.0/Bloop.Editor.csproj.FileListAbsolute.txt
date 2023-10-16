@@ -14,5 +14,4 @@ C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Release\net6.0\refint\Bloop.E
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Release\net6.0\Bloop.Editor.pdb
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Release\net6.0\ref\Bloop.Editor.dll
 C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Release\net6.0\Configuration\editor-settings.json
-C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Release\net6.0\Font\Cascadia.ttf
-C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Release\net6.0\Font\CascadiaCode.ttf
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Release\net6.0\Font\CascadiaMono.ttf

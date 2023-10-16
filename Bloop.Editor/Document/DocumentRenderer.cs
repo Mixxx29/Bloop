@@ -1,13 +1,6 @@
 ﻿using Bloop.CodeAnalysis.Syntax;
 using Bloop.Editor.Window;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bloop.Editor.Document
 {
@@ -17,15 +10,23 @@ namespace Bloop.Editor.Document
         private readonly WindowFrame _frame;
         private readonly int _offset = 6;
 
+        private int _lineOffset;
+
         public DocumentRenderer(BloopDocument document, WindowFrame frame)
         {
             _document = document;
             _document.Subscribe(this);
-
             _frame = frame;
         }
 
         public int Offset => _offset;
+        public int LineOffset => _lineOffset;
+
+        public int ViewportWidth => _frame.Width - 4;
+        public int ViewportHeight => _frame.Height - 4;
+        public int VisibleLinesCount => Math.Min(_document.LinesCount, ViewportHeight);
+
+        public bool IsAtBottom => _lineOffset + ViewportHeight == _document.LinesCount;
 
         public void OnDocumentChanged(int lineIndex)
         {
@@ -34,27 +35,53 @@ namespace Bloop.Editor.Document
 
         public void OnLineChanged(int lineIndex, int charIndex)
         {
-            RenderLine(lineIndex, charIndex);
+            //RenderLine(lineIndex, charIndex);
+            RenderDocument(_lineOffset);
         }
 
         public void Render()
         {
-            RenderDocument(0);
+            RenderDocument(_lineOffset);
         }
 
         private void RenderDocument(int lineIndex)
         {
+            UpdateLineOffset();
+
             var rect = new Rect()
             {
                 X = _frame.Left + 2,
-                Y = _frame.Top + lineIndex + 2,
-                Width = _frame.Width - 3,
-                Height = _document.Lines.Count - lineIndex + 1,
+                Y = _frame.Top + 2,
+                Width = ViewportWidth,
+                Height = ViewportHeight,
             };
 
             var builder = ImmutableArray.CreateBuilder<CharInfo>();
-            DrawLines(lineIndex, builder);
+            DrawLines(_lineOffset, builder);
+            
+            if (VisibleLinesCount < ViewportHeight)
+            {
+                builder.AddRange(
+                    CharInfo.FromText(
+                        new string(' ', ViewportWidth * (ViewportHeight - VisibleLinesCount)), 
+                        ConsoleColor.White
+                    )
+                );
+            }
+
             ConsoleManager.Write(builder.ToImmutable(), rect);
+        }
+
+        private void UpdateLineOffset()
+        {
+            if (_document.LinesCount < ViewportHeight)
+            {
+                _lineOffset = 0;
+                return;
+            }
+
+            if (_lineOffset > _document.LinesCount - ViewportHeight)
+                _lineOffset = _document.LinesCount - ViewportHeight;
         }
 
         private void RenderLine(int lineIndex, int charIndex)
@@ -62,7 +89,7 @@ namespace Bloop.Editor.Document
             var rect = new Rect()
             {
                 X = _frame.Left + 2,
-                Y = _frame.Top + lineIndex + 2,
+                Y = _frame.Top + lineIndex - _lineOffset + 2,
                 Width = _frame.Width - 3,
                 Height = 1,
             };
@@ -75,12 +102,9 @@ namespace Bloop.Editor.Document
 
         private void DrawLines(int startIndex, ImmutableArray<CharInfo>.Builder builder)
         {
-            for (var i = startIndex; i < _document.Lines.Count; i++)
-                DrawLine(i, builder);
-
-            builder.AddRange(
-                CharInfo.FromText(" ".PadRight(_frame.Width - 3), ConsoleColor.White)
-            );
+            var i = _lineOffset;
+            while (i - _lineOffset < VisibleLinesCount )
+                DrawLine(i++, builder);
         }
 
         private void DrawLine(int lineIndex, ImmutableArray<CharInfo>.Builder builder)
@@ -104,7 +128,7 @@ namespace Bloop.Editor.Document
 
             builder.AddRange(
                 CharInfo.FromText(
-                    "".PadRight(_frame.Width - _offset - content.Length - 3), 
+                    new string(' ', ViewportWidth - _offset - content.Length), 
                     ConsoleColor.White
                 )
             );
@@ -117,6 +141,27 @@ namespace Bloop.Editor.Document
                 : ConsoleColor.DarkGray;
 
             builder.AddRange(CharInfo.FromText(token.Text, color));
+        }
+
+        public bool ScrollUp()
+        {
+            if (_document.LinesCount <= ViewportHeight || 
+                _lineOffset == _document.LinesCount - ViewportHeight)
+                return false;
+
+            ++_lineOffset;
+            RenderDocument(_lineOffset);
+            return true;
+        }
+
+        public bool ScrollDown()
+        {
+            if (_document.LinesCount <= ViewportHeight || _lineOffset == 0)
+                return false;
+
+            --_lineOffset;
+            RenderDocument(_lineOffset);
+            return true;
         }
     }
 }

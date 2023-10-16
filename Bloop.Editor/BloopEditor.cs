@@ -1,302 +1,202 @@
 ﻿
 
-using Bloop.Editor;
-using Bloop.CodeAnalysis;
-using Bloop.CodeAnalysis.Syntax;
-using Bloop.CodeAnalysis.Symbol;
-using System.Reflection.Metadata;
-using System.Text.RegularExpressions;
-using static System.Net.Mime.MediaTypeNames;
 using Bloop.Editor.Document;
+using Bloop.Editor.Configuration;
+using Bloop.Editor.Window;
+using Bloop.Editor;
+using System.Collections.Immutable;
 
 namespace Bloop
 {
-    public partial class BloopEditor
+    public class BloopEditor
     {
-        private Compilation _compilation;
-
         private bool _processing = true;
 
-        private DocumentView _documentView;
-        private ConsoleView _consoleView;
+        private BloopWindow _focusedWindow;
 
-        private SuggestionGenerator _suggestionGenerator;
-        private string? _suggestedText;
+        private DocumentWindow _documentWindow;
+        private ProjectWindow _projectWindow;
+
+        public BloopEditor()
+        {
+            var projectWindowFrame = new WindowFrame(
+                "DemoProject",
+                "Ctrl+P",
+                0,
+                0,
+                0.3f,
+                1.0f
+            );
+            _projectWindow = new ProjectWindow(projectWindowFrame);
+
+            var document = new BloopDocument();
+
+            var documentWindowFrame = new WindowFrame(
+                document.Name,
+                "Ctrl+E",
+                0.3f,
+                0,
+                0.7f,
+                1.0f
+            );
+            _documentWindow = new DocumentWindow(document, documentWindowFrame);
+
+            _focusedWindow = _documentWindow;
+            _focusedWindow.SetFocus(true);
+        }
 
         public void Run()
         {
-            var document = CreateDocument();
-            ProcessDocument(document);
+            Render();
+            ProccessInput();
         }
 
-        private BloopDocument CreateDocument()
+        private void Render()
         {
-            var document = new BloopDocument();
-            _documentView = new DocumentView(document);
+            RenderToolBar();
+            RenderStatusBar();
+            _projectWindow.Render();
+            _documentWindow.Render();
 
-            _compilation = new Compilation();
-            _consoleView = new ConsoleView(document, _compilation);
-
-            _suggestionGenerator = new SuggestionGenerator(document);
-
-            return document;
         }
 
-        private void ProcessDocument(BloopDocument document)
+        private void Update()
+        {
+            Console.Clear();
+            Render();
+        }
+
+        private void ProccessInput()
         {
             while (_processing)
             {
                 var key = Console.ReadKey(true);
-                //SuggestionWindow.Instance.CloseWindow(document);
-                HandleKey(key, document);
+                HandleKey(key);
             }
         }
 
-        private void HandleKey(ConsoleKeyInfo key, BloopDocument document)
+        private void HandleKey(ConsoleKeyInfo key)
         {
-            /*if (key.Modifiers == default(ConsoleModifiers))
+            switch (key.Key)
             {
-                switch (key.Key)
-                {
-                    case ConsoleKey.Escape:
-                        HandleEscape(document);
-                        break;
+                case ConsoleKey.Escape:
+                    HandleEscapeKey();
+                    break;
 
-                    case ConsoleKey.Enter:
-                        HandleEnter(document);
-                        break;
+                case ConsoleKey.Add:
+                    HandlePlusKey(key);
+                    break;
 
-                    case ConsoleKey.Backspace:
-                        HandleBackspace(document);
-                        break;
+                case ConsoleKey.Subtract:
+                    HandleMinusKey(key);
+                    break;
 
-                    case ConsoleKey.Tab:
-                        HandleTab(document);
-                        break;
+                case ConsoleKey.E:
+                    HandleEKey(key);
+                    break;
 
-                    case ConsoleKey.UpArrow:
-                        HandleUpArrow(document);
-                        break;
-
-                    case ConsoleKey.DownArrow:
-                        HandleDownArrow(document);
-                        break;
-                    
-                    case ConsoleKey.RightArrow:
-                        HandleRightArrow(document);
-                        break;
-
-                    case ConsoleKey.LeftArrow:
-                        HandleLeftArrow(document);
-                        break;
-
-                    case ConsoleKey.F5:
-                        CompileDocument(document);
-                        break;
-
-                    default:
-                        HandleTyping(document, key.KeyChar.ToString());
-                        break;
-                }
+                case ConsoleKey.P:
+                    HandlePKey(key);
+                    break;
             }
-            else if (key.Modifiers == ConsoleModifiers.Shift)
-            {
-                switch (key.Key)
-                {
-                    case ConsoleKey.Tab:
-                        HandleShiftTab(document);
-                        break;
 
-                    default:
-                        HandleTyping(document, key.KeyChar.ToString());
-                        break;
-                }
-            }
-            else
-            {
-                //throw new Exception("Invalid input");
-            }*/
+            _focusedWindow?.HandleKey(key);
         }
 
-        private void HandleEscape(BloopDocument document)
+        private void HandleEscapeKey()
         {
-            if (SuggestionWindow.Instance.Visible)
-            {
-                SuggestionWindow.Instance.CloseWindow(document);
-                return;
-            }
-
             _processing = false;
         }
 
-        /*private void HandleEnter(BloopDocument document)
+        private void HandlePlusKey(ConsoleKeyInfo key)
         {
-            if (SuggestionWindow.Instance.Visible)
+            if (key.Modifiers == ConsoleModifiers.Control)
             {
-                var suggestion = SuggestionWindow.Instance.Enter();
-                if (suggestion != null)
-                    document.AddText(suggestion);
-
-                SuggestionWindow.Instance.CloseWindow(document);
-                return;
+                Settings.IncrementFontSize();
+                Update();
             }
-
-            var currentChar = document.CurrentLine.GetChar();
-            var previousChar = document.CurrentLine.GetChar(-1);
-
-            if (currentChar == '}' && previousChar == '{')
-            {
-                if (!document.CurrentLine.ToString().Split(" ")[0].StartsWith("{"))
-                {
-                    document.MoveCursorLeft();
-                    document.NewLine();
-                    document.MoveCursorRight();
-                }
-
-                document.NewLine();
-                document.NewLine();
-                document.MoveCursorUp();
-                HandleTab(document);
-                return;
-            }
-
-            document.NewLine();
         }
 
-        private void HandleBackspace(BloopDocument document)
+        private void HandleMinusKey(ConsoleKeyInfo key)
         {
-            if (SuggestionWindow.Instance.Visible)
+            if (key.Modifiers == ConsoleModifiers.Control)
             {
-                SuggestionWindow.Instance.CloseWindow(document);
+                Settings.DecrementFontSize();
+                Update();
             }
-
-            var currentChar = document.CurrentLine.GetChar();
-            var previousChar = document.CurrentLine.GetChar(-1);
-
-            if ((currentChar == ')' && previousChar == '(') ||
-                (currentChar == '}' && previousChar == '{') ||
-                (currentChar == '"' && previousChar == '"'))
-            {
-                document.MoveCursorRight();
-                document.DeleteCharacter();
-            }
-
-            document.DeleteCharacter();
         }
 
-        private void HandleTab(BloopDocument document)
+        private void HandleEKey(ConsoleKeyInfo key)
         {
-            if (SuggestionWindow.Instance.Visible)
+            if (key.Modifiers == ConsoleModifiers.Control)
             {
-                var suggestion = SuggestionWindow.Instance.Enter();
-                if (suggestion != null)
-                    document.AddText(suggestion);
-
-                SuggestionWindow.Instance.CloseWindow(document);
-                return;
+                SetFocusedWindow(_documentWindow);
+                Console.CursorVisible = true;
             }
-
-            document.AddText("    ");
         }
 
-        private void HandleShiftTab(BloopDocument document)
+        private void HandlePKey(ConsoleKeyInfo key)
         {
-            document.DeleteCharacter();
-            document.DeleteCharacter();
-            document.DeleteCharacter();
-            document.DeleteCharacter();
-        }
-
-        private void HandleUpArrow(BloopDocument document)
-        {
-            if (SuggestionWindow.Instance.Visible)
+            if (key.Modifiers == ConsoleModifiers.Control)
             {
-                SuggestionWindow.Instance.Up();
-                return;
+                SetFocusedWindow(_projectWindow);
+                Console.CursorVisible = false;
             }
-
-            document.MoveCursorUp();
         }
 
-        private void HandleDownArrow(BloopDocument document)
+        private void SetFocusedWindow(BloopWindow window)
         {
-            if (SuggestionWindow.Instance.Visible)
+            if (_focusedWindow != null)
             {
-                SuggestionWindow.Instance.Down();
-                return;
+                if (_focusedWindow == window)
+                    return;
+
+                _focusedWindow.SetFocus(false);
             }
-
-            document.MoveCursorDown();
+            
+            _focusedWindow = window;
+            _focusedWindow.SetFocus(true);
         }
 
-        private void HandleRightArrow(BloopDocument document)
+        private void RenderToolBar()
         {
-            if (SuggestionWindow.Instance.Visible)
-                SuggestionWindow.Instance.CloseWindow(document);
-
-            document.MoveCursorRight();
-        }
-
-        private void HandleLeftArrow(BloopDocument document)
-        {
-            if (SuggestionWindow.Instance.Visible)
-                SuggestionWindow.Instance.CloseWindow(document);
-
-            document.MoveCursorLeft();
-        }
-
-        private void CompileDocument(BloopDocument document)
-        {
-            if (SuggestionWindow.Instance.Visible)
-                SuggestionWindow.Instance.CloseWindow(document);
-
-            var syntaxTree = SyntaxTree.Parse(document.ToString());
-            _compilation.Compile(syntaxTree);
-        }
-
-        private void HandleTyping(BloopDocument document, string text)
-        {
-            document.AddText(text);
-            if (text == "(")
+            var rect = new Rect()
             {
-                document.AddText(")");
-            }
-            else if (text == "\"")
-            {
-                document.AddText("\"");
-            }
-            else if (text == "{")
-            {
-                document.AddText("}");
-            }
-            else
-            {
-                if (SuggestionWindow.Instance.Visible)
-                    SuggestionWindow.Instance.CloseWindow(document);
+                X = (Console.BufferWidth - 10) / 2,
+                Y = 0,
+                Width = 10,
+                Height = 1
+            };
 
-                SuggestText();
-                return;
-            }
+            var builder = ImmutableArray.CreateBuilder<CharInfo>();
 
-            document.MoveCursorLeft();
+            builder.AddRange(CharInfo.FromText("▶", ConsoleColor.Green));
+            builder.AddRange(CharInfo.FromText(" Run (", ConsoleColor.White));
+            builder.AddRange(CharInfo.FromText("F5", ConsoleColor.Yellow));
+            builder.AddRange(CharInfo.FromText(")", ConsoleColor.White));
+
+            ConsoleManager.Write(builder.ToImmutable(), rect);
         }
 
-        private void SuggestText()
+        private void RenderStatusBar()
         {
-            var cursorLeft = Console.CursorLeft;
+            var rect = new Rect()
+            {
+                X = 1,
+                Y = Console.BufferHeight - 1,
+                Width = 13,
+                Height = 1
+            };
 
-            _suggestionGenerator.Suggest();
-            if (_suggestedText == null)
-                return;
+            var builder = ImmutableArray.CreateBuilder<CharInfo>();
 
-            Console.CursorVisible = false;
+            builder.AddRange(CharInfo.FromText("Help (", ConsoleColor.White));
+            builder.AddRange(CharInfo.FromText("Ctrl", ConsoleColor.Yellow));
+            builder.AddRange(CharInfo.FromText("+", ConsoleColor.White));
+            builder.AddRange(CharInfo.FromText("H", ConsoleColor.Yellow));
+            builder.AddRange(CharInfo.FromText(")", ConsoleColor.White));
 
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write(_suggestedText);
-            Console.ResetColor();
-
-            Console.CursorLeft = cursorLeft;
-            Console.CursorVisible = true;
-        }*/
+            ConsoleManager.Write(builder.ToImmutable(), rect);
+        }
     }
 }

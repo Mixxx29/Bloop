@@ -10,7 +10,7 @@ internal class Program
     {
         Settings.LoadSettings();
 
-        var editor = new BloopEditor2();
+        var editor = new BloopEditor();
         editor.Run();
     }
 }

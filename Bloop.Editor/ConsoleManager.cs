@@ -17,8 +17,17 @@ namespace Bloop.Editor
             ConsoleWrite(data.ToArray(), ref rect);
         }
 
+        public static bool IsControlDown()
+        {
+            Console.Write(GetControlState());
+            return GetControlState() == 1 ? true : false;
+        }
+
         [DllImport("ConsoleManager.dll")]
         private static extern int ConsoleWrite(CharInfo[] data, ref Rect rect);
+
+        [DllImport("ConsoleManager.dll")]
+        private static extern int GetControlState();
     }
 
     [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]

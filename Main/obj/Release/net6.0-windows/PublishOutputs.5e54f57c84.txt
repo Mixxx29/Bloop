@@ -1,7 +1,6 @@
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\publish\BloopIDE.exe
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\publish\Configuration\editor-settings.json
-C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\publish\Font\Cascadia.ttf
-C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\publish\Font\CascadiaCode.ttf
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\publish\Font\CascadiaMono.ttf
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\publish\BloopIDE.dll
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\publish\BloopIDE.deps.json
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Release\net6.0-windows\publish\BloopIDE.runtimeconfig.json

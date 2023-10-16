@@ -19,6 +19,7 @@ namespace Bloop.Editor.Document
         public string Name { get; }
 
         public List<DocumentLine> Lines => _lines;
+        public int LinesCount => _lines.Count;
 
         public delegate void DocumentChangedHandler(int lineIndex);
         public event DocumentChangedHandler? DocumentChanged;
