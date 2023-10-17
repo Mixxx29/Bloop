@@ -8,6 +8,7 @@ namespace Bloop.Editor.Document
     {
         private readonly BloopDocument _document;
         private readonly WindowFrame _frame;
+        private readonly ScrollBarUI _scrollBar;
         private readonly int _offset = 6;
 
         private int _lineOffset;
@@ -17,12 +18,14 @@ namespace Bloop.Editor.Document
             _document = document;
             _document.Subscribe(this);
             _frame = frame;
+
+            _scrollBar = new ScrollBarUI(_frame);
         }
 
         public int Offset => _offset;
         public int LineOffset => _lineOffset;
 
-        public int ViewportWidth => _frame.Width - 4;
+        public int ViewportWidth => _frame.Width - 6;
         public int ViewportHeight => _frame.Height - 4;
         public int VisibleLinesCount => Math.Min(_document.LinesCount, ViewportHeight);
 
@@ -58,18 +61,19 @@ namespace Bloop.Editor.Document
 
             var builder = ImmutableArray.CreateBuilder<CharInfo>();
             DrawLines(_lineOffset, builder);
-            
+
             if (VisibleLinesCount < ViewportHeight)
             {
                 builder.AddRange(
                     CharInfo.FromText(
-                        new string(' ', ViewportWidth * (ViewportHeight - VisibleLinesCount)), 
+                        new string(' ', ViewportWidth * (ViewportHeight - VisibleLinesCount)),
                         ConsoleColor.White
                     )
                 );
             }
 
             ConsoleManager.Write(builder.ToImmutable(), rect);
+            UpdateScrollBar();
         }
 
         private void UpdateLineOffset()
@@ -141,6 +145,13 @@ namespace Bloop.Editor.Document
                 : ConsoleColor.DarkGray;
 
             builder.AddRange(CharInfo.FromText(token.Text, color));
+        }
+
+        private void UpdateScrollBar()
+        {
+            var scrollBarOffset = (float)_lineOffset / _document.LinesCount;
+            var scrollBarLength = (float)VisibleLinesCount / _document.LinesCount;
+            _scrollBar.Update(scrollBarOffset, scrollBarLength);
         }
 
         public bool ScrollUp()

@@ -46,7 +46,7 @@ namespace Bloop.Editor.Window
             RenderStatusBar();
 
             var targetCursorLeft = _lastCharIndex + _frame.Left + _paddingLeft + _documentRenderer.Offset;
-            //_cursor.MoveRight(targetCursorLeft - _cursor.Left);
+            _cursor.MoveRight(targetCursorLeft - _cursor.Left);
         }
 
         public void HandleKey(ConsoleKeyInfo keyInfo)

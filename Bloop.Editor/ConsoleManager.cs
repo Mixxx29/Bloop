@@ -17,17 +17,8 @@ namespace Bloop.Editor
             ConsoleWrite(data.ToArray(), ref rect);
         }
 
-        public static bool IsControlDown()
-        {
-            Console.Write(GetControlState());
-            return GetControlState() == 1 ? true : false;
-        }
-
         [DllImport("ConsoleManager.dll")]
         private static extern int ConsoleWrite(CharInfo[] data, ref Rect rect);
-
-        [DllImport("ConsoleManager.dll")]
-        private static extern int GetControlState();
     }
 
     [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Unicode)]
@@ -42,13 +33,14 @@ namespace Bloop.Editor
         [FieldOffset(2)]
         public ushort Attributes;
 
-        public static CharInfo[] FromText(string text, ConsoleColor color)
+        public static CharInfo[] FromText(string text, ConsoleColor foreground = ConsoleColor.White, ConsoleColor background = ConsoleColor.Black)
         {
             CharInfo[] chars = new CharInfo[text.Length];
             for (var i = 0; i < chars.Length; i++)
             {
                 chars[i].UnicodeChar = text[i];
-                chars[i].Attributes = Convert.ToByte(color);
+                chars[i].Attributes = (byte)(Convert.ToByte(foreground) | 
+                                             Convert.ToByte(background) << 4);
             }
 
             return chars;
