@@ -42,25 +42,27 @@ namespace Bloop.Editor
 
             var builder = ImmutableArray.CreateBuilder<CharInfo>();
 
+            var foregroundColor = _frame.InFocus ? ConsoleColor.White : ConsoleColor.DarkGray;
+            var backgroundColor = ConsoleColor.Black;
             var barStart = _offset * Height;
             var barEnd = (_offset + _length) * Height;
             for (var i = 0; i < Height; i++)
             {
-                if (i < barStart)
+                if (i < barStart && _length < 1.0f)
                 {
                     var value = 1.0f - Math.Min(barStart - i, 1.0f);
-                    builder.Add(GetGraphics(value, ConsoleColor.White, ConsoleColor.Black));
+                    builder.Add(GetGraphics(value, foregroundColor, backgroundColor));
                     continue;
                 }
 
-                if (i < barEnd)
+                if (i < barEnd && _length < 1.0f)
                 {
                     var value = 1.0f - Math.Min(barEnd - i, 1.0f);
-                    builder.Add(GetGraphics(value, ConsoleColor.Black, ConsoleColor.White));
+                    builder.Add(GetGraphics(value, backgroundColor, foregroundColor));
                     continue;
                 }
 
-                builder.AddRange(CharInfo.FromText(" "));
+                builder.AddRange(CharInfo.FromText(" ", foregroundColor, backgroundColor));
             }
 
             ConsoleManager.Write(builder.ToImmutable(), rect);

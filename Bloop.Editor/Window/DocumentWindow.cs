@@ -124,7 +124,6 @@ namespace Bloop.Editor.Window
             {
                 if (CurrentLineIndex == 0)
                 {
-                    _documentRenderer.ScrollDown();
                     return;
                 }
 
@@ -133,7 +132,11 @@ namespace Bloop.Editor.Window
 
                 _document.DeleteCharacter(CurrentLineIndex, CurrentCharIndex - 1);
 
-                if (!IsAtTop && !_documentRenderer.IsAtBottom)
+                if (IsAtTop)
+                {
+                    _documentRenderer.ScrollDown();
+                }
+                else if (!IsAtBottom && !_documentRenderer.IsAtBottom)
                 {
                     _cursor.MoveUp();
                 }
