@@ -136,7 +136,7 @@ namespace Bloop.Editor.Window
                 {
                     _documentRenderer.ScrollDown();
                 }
-                else if (!IsAtBottom && !_documentRenderer.IsAtBottom)
+                else if (!(IsAtBottom && _documentRenderer.IsAtBottom))
                 {
                     _cursor.MoveUp();
                 }
