@@ -1,12 +1,10 @@
-﻿
-
-using Bloop.Editor.Document;
-using Bloop.Editor.Configuration;
+﻿using Bloop.Editor.Configuration;
 using Bloop.Editor.Window;
-using Bloop.Editor;
 using System.Collections.Immutable;
+using Bloop.Editor.Popup;
+using Bloop.Editor.Model;
 
-namespace Bloop
+namespace Bloop.Editor
 {
     public class BloopEditor
     {
@@ -17,29 +15,37 @@ namespace Bloop
         private DocumentWindow _documentWindow;
         private ProjectWindow _projectWindow;
 
-        public BloopEditor()
+        private HelpPopupWindow? _popoup;
+
+        public BloopEditor(string projectPath)
         {
+            LoadProject(projectPath);
+        }
+
+        private void LoadProject(string projectPath)
+        {
+            // Load project
+            var projectInfo = new FileInfo(projectPath);
+            var project = new BloopProject(projectInfo.Name.Split(".")[0], projectInfo.Directory.FullName);
             var projectWindowFrame = new WindowFrame(
-                "DemoProject",
+                project.Name,
                 "Ctrl+P",
                 0,
                 0,
                 0.3f,
                 1.0f
             );
-            _projectWindow = new ProjectWindow(projectWindowFrame);
-
-            var document = new BloopDocument();
+            _projectWindow = new ProjectWindow(project, projectWindowFrame);
 
             var documentWindowFrame = new WindowFrame(
-                document.Name,
+                project.FirstDocument().Name,
                 "Ctrl+E",
                 0.3f,
                 0,
                 0.7f,
                 1.0f
             );
-            _documentWindow = new DocumentWindow(document, documentWindowFrame);
+            _documentWindow = new DocumentWindow(project.FirstDocument(), documentWindowFrame);
 
             _focusedWindow = _documentWindow;
             _focusedWindow.SetFocus(true);
@@ -98,6 +104,14 @@ namespace Bloop
                 case ConsoleKey.P:
                     HandlePKey(key);
                     break;
+
+                case ConsoleKey.H:
+                    HandleHKey(key);
+                    break;
+
+                case ConsoleKey.S:
+                    HandleSKey(key);
+                    break;
             }
 
             _focusedWindow?.HandleKey(key);
@@ -105,6 +119,13 @@ namespace Bloop
 
         private void HandleEscapeKey()
         {
+            if (_popoup != null)
+            {
+                _popoup.Remove();
+                _popoup = null;
+                return;
+            }
+
             _processing = false;
         }
 
@@ -141,6 +162,21 @@ namespace Bloop
             {
                 SetFocusedWindow(_projectWindow);
                 Console.CursorVisible = false;
+            }
+        }
+
+        private void HandleHKey(ConsoleKeyInfo key)
+        {
+            _popoup?.Remove();
+            _popoup = new HelpPopupWindow(0, 5, 27, Console.BufferHeight - 5);
+            _popoup.Render();
+        }
+
+        private void HandleSKey(ConsoleKeyInfo key)
+        {
+            if (key.Modifiers == ConsoleModifiers.Control)
+            {
+                _documentWindow.SaveDocument();
             }
         }
 

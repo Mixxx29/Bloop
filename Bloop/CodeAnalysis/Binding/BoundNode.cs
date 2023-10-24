@@ -88,8 +88,6 @@ namespace Bloop.CodeAnalysis.Binding
                 Console.ResetColor();
             }
 
-
-
             writer.WriteLine();
 
             indent += isLast ? "   " : "│  ";

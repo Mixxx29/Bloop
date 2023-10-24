@@ -1,0 +1,17 @@
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Debug\net6.0-windows\Configuration\editor-settings.json
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Debug\net6.0-windows\Font\CascadiaMono.ttf
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Debug\net6.0-windows\Bloop.Editor.deps.json
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Debug\net6.0-windows\Bloop.Editor.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Debug\net6.0-windows\Bloop.Editor.pdb
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Debug\net6.0-windows\Bloop.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\bin\Debug\net6.0-windows\Bloop.pdb
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\Bloop.Editor.csproj.AssemblyReference.cache
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\Bloop.Editor.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\Bloop.Editor.AssemblyInfoInputs.cache
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\Bloop.Editor.AssemblyInfo.cs
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\Bloop.Editor.csproj.CoreCompileInputs.cache
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\Bloop.Editor.csproj.CopyComplete
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\Bloop.Editor.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\refint\Bloop.Editor.dll
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\Bloop.Editor.pdb
+C:\Users\mihaj\source\repos\Bloop\Bloop.Editor\obj\Debug\net6.0-windows\ref\Bloop.Editor.dll

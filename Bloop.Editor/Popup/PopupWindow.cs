@@ -9,13 +9,6 @@ namespace Bloop.Editor.Popup
     internal interface PopupWindow
     {
         void Render();
-    }
-
-    internal class HelpPopup : PopupWindow
-    {
-        public void Render()
-        {
-            
-        }
+        void Remove();
     }
 }

@@ -43,6 +43,7 @@ namespace Bloop.Editor.Configuration
 
         public static void LoadSettings()
         {
+            ConsoleManager.Initialize();
             SetFullscreen();
             LoadTitle();
             LoadFont();

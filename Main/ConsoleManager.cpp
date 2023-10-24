@@ -5,6 +5,23 @@
 
 using namespace std;
 
+extern "C" __declspec(dllexport) int InitializeConsole()
+{
+    HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD mode;
+
+    // Get the current input mode
+    GetConsoleMode(hConsole, &mode);
+
+    // Disable "Quick Edit" mode by clearing the ENABLE_QUICK_EDIT_MODE flag
+    mode &= ~(ENABLE_QUICK_EDIT_MODE | ENABLE_PROCESSED_INPUT);
+
+    // Set the modified input mode
+    SetConsoleMode(hConsole, mode);
+
+    return 0;
+}
+
 extern "C" __declspec(dllexport) int SetupConsoleFontSize(int size)
 {
     const wchar_t* fontFilePath = L"./Font/CascadiaMono.ttf";
@@ -68,47 +85,27 @@ extern "C" __declspec(dllexport) int ConsoleWrite(const CHAR_INFO* data, Rect& r
     return 0;
 }
 
-extern "C" __declspec(dllexport) void DrawVerticalLines()
+extern "C" __declspec(dllexport) CHAR_INFO* ReadChunk(Rect &rect)
 {
-    // Get the handle to the standard output console
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    // Get console screen buffer information
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    COORD size =
+    {
+        rect.Width,
+        rect.Height
+    };
 
-    // Get the dimensions of the console buffer
-    COORD bufferSize = { 1, csbi.dwSize.Y };
+    SMALL_RECT readRegion =
+    {
+        rect.X,
+        rect.Y,
+        rect.X + rect.Width - 1,
+        rect.Y + rect.Height - 1
+    };
 
-    // Create a buffer for the '│' character
-    CHAR_INFO* buffer = new CHAR_INFO[bufferSize.Y];
+    CHAR_INFO* data = new CHAR_INFO[rect.Width * rect.Height];
 
-    // Character info for drawing '│'
-    for (int i = 0; i < bufferSize.Y; i++) {
-        buffer[i].Char.UnicodeChar = L'│';
-        buffer[i].Attributes = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE; // Character color attributes
-    }
+    ReadConsoleOutputW(hConsole, data, size, { 0, 0 }, &readRegion);
 
-    // Define a write region to draw the vertical lines on the first column
-    SMALL_RECT writeRegionFirst;
-    writeRegionFirst.Left = 0; // First column
-    writeRegionFirst.Top = 0; // Top row
-    writeRegionFirst.Right = 0; // First column
-    writeRegionFirst.Bottom = bufferSize.Y - 1; // Bottom row
-
-    // Define a write region to draw the vertical lines on the last column
-    SMALL_RECT writeRegionLast;
-    writeRegionLast.Left = csbi.dwSize.X - 1; // Last column
-    writeRegionLast.Top = 0; // Top row
-    writeRegionLast.Right = csbi.dwSize.X - 1; // Last column
-    writeRegionLast.Bottom = bufferSize.Y - 1; // Bottom row
-
-    SetConsoleOutputCP(CP_UTF8);
-
-    // Write the buffer to the console for the first and last columns
-    WriteConsoleOutputW(hConsole, buffer, bufferSize, { 0, 0 }, &writeRegionFirst);
-    WriteConsoleOutputW(hConsole, buffer, bufferSize, { 0, 0 }, &writeRegionLast);
-
-    // Clean up
-    delete[] buffer;
+    return data;
 }

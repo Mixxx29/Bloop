@@ -1,6 +1,8 @@
-﻿using Bloop.Editor.Document;
+﻿using Bloop.Editor.Model;
+using Bloop.Editor.View;
 using System.Collections.Immutable;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Bloop.Editor.Window
 {
@@ -261,6 +263,11 @@ namespace Bloop.Editor.Window
         {
             _frame.SetFocus(focus);
             _documentRenderer.Render();
+        }
+
+        internal void SaveDocument()
+        {
+            _document.Save();
         }
     }
 }

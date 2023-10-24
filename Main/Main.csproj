@@ -11,7 +11,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="bloop.ico" />
+    <None Remove="bloop-file.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="bloop-file.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="bloop.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WindowsAPICodePack" Version="7.0.4" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,7 +2,7 @@
 using Bloop.CodeAnalysis;
 using System.Collections.Specialized;
 using System.Text;
-using Bloop.Editor.Document;
+using Bloop.Editor.Model;
 
 namespace Bloop.Editor
 {

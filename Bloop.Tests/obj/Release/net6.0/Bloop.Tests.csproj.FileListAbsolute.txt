@@ -1,6 +1,0 @@
-C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\bin\Release\net6.0\CoverletSourceRootsMapping
-C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Release\net6.0\Bloop.Tests.csproj.AssemblyReference.cache
-C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Release\net6.0\Bloop.Tests.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Release\net6.0\Bloop.Tests.AssemblyInfoInputs.cache
-C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Release\net6.0\Bloop.Tests.AssemblyInfo.cs
-C:\Users\mihaj\source\repos\Bloop\Bloop.Tests\obj\Release\net6.0\Bloop.Tests.csproj.CoreCompileInputs.cache

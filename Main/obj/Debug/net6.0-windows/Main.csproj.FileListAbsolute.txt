@@ -32,3 +32,10 @@ C:\Users\mihaj\source\repos\Bloop\Main\obj\Debug\net6.0-windows\BloopIDE.pdb
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Debug\net6.0-windows\Main.genruntimeconfig.cache
 C:\Users\mihaj\source\repos\Bloop\Main\obj\Debug\net6.0-windows\ref\BloopIDE.dll
 C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\Font\CascadiaMono.ttf
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\Microsoft.WindowsAPICodePack.Core.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\Microsoft.WindowsAPICodePack.ExtendedLinguisticServices.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\Microsoft.WindowsAPICodePack.Sensors.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\Microsoft.WindowsAPICodePack.Shell.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\Microsoft.WindowsAPICodePack.ShellExtensions.dll
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\bloop.ico
+C:\Users\mihaj\source\repos\Bloop\Main\bin\Debug\net6.0-windows\bloop-file.ico
