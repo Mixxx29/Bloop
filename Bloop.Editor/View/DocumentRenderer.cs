@@ -7,23 +7,29 @@ namespace Bloop.Editor.View
 {
     internal class DocumentRenderer : DocumentSubscriber
     {
-        private readonly BloopDocument _document;
         private readonly WindowFrame _frame;
         private readonly ScrollBarUI _scrollBar;
         private readonly int _offset = 6;
 
+        private BloopDocument _document;
+        private WindowCursor _cursor;
+
         private int _lineOffset;
 
-        public DocumentRenderer(BloopDocument document, WindowFrame frame)
+        public DocumentRenderer(BloopDocument document, WindowFrame frame, int cursorStartLeft, int cursorStartTop)
         {
             _document = document;
             _document.Subscribe(this);
             _frame = frame;
 
             _scrollBar = new ScrollBarUI(_frame);
+            _cursor = new WindowCursor(cursorStartLeft, cursorStartTop);
         }
 
-        public int Offset => _offset;
+        public BloopDocument Document => _document;
+
+        public static int Offset => 6;
+
         public int LineOffset => _lineOffset;
 
         public int ViewportWidth => _frame.Width - 6;
@@ -31,6 +37,8 @@ namespace Bloop.Editor.View
         public int VisibleLinesCount => Math.Min(_document.LinesCount, ViewportHeight);
 
         public bool IsAtBottom => _lineOffset + ViewportHeight == _document.LinesCount;
+
+        public WindowCursor Cursor => _cursor;
 
         public void OnDocumentChanged(int lineIndex)
         {
@@ -43,9 +51,20 @@ namespace Bloop.Editor.View
             RenderDocument(_lineOffset);
         }
 
+        public void SetDocument(BloopDocument document)
+        {
+            _document.Unsubscribe(this);
+            _document = document;
+            _document.Subscribe(this);
+
+            _lineOffset = 0;
+            RenderDocument(_lineOffset);
+        }
+
         public void Render()
         {
             RenderDocument(_lineOffset);
+            _cursor.Reset();
         }
 
         private void RenderDocument(int lineIndex)

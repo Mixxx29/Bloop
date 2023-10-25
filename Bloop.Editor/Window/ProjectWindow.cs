@@ -12,13 +12,14 @@ namespace Bloop.Editor.Window
     {
         private readonly BloopProject _project;
         private readonly WindowFrame _frame;
+        private readonly BloopEditor _editor;
         private readonly ProjectRenderer _renderer;
 
-        public ProjectWindow(BloopProject project, WindowFrame frame)
+        public ProjectWindow(BloopProject project, WindowFrame frame, BloopEditor bloopEditor)
         {
             _project = project;
             _frame = frame;
-
+            _editor = bloopEditor;
             _renderer = new ProjectRenderer(_project, _frame);
         }
 
@@ -47,6 +48,10 @@ namespace Bloop.Editor.Window
                 folder.Toggle();
                 _renderer.Render();
             }
+            else if (_renderer.Selected is BloopDocument document)
+            {
+                _editor.DisplayDocument(document);
+            }
         }
 
         private void HandleUpArrow()
@@ -69,6 +74,9 @@ namespace Bloop.Editor.Window
         {
             _frame.SetFocus(focus);
             _renderer.Render();
+
+            if (focus)
+                Console.CursorVisible = false;
         }
     }
 }

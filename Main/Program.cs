@@ -1,5 +1,4 @@
 ﻿using Bloop.Editor.Configuration;
-
 using Bloop.Editor;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;

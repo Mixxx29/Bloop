@@ -9,9 +9,9 @@ namespace Bloop.Editor.Window
     internal class DocumentWindow : BloopWindow
     {
         private readonly WindowFrame _frame;
-        private readonly BloopDocument _document;
-        private readonly DocumentRenderer _documentRenderer;
-        private readonly WindowCursor _cursor;
+
+        private List<DocumentRenderer> _renderers;
+        private DocumentRenderer _currentRenderer;
 
         private readonly int _paddingLeft = 2;
         private readonly int _paddingTop = 2;
@@ -20,35 +20,59 @@ namespace Bloop.Editor.Window
 
         private int _lastCharIndex;
 
-        private bool _ctrlDown;
-
         public DocumentWindow(BloopDocument document, WindowFrame frame)
         {
             _frame = frame;
 
-            _document = document;
-            _documentRenderer = new DocumentRenderer(_document, _frame);
-
-            _cursor = new WindowCursor(
-                _frame.Left + _paddingLeft + _documentRenderer.Offset, 
-                _frame.Top + _paddingTop
-            );
+            _renderers = new List<DocumentRenderer>();
+            DisplayDocument(document);
         }
 
-        private int CurrentLineIndex => _cursor.Top - _frame.Top - _paddingTop + _documentRenderer.LineOffset;
-        private int CurrentCharIndex => _cursor.Left - _frame.Left - _paddingLeft - _documentRenderer.Offset;
+        private int CusrsorStartLeft => _frame.Left + _paddingLeft + DocumentRenderer.Offset;
+        private int CusrsorStartTop => _frame.Top + _paddingTop;
 
-        private bool IsAtBottom => _cursor.Top == _frame.Top + _frame.Height - 3;
-        private bool IsAtTop => _cursor.Top == _frame.Top + 2;
+        private BloopDocument Document => _currentRenderer.Document;
+        private WindowCursor Cursor => _currentRenderer.Cursor;
+
+        private int CurrentLineIndex => Cursor.Top - _frame.Top - _paddingTop + _currentRenderer.LineOffset;
+        private int CurrentCharIndex => Cursor.Left - _frame.Left - _paddingLeft - DocumentRenderer.Offset;
+
+        private bool IsAtBottom => Cursor.Top == _frame.Top + _frame.Height - 3;
+        private bool IsAtTop => Cursor.Top == _frame.Top + 2;
+
+        public void DisplayDocument(BloopDocument document)
+        {
+            _frame.SetTitle(document.Name);
+            _currentRenderer = GetRenderer(document);
+            _currentRenderer.Render();
+        }
+
+        private DocumentRenderer GetRenderer(BloopDocument document)
+        {
+            foreach (var renderer in _renderers)
+            {
+                if (renderer.Document == document)
+                    return renderer;
+            }
+
+            return CreateRenderer(document);
+        }
+
+        private DocumentRenderer CreateRenderer(BloopDocument document)
+        {
+            var newRenderer = new DocumentRenderer(document, _frame, CusrsorStartLeft, CusrsorStartTop);
+            _renderers.Add(newRenderer);
+            return newRenderer;
+        }
 
         public void Render()
         {
             _frame.Render();
-            _documentRenderer.Render();
+            _currentRenderer.Render();
             RenderStatusBar();
 
-            var targetCursorLeft = _lastCharIndex + _frame.Left + _paddingLeft + _documentRenderer.Offset;
-            _cursor.MoveRight(targetCursorLeft - _cursor.Left);
+            var targetCursorLeft = _lastCharIndex + _frame.Left + _paddingLeft + DocumentRenderer.Offset;
+            Cursor.MoveRight(targetCursorLeft - Cursor.Left);
         }
 
         public void HandleKey(ConsoleKeyInfo keyInfo)
@@ -106,17 +130,17 @@ namespace Bloop.Editor.Window
 
         private void HandleEnter()
         {
-            _document.NewLine(CurrentLineIndex, CurrentCharIndex);
-            _cursor.MoveLeft(CurrentCharIndex);
+            Document.NewLine(CurrentLineIndex, CurrentCharIndex);
+            Cursor.MoveLeft(CurrentCharIndex);
             _lastCharIndex = CurrentCharIndex;
             
             if (IsAtBottom)
             {
-                _documentRenderer.ScrollUp();
+                _currentRenderer.ScrollUp();
             }
             else
             {
-                _cursor.MoveDown();
+                Cursor.MoveDown();
             }
         }
 
@@ -129,26 +153,26 @@ namespace Bloop.Editor.Window
                     return;
                 }
 
-                var lineLength = _document.Lines[CurrentLineIndex - 1].Length;
+                var lineLength = Document.Lines[CurrentLineIndex - 1].Length;
                 var amount = lineLength - CurrentCharIndex;
 
-                _document.DeleteCharacter(CurrentLineIndex, CurrentCharIndex - 1);
+                Document.DeleteCharacter(CurrentLineIndex, CurrentCharIndex - 1);
 
                 if (IsAtTop)
                 {
-                    _documentRenderer.ScrollDown();
+                    _currentRenderer.ScrollDown();
                 }
-                else if (!(IsAtBottom && _documentRenderer.IsAtBottom))
+                else if (!(IsAtBottom && _currentRenderer.IsAtBottom))
                 {
-                    _cursor.MoveUp();
+                    Cursor.MoveUp();
                 }
 
-                _cursor.MoveRight(amount);
+                Cursor.MoveRight(amount);
                 return;
             }
 
-            _document.DeleteCharacter(CurrentLineIndex, CurrentCharIndex - 1);
-            _cursor.MoveLeft();
+            Document.DeleteCharacter(CurrentLineIndex, CurrentCharIndex - 1);
+            Cursor.MoveLeft();
             _lastCharIndex = CurrentCharIndex;
             return;
         }
@@ -157,37 +181,37 @@ namespace Bloop.Editor.Window
         {
             if (IsAtTop)
             {
-                _documentRenderer.ScrollDown();
+                _currentRenderer.ScrollDown();
                 return;
             }
 
-            _cursor.MoveUp();
+            Cursor.MoveUp();
             AlignCursor();
         }
 
         private void HandleDownArrow()
         {
-            if (CurrentLineIndex == _document.Lines.Count - 1 || IsAtBottom)
+            if (CurrentLineIndex == Document.Lines.Count - 1 || IsAtBottom)
             {
-                _documentRenderer.ScrollUp();
+                _currentRenderer.ScrollUp();
                 return;
             }
 
-            _cursor.MoveDown();
+            Cursor.MoveDown();
             AlignCursor();
         }
 
         private void AlignCursor()
         {
-            var currentLineLength = _document.Lines[CurrentLineIndex].Length;
+            var currentLineLength = Document.Lines[CurrentLineIndex].Length;
 
             if (currentLineLength < _lastCharIndex)
             {
-                _cursor.MoveLeft(CurrentCharIndex - currentLineLength);
+                Cursor.MoveLeft(CurrentCharIndex - currentLineLength);
             }
             else
             {
-                _cursor.MoveLeft(CurrentCharIndex - _lastCharIndex);
+                Cursor.MoveLeft(CurrentCharIndex - _lastCharIndex);
             }
         }
 
@@ -196,34 +220,34 @@ namespace Bloop.Editor.Window
             if (CurrentCharIndex == 0)
                 return;
 
-            _cursor.MoveLeft();
+            Cursor.MoveLeft();
             _lastCharIndex = CurrentCharIndex;
         }
 
         private void HandleRightArrow()
         {
-            if (CurrentCharIndex == _document.Lines[CurrentLineIndex].Length)
+            if (CurrentCharIndex == Document.Lines[CurrentLineIndex].Length)
                 return;
 
-            _cursor.MoveRight();
+            Cursor.MoveRight();
             _lastCharIndex = CurrentCharIndex;
         }
 
         private void HandlePageUp()
         {
-            if (!_documentRenderer.ScrollDown())
+            if (!_currentRenderer.ScrollDown())
                 return;
 
-            if (!IsAtBottom) _cursor.MoveDown();
+            if (!IsAtBottom) Cursor.MoveDown();
             AlignCursor();
         }
 
         private void HandlePageDown()
         {
-            if (!_documentRenderer.ScrollUp())
+            if (!_currentRenderer.ScrollUp())
                 return;
 
-            if (!IsAtTop) _cursor.MoveUp();
+            if (!IsAtTop) Cursor.MoveUp();
             AlignCursor();
         }
 
@@ -231,8 +255,8 @@ namespace Bloop.Editor.Window
         {
             if (char.IsLetterOrDigit(keyInfo.KeyChar) || _allowedChars.Contains(keyInfo.KeyChar))
             {
-                _document.AddText(CurrentLineIndex, CurrentCharIndex, keyInfo.KeyChar.ToString());
-                _cursor.MoveRight();
+                Document.AddText(CurrentLineIndex, CurrentCharIndex, keyInfo.KeyChar.ToString());
+                Cursor.MoveRight();
                 _lastCharIndex = CurrentCharIndex;
                 return;
             }
@@ -262,12 +286,15 @@ namespace Bloop.Editor.Window
         public void SetFocus(bool focus)
         {
             _frame.SetFocus(focus);
-            _documentRenderer.Render();
+            _currentRenderer.Render();
+
+            if (focus)
+                Console.CursorVisible = true;
         }
 
         internal void SaveDocument()
         {
-            _document.Save();
+            Document.Save();
         }
     }
 }

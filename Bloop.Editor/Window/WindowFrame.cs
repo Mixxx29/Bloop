@@ -29,7 +29,7 @@ namespace Bloop.Editor.Window
         }
 
         public bool InFocus => _inFocus;
-        public string Title { get; }
+        public string Title { get; private set; }
         public string Command { get; }
         public int Left => (int)(_left * Console.BufferWidth);
         public int Top => (int)(_top * Console.BufferHeight + 1);
@@ -148,6 +148,12 @@ namespace Bloop.Editor.Window
 
             var data = ImmutableArray.Create(CharInfo.FromText(text, color));
             ConsoleManager.Write(data, rect);
+        }
+
+        internal void SetTitle(string name)
+        {
+            Title = name;
+            Render();
         }
     }
 }

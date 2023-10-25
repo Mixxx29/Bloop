@@ -35,7 +35,7 @@ namespace Bloop.Editor
                 0.3f,
                 1.0f
             );
-            _projectWindow = new ProjectWindow(project, projectWindowFrame);
+            _projectWindow = new ProjectWindow(project, projectWindowFrame, this);
 
             var documentWindowFrame = new WindowFrame(
                 project.FirstDocument().Name,
@@ -49,6 +49,12 @@ namespace Bloop.Editor
 
             _focusedWindow = _documentWindow;
             _focusedWindow.SetFocus(true);
+        }
+
+        internal void DisplayDocument(BloopDocument document)
+        {
+            _documentWindow.DisplayDocument(document);
+            SetFocusedWindow(_documentWindow);
         }
 
         public void Run()

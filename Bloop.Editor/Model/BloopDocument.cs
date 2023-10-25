@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Bloop.Editor.Window;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text;
 
@@ -39,6 +40,12 @@ namespace Bloop.Editor.Model
         {
             DocumentChanged += subscriber.OnDocumentChanged;
             LineChanged += subscriber.OnLineChanged;
+        }
+
+        internal void Unsubscribe(DocumentSubscriber subscriber)
+        {
+            DocumentChanged -= subscriber.OnDocumentChanged;
+            LineChanged -= subscriber.OnLineChanged;
         }
 
         public void NewLine(int lineIndex, int charIndex)
