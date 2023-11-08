@@ -15,8 +15,6 @@ namespace Bloop.Editor
         private DocumentWindow _documentWindow;
         private ProjectWindow _projectWindow;
 
-        private HelpPopupWindow? _popoup;
-
         public BloopEditor(string projectPath)
         {
             LoadProject(projectPath);
@@ -45,7 +43,7 @@ namespace Bloop.Editor
                 0.7f,
                 1.0f
             );
-            _documentWindow = new DocumentWindow(project.FirstDocument(), documentWindowFrame);
+            _documentWindow = new DocumentWindow(project.FirstDocument(), documentWindowFrame, this);
 
             _focusedWindow = _documentWindow;
             _focusedWindow.SetFocus(true);
@@ -55,6 +53,7 @@ namespace Bloop.Editor
         {
             _documentWindow.DisplayDocument(document);
             SetFocusedWindow(_documentWindow);
+            RenderStatusBar();
         }
 
         public void Run()
@@ -125,14 +124,7 @@ namespace Bloop.Editor
 
         private void HandleEscapeKey()
         {
-            if (_popoup != null)
-            {
-                _popoup.Remove();
-                _popoup = null;
-                return;
-            }
-
-            _processing = false;
+            
         }
 
         private void HandlePlusKey(ConsoleKeyInfo key)
@@ -173,9 +165,7 @@ namespace Bloop.Editor
 
         private void HandleHKey(ConsoleKeyInfo key)
         {
-            _popoup?.Remove();
-            _popoup = new HelpPopupWindow(0, 5, 27, Console.BufferHeight - 5);
-            _popoup.Render();
+            
         }
 
         private void HandleSKey(ConsoleKeyInfo key)
@@ -239,6 +229,11 @@ namespace Bloop.Editor
             builder.AddRange(CharInfo.FromText(")", ConsoleColor.White));
 
             ConsoleManager.Write(builder.ToImmutable(), rect);
+        }
+
+        public void Quit()
+        {
+            _processing = false;
         }
     }
 }

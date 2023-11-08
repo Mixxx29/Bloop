@@ -16,6 +16,7 @@ namespace Bloop.Editor.View
         private List<BloopModel> _visibleModels;
 
         private int _selectedIndex;
+        private int _contextMenuLeft;
 
         public ProjectRenderer(BloopProject project, WindowFrame frame)
         {
@@ -28,6 +29,8 @@ namespace Bloop.Editor.View
         public int ViewportWidth => _frame.Width - 4;
         public int ViewportHeight => _frame.Height - 4;
         public BloopModel Selected => _visibleModels[_selectedIndex];
+        public int ContextMenuLeft => _contextMenuLeft;
+        public int ContextMenuTop => _frame.Top + 2 + _selectedIndex;
 
         public void MoveUp()
         {
@@ -118,6 +121,9 @@ namespace Bloop.Editor.View
 
                 int count = marker.Length + indent.Length + model.Name.Length + 2;
                 builder.AddRange(CharInfo.FromText(new string(' ', ViewportWidth - count)));
+
+                if (isSelected)
+                    _contextMenuLeft = _frame.Left + count + 2;
             }
 
             if (model != _project)

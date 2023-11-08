@@ -9,7 +9,7 @@ namespace Bloop.Editor.Window
     internal class DocumentWindow : BloopWindow
     {
         private readonly WindowFrame _frame;
-
+        private readonly BloopEditor _editor;
         private List<DocumentRenderer> _renderers;
         private DocumentRenderer _currentRenderer;
 
@@ -20,10 +20,10 @@ namespace Bloop.Editor.Window
 
         private int _lastCharIndex;
 
-        public DocumentWindow(BloopDocument document, WindowFrame frame)
+        public DocumentWindow(BloopDocument document, WindowFrame frame, BloopEditor editor)
         {
             _frame = frame;
-
+            _editor = editor;
             _renderers = new List<DocumentRenderer>();
             DisplayDocument(document);
         }
@@ -125,7 +125,7 @@ namespace Bloop.Editor.Window
 
         private void HandleEscape()
         {
-            
+            _editor.Quit();
         }
 
         private void HandleEnter()

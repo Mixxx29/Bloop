@@ -17,16 +17,43 @@ public class Program
             {
                 path = args[0];
             }
+            else if (args[0].EndsWith(".bloop"))
+            {
+                var file = new FileInfo(args[0]);
+                var directory = file.Directory;
+                path = GetProjectPath(directory);
+            }
             
-            var editor = new BloopEditor(path);
-            editor.Run();
-            return;
+            if (path != null)
+            {
+                var editor = new BloopEditor(path);
+                editor.Run();
+                return;
+            }
         }
 
         //SetDefaultExecutionApp();
 
         var launcher = new BloopLauncher();
         launcher.Run();
+    }
+
+    private static string? GetProjectPath(DirectoryInfo? directory)
+    {
+        if (directory == null || !directory.Exists)
+            return null;
+
+        foreach (var subfile in directory.GetFiles())
+        {
+            if (subfile.FullName.EndsWith(".bproj"))
+                return subfile.FullName;
+        }
+
+        var path = GetProjectPath(directory.Parent);
+        if (path != null)
+            return path;
+
+        return null;
     }
 
     // Constants for the SHCNE_ASSOCCHANGED and SHCNF_IDLIST flags

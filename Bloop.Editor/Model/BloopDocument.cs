@@ -25,6 +25,22 @@ namespace Bloop.Editor.Model
 
         }
 
+        public BloopDocument(FileInfo info) : base(info.Name, info.FullName)
+        {
+            _lines = new List<DocumentLine>();
+
+            if (File.Exists(Filepath))
+            {
+                LoadFile();
+            }
+            else
+            {
+                AddLine("", 0);
+                ToFile();
+            }
+
+        }
+
         public string Filepath => Path + "\\" + Name;
 
         public List<DocumentLine> Lines => _lines;
@@ -97,7 +113,7 @@ namespace Bloop.Editor.Model
             LineChanged?.Invoke(lineIndex, charIndex);
         }
 
-        public void Save()
+        public override void Save()
         {
             ToFile();
         }

@@ -10,7 +10,8 @@
 
         public string Name { get; set; }
         public string Path { get; }
+        public BloopFolder? Parent { get; set; }
 
-        //public abstract void Save();
+        public abstract void Save();
     }
 }

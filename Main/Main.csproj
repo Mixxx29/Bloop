@@ -8,9 +8,11 @@
     <ApplicationIcon>bloop.ico</ApplicationIcon>
     <StartupObject></StartupObject>
     <AssemblyName>BloopIDE</AssemblyName>
+    <ApplicationManifest>bloop.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove=".manifest" />
     <None Remove="bloop-file.ico" />
   </ItemGroup>
 

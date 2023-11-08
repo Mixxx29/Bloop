@@ -24,6 +24,15 @@ namespace Bloop.Editor.Model
             Load();
         }
 
+        public BloopFolder(DirectoryInfo info) : base(info.Name, info.FullName)
+        {
+            _info = info;
+            _folders = new List<BloopFolder>();
+            _documents = new List<BloopDocument>();
+
+            Collapsed = true;
+        }
+
         public bool Collapsed { get; protected set; }
 
         protected void Load()
@@ -37,7 +46,7 @@ namespace Bloop.Editor.Model
             foreach (var subdirectory in _info.GetDirectories())
             {
                 var newFolder = new BloopFolder(subdirectory.Name, subdirectory.FullName);
-                _folders.Add(newFolder);
+                AddChild(newFolder);
             }
         }
 
@@ -49,7 +58,7 @@ namespace Bloop.Editor.Model
                     continue;
 
                 var newDocumemnt = new BloopDocument(file.Name, file.Directory.FullName);
-                _documents.Add(newDocumemnt);
+                AddChild(newDocumemnt);
             }
         }
 
@@ -82,6 +91,57 @@ namespace Bloop.Editor.Model
         internal virtual void Toggle()
         {
             Collapsed = !Collapsed;
+        }
+
+        internal void NewFolder()
+        {
+            var subdirectory = _info.CreateSubdirectory("./NewFolder");
+            AddChild(new BloopFolder(subdirectory));
+            Collapsed = false;
+        }
+
+        internal void NewDocument()
+        {
+            var document = new BloopDocument("NewDocument.bloop", _info.FullName);
+            AddChild(document);
+            Collapsed = false;
+        }
+
+        internal void AddChild(BloopModel child)
+        {
+            if (child is BloopFolder folder)
+            {
+                _folders.Add(folder);
+            }
+            else if (child is BloopDocument document)
+            {
+                _documents.Add(document);
+            }
+
+            child.Parent = this;
+        }
+
+        internal void RemoveChild(BloopModel child)
+        {
+            if (child is BloopFolder folder)
+            {
+                _folders.Remove(folder);
+                var info = new DirectoryInfo(folder.Path);
+                info.Delete(true);
+            }
+            else if (child is BloopDocument document)
+            {
+                _documents.Remove(document);
+                File.SetAttributes(document.Path + "\\" + document.Name, FileAttributes.Normal);
+                File.Delete(document.Path + "\\" + document.Name);
+            }
+
+            child.Parent = null;
+        }
+
+        public override void Save()
+        {
+            
         }
     }
 }
